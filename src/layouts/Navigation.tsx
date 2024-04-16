@@ -6,6 +6,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import Signup from "../screens/Authentication/Signup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UserTab from "../screens/User/UserTab";
+import StaffTab from "../screens/Staff/StaffTab";
+import ReportDetail from "../screens/Staff/ReportDetail";
+import RequestVoucherDetail from "../screens/Staff/RequestVoucherDetail";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -45,6 +48,21 @@ const Navigation = () => {
             name="UserTab"
             component={UserTab}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StaffTab"
+            component={StaffTab}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ReportDetail"
+            component={ReportDetail}
+            options={{ title: "Report Detail", animation: "slide_from_right" }}
+          />
+          <Stack.Screen
+            name="RequestVoucherDetail"
+            component={RequestVoucherDetail}
+            options={{ title: "Voucher Detail", animation: "slide_from_right" }}
           />
         </Stack.Navigator>
       )}

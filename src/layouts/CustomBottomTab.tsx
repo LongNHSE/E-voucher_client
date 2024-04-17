@@ -20,7 +20,8 @@ const CustomBottomTab: React.FC<TabBarProps[]> = (tabBarProps) => {
     <Tab.Navigator
       initialRouteName={tabBarProps[0].route}
       shifting={true}
-      activeColor="#0080FF"
+      activeColor="black"
+      inactiveColor="gray"
       barStyle={{
         borderRadius: 20,
         height: 70,

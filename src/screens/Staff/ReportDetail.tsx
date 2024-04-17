@@ -16,7 +16,7 @@ const ReportDetail = ({ route }: any) => {
     <ScrollView>
       <View className="m-4">
         <View className="mb-2">
-          <Heading className="text-center text-4xl font-extrabold">
+          <Heading className="text-center text-2xl font-extrabold">
             {report.voucherName}
           </Heading>
         </View>

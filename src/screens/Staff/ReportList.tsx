@@ -63,7 +63,7 @@ const ReportList = ({ navigation }: any) => {
   const [filterReport, setFilterReport] = useState("all");
   return (
     <ScrollView className="my-4 mx-4">
-      <Heading fontSize="xl">Recent report</Heading>
+      <Heading fontSize="2xl">Recent report</Heading>
       <Input
         rounded="full"
         marginY={2}

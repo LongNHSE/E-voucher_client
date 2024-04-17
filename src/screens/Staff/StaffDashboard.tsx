@@ -100,7 +100,7 @@ const StaffDashboard = ({ navigation }: any) => {
   const [filterVoucher, setFilterVoucher] = useState("all");
   return (
     <ScrollView className="mt-4 mx-4">
-      <Heading fontSize="xl">Request voucher list</Heading>
+      <Heading fontSize="2xl">Request voucher list</Heading>
       <Input
         rounded="full"
         marginY={2}
@@ -170,7 +170,7 @@ const StaffDashboard = ({ navigation }: any) => {
                       {voucher.status}
                     </Text>
                   </View>
-                  <View className="w-10 h-10 bg-gray-100 rounded-full relative -right-24" />
+                  <View className="w-10 h-10 bg-gray-100 rounded-full absolute -right-5" />
                 </View>
               );
             }}

@@ -43,7 +43,7 @@ const Navigation = () => {
           />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator initialRouteName="UserTab">
+        <Stack.Navigator initialRouteName="StaffTab">
           <Stack.Screen
             name="UserTab"
             component={UserTab}

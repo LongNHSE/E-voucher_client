@@ -6,20 +6,33 @@ import {
   TextInput,
   Button,
   Alert,
+  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { AxiosContext } from "../../context/AxiosContext";
+import { useNavigation } from "@react-navigation/native";
+import Spinner from "../../components/Spinner";
+import { LinearGradient } from "expo-linear-gradient";
+import WaveBackground from "./../../components/WaveBackGround";
 
 const Login = () => {
+  const navigator = useNavigation();
   const [username, setUserName] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const authContext = useContext(AuthContext);
   const { publicAxios } = useContext(AxiosContext);
 
   const onLogin = async () => {
-    console.log(username, password);
+    setLoading(true);
+    if (username === "" || password === "") {
+      Alert.alert("Error", "Please fill all the fields");
+      setLoading(false);
+      return;
+    }
     try {
       const response = await publicAxios.post("/auth/signin", {
         username,
@@ -35,17 +48,20 @@ const Login = () => {
       });
     } catch (error) {
       Alert.alert("Login Failed", error.response.data.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <WaveBackground customStyles={styles.svgCurve}></WaveBackground>
       <Text style={styles.logo}>E-Voucher</Text>
       <View style={styles.form}>
         <TextInput
           style={styles.input}
           placeholder="Username"
-          placeholderTextColor="#fefefe"
+          placeholderTextColor="black"
           keyboardType="default"
           autoCapitalize="none"
           onChangeText={(text) => setUserName(text)}
@@ -55,21 +71,37 @@ const Login = () => {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#fefefe"
+          placeholderTextColor="black"
           secureTextEntry
           onChangeText={(text) => setPassword(text)}
           value={password}
         />
       </View>
-      <Button title="Login" style={styles.button} onPress={() => onLogin()} />
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "green" }]}
+        onPress={() => onLogin()}
+      >
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "blue" }]}
+        onPress={() => navigator.navigate("Signup")}
+      >
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
+      {loading && <Spinner />}
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  svgCurve: {
+    position: "absolute",
+    width: Dimensions.get("window").width,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    marginTop: 5,
     alignItems: "center",
     justifyContent: "flex-start",
     width: "100%",
@@ -85,13 +117,28 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 20,
-    color: "#fff",
+    color: "black",
     paddingBottom: 10,
-    borderBottomColor: "#fff",
+    borderBottomColor: "black",
     borderBottomWidth: 1,
-    marginVertical: 20,
+    marginVertical: 15,
   },
-  button: {},
+  button: {
+    width: "90%",
+    borderRadius: 25,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+    borderWidth: 1,
+    borderColor: "#fff",
+  },
+  buttonText: {
+    fontSize: 20,
+    color: "#fff",
+    textAlign: "center",
+    width: "100%",
+  },
 });
 
 export default Login;

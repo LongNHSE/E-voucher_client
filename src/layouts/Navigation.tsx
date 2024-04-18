@@ -31,7 +31,7 @@ const Navigation = () => {
       });
       console.log(authContext.authState);
       setStatus("success");
-    } catch (error) {
+    } catch (error: Error | any) {
       setStatus("error");
       console.log("error", error.message);
       console.log(`Keychain Error: ${error.message}`);
@@ -60,6 +60,7 @@ const Navigation = () => {
             component={Login}
             headerBackTitleVisible={true}
             options={{
+              headerShown: false,
               title: "",
               animation: "slide_from_right",
             }}
@@ -67,7 +68,11 @@ const Navigation = () => {
           <Stack.Screen
             name="Signup"
             component={Signup}
-            options={{ title: "", animation: "slide_from_right" }}
+            options={{
+              title: "",
+              animation: "slide_from_right",
+              headerShown: false,
+            }}
           />
         </Stack.Navigator>
       ) : (

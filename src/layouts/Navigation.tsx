@@ -12,6 +12,7 @@ import RequestVoucherDetail from "../screens/Staff/RequestVoucherDetail";
 import { AxiosContext } from "../context/AxiosContext";
 import { AuthContext } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
+import Voucher from "../screens/User/Voucher";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -51,7 +52,7 @@ const Navigation = () => {
   }, [loadJWT]);
   return (
     <NavigationContainer>
-      {authContext?.authState?.authenticated === false ? (
+      {authContext?.authState?.authenticated === true ? (
         <Stack.Navigator
           initialRouteName="Login"
           screenOptions={{
@@ -79,7 +80,7 @@ const Navigation = () => {
           />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator initialRouteName="StaffTab">
+        <Stack.Navigator initialRouteName="UserTab">
           <Stack.Screen
             name="UserTab"
             component={UserTab}

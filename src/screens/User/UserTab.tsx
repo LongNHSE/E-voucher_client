@@ -4,6 +4,8 @@ import Voucher from "./Voucher";
 import { AntDesign } from "@expo/vector-icons";
 import CustomBottomTab, { TabBarProps } from "../../layouts/CustomBottomTab";
 import GiftVoucher from "./GiftVoucher";
+import Setting from "../../components/Setting";
+import { Ionicons } from "@expo/vector-icons";
 
 const userTabValue: TabBarProps[] = [
   {
@@ -22,6 +24,15 @@ const userTabValue: TabBarProps[] = [
     tabBarIconProps: {
       iconType: AntDesign,
       iconName: "gift",
+    },
+  },
+  {
+    route: "Setting",
+    component: Setting,
+    tabBarLabel: "Setting",
+    tabBarIconProps: {
+      iconType: Ionicons,
+      iconName: "settings-outline",
     },
   },
 ];

@@ -4,7 +4,6 @@ import Home from "../../src/screens/Home";
 import Login from "../../src/screens/Authentication/Login";
 import { NavigationContainer } from "@react-navigation/native";
 import Signup from "../screens/Authentication/Signup";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import UserTab from "../screens/User/UserTab";
 import StaffTab from "../screens/Staff/StaffTab";
 import ReportDetail from "../screens/Staff/ReportDetail";
@@ -16,13 +15,14 @@ import * as SecureStore from "expo-secure-store";
 const Stack: any = createNativeStackNavigator();
 
 const Navigation = () => {
-  const [token, setToken] = useState<string>("sada");
   const [status, setStatus] = useState<string>("loading");
   const authContext = useContext(AuthContext);
   const loadJWT = useCallback(async () => {
     try {
       const accessToken = await SecureStore.getItemAsync("accessToken");
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      const user = await SecureStore.getItemAsync("user");
+      console.log(accessToken, refreshToken, user);
       const jwt = {
         accessToken,
         refreshToken,
@@ -31,6 +31,7 @@ const Navigation = () => {
         accessToken: jwt.accessToken || null,
         refreshToken: jwt.refreshToken || null,
         authenticated: jwt.accessToken !== null,
+        user: user ? JSON.parse(user) : null,
       });
       console.log(authContext.authState);
       setStatus("success");
@@ -42,6 +43,7 @@ const Navigation = () => {
         accessToken: null,
         refreshToken: null,
         authenticated: false,
+        user: null,
       });
     }
   }, []);
@@ -79,17 +81,23 @@ const Navigation = () => {
           />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator initialRouteName="StaffTab">
-          <Stack.Screen
-            name="UserTab"
-            component={UserTab}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="StaffTab"
-            component={StaffTab}
-            options={{ headerShown: false }}
-          />
+        <Stack.Navigator>
+          {authContext?.authState?.user?.role === "user" ? (
+            <Stack.Screen
+              name="UserTab"
+              component={UserTab}
+              options={{ headerShown: false }}
+            />
+          ) : null}
+
+          {authContext?.authState?.user?.role === "staff" ? (
+            <Stack.Screen
+              name="StaffTab"
+              component={StaffTab}
+              options={{ headerShown: false }}
+            />
+          ) : null}
+
           <Stack.Screen
             name="ReportDetail"
             component={ReportDetail}

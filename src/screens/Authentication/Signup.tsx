@@ -12,7 +12,9 @@ import {
 import { useContext, useRef, useState } from "react";
 import { Button as NativeButton } from "native-base";
 import { useNavigation } from "@react-navigation/native";
+
 import { AxiosContext } from "../../context/AxiosContext";
+
 import { AntDesign } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
@@ -21,31 +23,29 @@ import Spinner from "../../components/Spinner";
 import WaveBackgroundSignUp from "../../components/WaveBackGroundSignUp";
 import DateTimePicker, { Event } from "@react-native-community/datetimepicker";
 import { AuthContext } from "../../context/AuthContext";
+import * as SecureStore from "expo-secure-store";
 const Signup = () => {
   const authContext = useContext(AuthContext);
   const navigation = useNavigation();
   const { publicAxios } = useContext(AxiosContext);
-  const [email, setEmail] = useState("huylong213@gmail.com");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   let input = useRef("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState("signUp");
+  const [step, setStep] = useState("email");
   const [dateOfBirth, setDateOfBirth] = useState<Date>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [firstName, setFirstName] = useState("A");
-  const [lastName, setLastName] = useState("B");
-  const [username, setUsername] = useState("koala");
-  const [password, setPassword] = useState("password123");
-  const [phone, setPhone] = useState("098588533");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
 
   const onChange = (event: Event, selectedDate: Date) => {
     setShowDatePicker(false);
     const currentDate = selectedDate;
     setDateOfBirth(currentDate);
     console.log(currentDate);
-    // if (event.type === "set" || event.type === "dismissed") {
-
-    // }
   };
 
   const handleEmail = async () => {
@@ -93,24 +93,19 @@ const Signup = () => {
         dateOfBirth: dateOfBirth,
         phone: phone,
       });
-      console.log(response.data.code);
-      if (response.data.code === 11000) {
-        Alert.alert("Error", response.data);
-        return;
-      }
       Alert.alert("Success", "Account created successfully");
-      const { token, refreshToken } = response.data;
+      const { token, refreshToken, user } = response.data;
+      await SecureStore.setItemAsync("accessToken", token);
+      await SecureStore.setItemAsync("refreshToken", refreshToken);
+      await SecureStore.setItemAsync("user", JSON.stringify(user));
       const accessToken = token;
       authContext.setAuthState({
         accessToken,
         refreshToken,
         authenticated: true,
+        user,
       });
-      // if (navigation.canGoBack()) {
-      // } else {
-      //   navigation.navigate("Login");
-      // }
-      navigation.goBack();
+      // navigation.goBack();
     } catch (error: Error | any) {
       console.log(error);
       Alert.alert("Error", error.response.data.message);
@@ -122,19 +117,20 @@ const Signup = () => {
   if (step === "email") {
     return (
       <SafeAreaView style={styles.container}>
-        <TouchableOpacity>
-          <AntDesign
-            name="arrowleft"
-            size={24}
-            color="black"
-            onPress={() => navigation.goBack()}
-            style={{ position: "absolute", top: 20, left: 20 }}
-          />
-        </TouchableOpacity>
         <WaveBackgroundSignUp
           customStyles={styles.svgCurve}
         ></WaveBackgroundSignUp>
         <Text style={styles.logo}>Sign Up</Text>
+        <TouchableOpacity
+          style={{ position: "absolute", left: 20, top: 20 }} // Add this style
+        >
+          <Feather
+            name="arrow-left-circle"
+            size={40}
+            color="white"
+            onPress={() => navigation.goBack()}
+          />
+        </TouchableOpacity>
         <View style={styles.form}>
           <TextInput
             style={styles.input}
@@ -160,6 +156,9 @@ const Signup = () => {
   if (step === "otp") {
     return (
       <SafeAreaView style={styles.container}>
+        <WaveBackgroundSignUp
+          customStyles={styles.svgCurve}
+        ></WaveBackgroundSignUp>
         <TouchableOpacity
           style={{ position: "absolute", left: 20, top: 20 }} // Add this style
         >
@@ -170,9 +169,6 @@ const Signup = () => {
             onPress={() => navigation.goBack()}
           />
         </TouchableOpacity>
-        <WaveBackgroundSignUp
-          customStyles={styles.svgCurve}
-        ></WaveBackgroundSignUp>
         <Text style={styles.logo}>Sign Up</Text>
         <View style={styles.form}>
           <OTPTextView

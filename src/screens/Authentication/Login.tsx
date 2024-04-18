@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import Spinner from "../../components/Spinner";
 import { LinearGradient } from "expo-linear-gradient";
 import WaveBackground from "./../../components/WaveBackGround";
+import * as SecureStore from "expo-secure-store";
 
 const Login = () => {
   const navigator = useNavigation();
@@ -39,13 +40,18 @@ const Login = () => {
         password,
       });
 
-      const { token, refreshToken } = response.data;
+      const { token, refreshToken, user } = response.data;
+      await SecureStore.setItemAsync("accessToken", token);
+      await SecureStore.setItemAsync("refreshToken", refreshToken);
+      await SecureStore.setItemAsync("user", JSON.stringify(user));
       const accessToken = token;
       authContext.setAuthState({
         accessToken,
         refreshToken,
         authenticated: true,
+        user,
       });
+      console.log(authContext.authState);
     } catch (error) {
       Alert.alert("Login Failed", error.response.data.message);
     } finally {

@@ -22,6 +22,7 @@ const Navigation = () => {
       const accessToken = await SecureStore.getItemAsync("accessToken");
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
       const user = await SecureStore.getItemAsync("user");
+      // console.log("loading jwt");
       console.log(accessToken, refreshToken, user);
       const jwt = {
         accessToken,
@@ -33,6 +34,7 @@ const Navigation = () => {
         authenticated: jwt.accessToken !== null,
         user: user ? JSON.parse(user) : null,
       });
+      console.log("loading jwt");
       console.log(authContext.authState);
       setStatus("success");
     } catch (error: Error | any) {
@@ -81,7 +83,7 @@ const Navigation = () => {
           />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="InitialHome">
           {authContext?.authState?.user?.role === "user" ? (
             <Stack.Screen
               name="UserTab"
@@ -97,7 +99,11 @@ const Navigation = () => {
               options={{ headerShown: false }}
             />
           ) : null}
-
+          <Stack.Screen
+            name="InitialHome"
+            component={UserTab}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="ReportDetail"
             component={ReportDetail}

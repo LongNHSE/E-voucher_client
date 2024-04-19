@@ -18,18 +18,11 @@ const Setting = () => {
   const { authState, setAuthState } = React.useContext(AuthContext);
   const authContext = React.useContext(AuthContext);
   const logout = async () => {
+    console.log("running");
+
     try {
+      await authContext.logout();
       await authAxios.get("/auth/logout");
-      await SecureStore.deleteItemAsync("accessToken");
-      await SecureStore.deleteItemAsync("refreshToken");
-      await AsyncStorage.removeItem("accessToken");
-      await AsyncStorage.removeItem("refreshToken");
-      console.log(SecureStore.getItemAsync("accessToken"));
-      setAuthState({
-        accessToken: null,
-        refreshToken: null,
-        authenticated: false,
-      });
     } catch (error) {
       console.log(error);
     }

@@ -4,6 +4,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import TimeLimit from "./TimeLimit";
 import ReportList from "./ReportList";
+import Setting from "../../components/Setting";
 
 const staffTabValue: TabBarProps[] = [
   {
@@ -31,6 +32,15 @@ const staffTabValue: TabBarProps[] = [
     tabBarIconProps: {
       iconType: Ionicons,
       iconName: "time-outline",
+    },
+  },
+  {
+    route: "Setting",
+    component: Setting,
+    tabBarLabel: "Setting",
+    tabBarIconProps: {
+      iconType: Ionicons,
+      iconName: "settings-outline",
     },
   },
 ];

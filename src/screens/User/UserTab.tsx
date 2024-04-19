@@ -3,6 +3,9 @@ import React from "react";
 import Voucher from "./Voucher";
 import { AntDesign } from "@expo/vector-icons";
 import CustomBottomTab, { TabBarProps } from "../../layouts/CustomBottomTab";
+import GiftVoucher from "./GiftVoucher";
+import Setting from "../../components/Setting";
+import { Ionicons } from "@expo/vector-icons";
 import Inventory from "./Inventory";
 import Profile from "./Profile";
 
@@ -26,12 +29,12 @@ const userTabValue: TabBarProps[] = [
     },
   },
   {
-    route: "Profile",
-    component: Profile,
-    tabBarLabel: "Profile",
+    route: "Setting",
+    component: Setting,
+    tabBarLabel: "Setting",
     tabBarIconProps: {
-      iconType: AntDesign,
-      iconName: "user",
+      iconType: Ionicons,
+      iconName: "settings-outline",
     },
   },
 ];

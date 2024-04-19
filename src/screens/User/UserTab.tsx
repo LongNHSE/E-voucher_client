@@ -4,6 +4,8 @@ import Voucher from "./Voucher";
 import { AntDesign } from "@expo/vector-icons";
 import CustomBottomTab, { TabBarProps } from "../../layouts/CustomBottomTab";
 import GiftVoucher from "./GiftVoucher";
+import VoucherDetail from "./VoucherDetail";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const userTabValue: TabBarProps[] = [
   {

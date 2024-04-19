@@ -6,6 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import Signup from "../screens/Authentication/Signup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UserTab from "../screens/User/UserTab";
+import VoucherDetail from "../screens/User/VoucherDetail";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -45,6 +46,16 @@ const Navigation = () => {
             name="UserTab"
             component={UserTab}
             options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="VoucherDetail"
+            component={VoucherDetail}
+            options={{
+              headerShown: true,
+              title: "Voucher Detail",
+              animation: "slide_from_right",
+            }}
           />
         </Stack.Navigator>
       )}

@@ -1,6 +1,7 @@
 import { View, Text, Image, Button } from "native-base";
 import React from "react";
 import { ImageBackground } from "react-native";
+import { FormatDate, FormatDateTime } from "../../utils/DateTimeFormatter";
 
 const RequestVoucherDetail = ({ route }: any) => {
   const { voucher } = route.params;
@@ -11,7 +12,7 @@ const RequestVoucherDetail = ({ route }: any) => {
         resizeMode="cover"
       >
         <Image
-          source={voucher.image}
+          source={{ uri: voucher.imageUrl }}
           alt="voucher"
           size={40}
           rounded="full"
@@ -58,7 +59,7 @@ const RequestVoucherDetail = ({ route }: any) => {
             justifyContent="space-between"
           >
             <Text className="text-lg">Start use time: </Text>
-            <Text className="text-lg">{voucher.startUseTime}</Text>
+            <Text className="text-lg">{FormatDate(voucher.startUseTime)}</Text>
           </View>
           <View
             width={"80%"}
@@ -67,7 +68,7 @@ const RequestVoucherDetail = ({ route }: any) => {
             justifyContent="space-between"
           >
             <Text className="text-lg">End use time: </Text>
-            <Text className="text-lg">{voucher.endUseTime}</Text>
+            <Text className="text-lg">{FormatDate(voucher.endUseTime)}</Text>
           </View>
           <View
             width={"80%"}

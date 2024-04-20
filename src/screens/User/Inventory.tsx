@@ -32,6 +32,7 @@ import { baseUrl } from "../../utils/appConstant";
 import voucherPlaceholder from "../../../assets/icon.png";
 import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
+import * as SecureStore from "expo-secure-store";
 
 interface Voucher {
   _id: string;
@@ -55,6 +56,16 @@ interface Voucher {
   id: string;
 }
 
+interface VoucherSell {
+  _id: string;
+  voucherId: Voucher;
+  userId: any;
+  giftUserId: string | undefined;
+  status: string;
+  hash: string;
+  generateAt: Date;
+}
+
 interface RO {
   statusCode: String;
   message: String;
@@ -65,32 +76,27 @@ const Inventory = ({ navigation }: any) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [voucherSells, setVoucherSells] = useState<VoucherSell[]>([]);
   const isFocused = useIsFocused();
 
-  const fetchVouchers = () => {
+  const fetchVouchers = async () => {
     setLoading(true);
     //filter&search logic
     let query: string = "";
-    if (category !== "All" && category !== "") {
-      query = `&category=${category}`;
-    }
-    if (searchName !== "") {
-      query = `&name=${searchName}`;
-    }
-
-    const url = `${baseUrl}/vouchers/search?status=available${query}`;
+    let storedUser = await SecureStore.getItem("user");
+    let userId = storedUser ? JSON.parse(storedUser)._id : "";
+    const url = `${baseUrl}/voucherSell/search?userId=${userId}&${query}`;
 
     axios
       .get(url)
       .then((res) => {
         console.log(`------------${url}`);
         Array.isArray(res.data) &&
-          res.data.forEach((item: Voucher) => {
-            console.log(item.name);
+          res.data.forEach((item: VoucherSell) => {
+            console.log(item);
           });
 
-        setVouchers(res.data);
+        setVoucherSells(res.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -134,113 +140,12 @@ const Inventory = ({ navigation }: any) => {
     <View style={styles.container}>
       <View display={isShowHeader ? "" : "none"} style={styles.header}>
         <Text style={styles.title}>My Vouchers</Text>
-        <View style={{ flexDirection: "row" }}>
-          <Input
-            marginTop={3}
-            variant="filled"
-            width="90%"
-            borderRadius="10"
-            py="1"
-            px="2"
-            placeholder="Search..."
-            onChange={(value) => {
-              setSearchName(value.nativeEvent.text);
-            }}
-            onEndEditing={() => {
-              fetchVouchers();
-            }}
-            value={searchName}
-            InputLeftElement={
-              <Ionicons name="search" size={24} color="black" />
-            }
-            InputRightElement={
-              <TouchableOpacity
-                onPress={() => {
-                  setSearchName("");
-                  fetchVouchers();
-                }}
-              >
-                <Ionicons name="close" size={24} color="black" />
-              </TouchableOpacity>
-            }
-          />
-
-          {/* modal */}
-          <Modal
-            isOpen={modalVisible}
-            onClose={() => setModalVisible(false)}
-            initialFocusRef={initialRef}
-            finalFocusRef={finalRef}
-          >
-            <Modal.Content>
-              <Modal.CloseButton />
-              <Modal.Header>Filter</Modal.Header>
-              <Modal.Body>
-                <Text>Select Service: </Text>
-                <Select
-                  selectedValue={category}
-                  minWidth={200}
-                  accessibilityLabel="Choose Service"
-                  placeholder="Choose Service"
-                  onValueChange={(itemValue) => {
-                    setCategory(itemValue);
-                  }}
-                  _selectedItem={{
-                    bg: "cyan.600",
-                    endIcon: <CheckIcon size={4} />,
-                  }}
-                >
-                  {initFilter.map((item, index) => (
-                    <Select.Item label={item} value={item} key={index} />
-                  ))}
-                </Select>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button.Group space={2}>
-                  <Button
-                    variant="ghost"
-                    colorScheme="blueGray"
-                    onPress={() => {
-                      setCategory(initFilter[0]);
-                      setModalVisible(false);
-                    }}
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    onPress={() => {
-                      setModalVisible(false);
-                    }}
-                  >
-                    OK
-                  </Button>
-                </Button.Group>
-              </Modal.Footer>
-            </Modal.Content>
-          </Modal>
-          <HStack space={2} alignItems={"center"} justifyContent={"center"}>
-            <Pressable
-              onPress={() => {
-                setModalVisible(true);
-              }}
-              style={({ pressed }) => [pressed ? styles.isPress : null]}
-            >
-              <Ionicons
-                style={{ paddingTop: 10, paddingLeft: 10 }}
-                name="filter-outline"
-                size={28}
-                color="black"
-              />
-            </Pressable>
-          </HStack>
-        </View>
-        {/* end of modal */}
       </View>
 
       <FlatList
         backgroundColor={"#004165"}
-        data={vouchers}
-        keyExtractor={(item: Voucher) => "_" + item._id.toString()}
+        data={voucherSells}
+        keyExtractor={(item: VoucherSell) => "_" + item._id.toString()}
         // onScroll={() => setIsShowHeader(false)}
         // onStartReached={() => setIsShowHeader(true)}
         renderItem={({ item }) => (
@@ -248,14 +153,14 @@ const Inventory = ({ navigation }: any) => {
             style={[styles.item]}
             key={item._id}
             onPress={() => {
-              navigation.navigate("VoucherDetail", { item });
+              navigation.navigate("VoucherDetail", { item: item.voucherId });
             }}
           >
             <View style={styles.item}>
               <View style={styles.voucherHeader}>
                 <Image
                   source={{
-                    uri: item.imageUrl,
+                    uri: item.voucherId.imageUrl,
                   }}
                   alt={"(voucher-image)"}
                   height={90}
@@ -263,7 +168,7 @@ const Inventory = ({ navigation }: any) => {
                 />
                 <View flexDirection={"column"} marginLeft={5} marginRight={5}>
                   <Text fontSize={20} fontWeight={"bold"}>
-                    {item.name}
+                    {item.voucherId.name}
                   </Text>
                   <View flexDirection={"row"} alignItems={"center"}>
                     <Ionicons
@@ -273,15 +178,14 @@ const Inventory = ({ navigation }: any) => {
                       size={24}
                     />
                     <Text fontSize={30} color={"green.800"}>
-                      {item.discount}
+                      {item.voucherId.discount}
                     </Text>
                     <Text fontSize={30} color={"green.800"}>
-                      {item.discountType === "percentage" ? "% OFF" : "K OFF"}
+                      {item.voucherId.discountType === "percentage"
+                        ? "% OFF"
+                        : "K OFF"}
                     </Text>
                   </View>
-                  <Text fontSize={12} color={"gray.500"}>
-                    {item.quantity} vouchers left
-                  </Text>
                 </View>
               </View>
 
@@ -318,21 +222,25 @@ const Inventory = ({ navigation }: any) => {
                   <Ionicons name="calendar-outline" size={20} color="green" />
                   <Text color={"gray.500"} paddingLeft={2}>
                     {`${new Date(
-                      item.startUseTime
+                      item.voucherId.startUseTime
                     ).toLocaleDateString()} - ${new Date(
-                      item.endSellTime
+                      item.voucherId.endSellTime
                     ).toLocaleDateString()}`}
                   </Text>
                 </View>
-                <View flexDirection={"row"}>
-                  <Ionicons
-                    style={{ marginRight: 5 }}
-                    name="cash-outline"
-                    size={20}
-                    color="green"
-                  />
-                  <Text>{item.price.toLocaleString()} VND</Text>
-                </View>
+
+                <TouchableOpacity
+                  style={{
+                    padding: 5,
+                    backgroundColor: "tomato",
+                    borderRadius: 5,
+                  }}
+                  onPress={() => {
+                    navigation.navigate("VoucherDetail", { item });
+                  }}
+                >
+                  <Text color={"white"}>Use now</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>

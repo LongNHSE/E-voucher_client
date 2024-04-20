@@ -15,6 +15,7 @@ import {
   HStack,
   Select,
   Divider,
+  CheckIcon,
 } from "native-base";
 import {
   Pressable,
@@ -69,10 +70,26 @@ const Voucher = ({ navigation }: any) => {
 
   const fetchVouchers = () => {
     setLoading(true);
+    //filter&search logic
+    let query: string = "";
+    if (category !== "All" && category !== "") {
+      query = `&category=${category}`;
+    }
+    if (searchName !== "") {
+      query = `&name=${searchName}`;
+    }
+
+    const url = `${baseUrl}/vouchers/search?status=available${query}`;
+
     axios
-      .get(`${baseUrl}/vouchers`)
+      .get(url)
       .then((res) => {
-        console.table(res.data);
+        console.log(`------------${url}`);
+        Array.isArray(res.data) &&
+          res.data.forEach((item: Voucher) => {
+            console.log(item.name);
+          });
+
         setVouchers(res.data);
         setLoading(false);
       })
@@ -85,6 +102,7 @@ const Voucher = ({ navigation }: any) => {
 
   //filter
   const initFilter: string[] = [
+    "All",
     "Food",
     "Drink",
     "Entertainment",
@@ -94,22 +112,27 @@ const Voucher = ({ navigation }: any) => {
     "Health",
     "Beauty",
     "Service",
-    "Other",
   ];
-  const [filter, setFilter] = useState<string[]>(initFilter);
+  const [category, setCategory] = useState<string>(initFilter[0]);
 
   useEffect(() => {
     fetchVouchers();
-  }, [isFocused]);
+  }, [isFocused, category]);
+
+  //search name
+  const [searchName, setSearchName] = useState<string>("");
 
   //modal
   const [modalVisible, setModalVisible] = React.useState(false);
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
 
+  //scroll hide header
+  const [isShowHeader, setIsShowHeader] = React.useState(true);
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View display={isShowHeader ? "" : "none"} style={styles.header}>
         <Text style={styles.title}>E-Vouchers</Text>
         <View style={{ flexDirection: "row" }}>
           <Input
@@ -120,8 +143,25 @@ const Voucher = ({ navigation }: any) => {
             py="1"
             px="2"
             placeholder="Search..."
+            onChange={(value) => {
+              setSearchName(value.nativeEvent.text);
+            }}
+            onEndEditing={() => {
+              fetchVouchers();
+            }}
+            value={searchName}
             InputLeftElement={
               <Ionicons name="search" size={24} color="black" />
+            }
+            InputRightElement={
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchName("");
+                  fetchVouchers();
+                }}
+              >
+                <Ionicons name="close" size={24} color="black" />
+              </TouchableOpacity>
             }
           />
 
@@ -136,17 +176,18 @@ const Voucher = ({ navigation }: any) => {
               <Modal.CloseButton />
               <Modal.Header>Filter</Modal.Header>
               <Modal.Body>
+                <Text>Select Service: </Text>
                 <Select
-                  selectedValue={filter[0]}
+                  selectedValue={category}
                   minWidth={200}
                   accessibilityLabel="Choose Service"
                   placeholder="Choose Service"
                   onValueChange={(itemValue) => {
-                    setFilter([itemValue]);
+                    setCategory(itemValue);
                   }}
                   _selectedItem={{
                     bg: "cyan.600",
-                    endIcon: <Ionicons name="checkmark" size={4} />,
+                    endIcon: <CheckIcon size={4} />,
                   }}
                 >
                   {initFilter.map((item, index) => (
@@ -160,6 +201,7 @@ const Voucher = ({ navigation }: any) => {
                     variant="ghost"
                     colorScheme="blueGray"
                     onPress={() => {
+                      setCategory(initFilter[0]);
                       setModalVisible(false);
                     }}
                   >
@@ -170,7 +212,7 @@ const Voucher = ({ navigation }: any) => {
                       setModalVisible(false);
                     }}
                   >
-                    Save
+                    OK
                   </Button>
                 </Button.Group>
               </Modal.Footer>
@@ -199,12 +241,14 @@ const Voucher = ({ navigation }: any) => {
         backgroundColor={"#004165"}
         data={vouchers}
         keyExtractor={(item: Voucher) => "_" + item._id.toString()}
+        onScroll={() => setIsShowHeader(false)}
+        onStartReached={() => setIsShowHeader(true)}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[styles.item]}
             key={item._id}
             onPress={() => {
-              // navigation.navigate("VoucherDetail");
+              navigation.navigate("VoucherDetail", { item });
             }}
           >
             <View style={styles.item}>
@@ -214,7 +258,8 @@ const Voucher = ({ navigation }: any) => {
                     uri: item.imageUrl,
                   }}
                   alt={"(voucher-image)"}
-                  size={"lg"}
+                  height={90}
+                  width={"30%"}
                 />
                 <View flexDirection={"column"} marginLeft={5} marginRight={5}>
                   <Text fontSize={20} fontWeight={"bold"}>
@@ -230,10 +275,13 @@ const Voucher = ({ navigation }: any) => {
                     <Text fontSize={30} color={"green.800"}>
                       {item.discount}
                     </Text>
-                    <Text fontSize={20} color={"green.800"}>
-                      {item.discountType === "percent" ? "%" : "$"}
+                    <Text fontSize={30} color={"green.800"}>
+                      {item.discountType === "percentage" ? "% OFF" : "K OFF"}
                     </Text>
                   </View>
+                  <Text fontSize={12} color={"gray.500"}>
+                    {item.quantity} vouchers left
+                  </Text>
                 </View>
               </View>
 
@@ -265,14 +313,27 @@ const Voucher = ({ navigation }: any) => {
                   backgroundColor={"#004165"}
                 />
               </View>
-              <Text>{item.description}</Text>
-              <Text>
-                {`Availble in: ${new Date(
-                  item.startUseTime
-                ).toLocaleDateString()} - ${new Date(
-                  item.endSellTime
-                ).toLocaleDateString()}`}
-              </Text>
+              <View flexDirection={"row"} justifyContent={"space-between"}>
+                <View flexDirection={"row"}>
+                  <Ionicons name="calendar-outline" size={20} color="green" />
+                  <Text color={"gray.500"} paddingLeft={2}>
+                    {`${new Date(
+                      item.startUseTime
+                    ).toLocaleDateString()} - ${new Date(
+                      item.endSellTime
+                    ).toLocaleDateString()}`}
+                  </Text>
+                </View>
+                <View flexDirection={"row"}>
+                  <Ionicons
+                    style={{ marginRight: 5 }}
+                    name="cash-outline"
+                    size={20}
+                    color="green"
+                  />
+                  <Text>{item.price.toLocaleString()} VND</Text>
+                </View>
+              </View>
             </View>
           </TouchableOpacity>
         )}

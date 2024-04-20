@@ -4,6 +4,8 @@ import Voucher from "./Voucher";
 import { AntDesign } from "@expo/vector-icons";
 import CustomBottomTab, { TabBarProps } from "../../layouts/CustomBottomTab";
 import GiftVoucher from "./GiftVoucher";
+import VoucherDetail from "./VoucherDetail";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Setting from "../../components/Setting";
 import { Ionicons } from "@expo/vector-icons";
 import Inventory from "./Inventory";

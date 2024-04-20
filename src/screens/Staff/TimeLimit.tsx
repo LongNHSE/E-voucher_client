@@ -1,3 +1,4 @@
+import { useIsFocused } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -9,9 +10,11 @@ import {
   Input,
   InputRightAddon,
   InputGroup,
+  useToast,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Switch } from "react-native";
+import { AxiosContext } from "../../context/AxiosContext";
 
 const timeLimitData = [
   {
@@ -24,16 +27,116 @@ const timeLimitData = [
     duration: "4 hours",
     active: false,
   },
-  // {
-  //   id: 3,
-  //   duration: "6 hours",
-  //   active: false,
-  // },
 ];
 
+interface TimeLimit {
+  id: number;
+  duration: string;
+  isActive: boolean;
+}
+
 const TimeLimit = () => {
-  const [timeLimit, setTimeLimit] = useState<Array<any>>(timeLimitData);
+  const focus = useIsFocused();
+  const toast = useToast();
+  const { authAxios } = useContext(AxiosContext);
+  const [timeLimit, setTimeLimit] = useState<TimeLimit[]>([]);
+  const [duration, setDuration] = useState<number>(0);
   const [showModal, setShowModal] = useState<boolean>(false);
+
+  const fetchTimeLimit = async () => {
+    try {
+      const response = await authAxios.get("/timeLimits");
+      if (response.data.message === "Success") {
+        setTimeLimit(response.data.data);
+      } else {
+        toast.show({
+          title: "Error",
+          description: "Failed to fetch time limit",
+        });
+      }
+    } catch (error) {
+      toast.show({
+        title: "Error",
+        description: "Something went wrong",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (focus) {
+      fetchTimeLimit();
+    }
+  }, [focus]);
+
+  const handleChangeTimeLimit = async (id: number) => {
+    const newTimeLimit = timeLimit.map((time) => {
+      if (time.id === id) {
+        return {
+          ...time,
+          isActive: !time.isActive,
+        };
+      }
+      return time;
+    });
+    setTimeLimit(newTimeLimit);
+    try {
+      const response = await authAxios.patch(`/timeLimits/${id}`, {
+        isActive: newTimeLimit.find((time) => time.id === id)?.isActive,
+      });
+      if (response.data.message === "Success") {
+        toast.show({
+          title: "Success",
+          description: "Time limit updated",
+        });
+      } else {
+        toast.show({
+          title: "Error",
+          description: "Failed to update time limit",
+        });
+      }
+    } catch (error) {
+      toast.show({
+        title: "Error",
+        description: "Something went wrong",
+      });
+    }
+  };
+
+  const handleAddTimeLimit = async () => {
+    try {
+      if (duration <= 0) {
+        toast.show({
+          title: "Error",
+          description: "Time must be greater than 0",
+        });
+        return;
+      }
+      const response = await authAxios.post("/timeLimits", {
+        duration,
+        isActive: false,
+      });
+      if (response.data.message === "Success") {
+        fetchTimeLimit();
+        toast.show({
+          title: "Success",
+          description: "Time limit added",
+        });
+        setDuration(0);
+        setShowModal(false);
+      } else {
+        toast.show({
+          title: "Error",
+          description: "Time limit is duplicated",
+        });
+        setDuration(0);
+      }
+    } catch (error) {
+      toast.show({
+        title: "Error",
+        description: "Something went wrong",
+      });
+    }
+  };
   return (
     <ScrollView className="mt-4 mx-4">
       <Heading fontSize="2xl">Set up voucher sell time</Heading>
@@ -54,25 +157,12 @@ const TimeLimit = () => {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Text fontSize="lg">{time.duration}</Text>
+          <Text fontSize="lg">{time.duration} hour</Text>
           <Switch
-            // trackColor="black"
-            // size="lg"
-            // alignSelf="baseline"
-            // isChecked={time.active}
-            // onToggle={() => {
-            //   console.log("Switched");
-            // }}
             trackColor={{ false: "#999999", true: "#000000" }}
             thumbColor={"#f4f3f4"}
-            value={time.active}
-            onValueChange={() => {
-              setTimeLimit(
-                timeLimit.map((item) =>
-                  item.id === time.id ? { ...item, active: !item.active } : item
-                )
-              );
-            }}
+            value={time.isActive}
+            onValueChange={() => handleChangeTimeLimit(time.id)}
           />
         </View>
       ))}
@@ -105,6 +195,7 @@ const TimeLimit = () => {
                     borderColor: "black",
                     backgroundColor: "gray.200",
                   }}
+                  onChangeText={(value) => setDuration(parseInt(value) || 0)}
                 />
                 <InputRightAddon rounded="full" children={"hour"} />
               </InputGroup>
@@ -128,9 +219,7 @@ const TimeLimit = () => {
               <Button
                 rounded="full"
                 bg={"black"}
-                onPress={() => {
-                  setShowModal(false);
-                }}
+                onPress={() => handleAddTimeLimit()}
                 _pressed={{
                   bg: "gray.500",
                 }}

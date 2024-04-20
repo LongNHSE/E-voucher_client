@@ -5,6 +5,7 @@ import Login from "../../src/screens/Authentication/Login";
 import { NavigationContainer } from "@react-navigation/native";
 import Signup from "../screens/Authentication/Signup";
 import UserTab from "../screens/User/UserTab";
+import VoucherDetail from "../screens/User/VoucherDetail";
 import StaffTab from "../screens/Staff/StaffTab";
 import ReportDetail from "../screens/Staff/ReportDetail";
 import RequestVoucherDetail from "../screens/Staff/RequestVoucherDetail";
@@ -12,6 +13,7 @@ import { AxiosContext } from "../context/AxiosContext";
 import { AuthContext } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import Voucher from "../screens/User/Voucher";
+import VNPayWebView from "../screens/User/VNPayWebView";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -35,8 +37,9 @@ const Navigation = () => {
         authenticated: jwt.accessToken !== null,
         user: user ? JSON.parse(user) : null,
       });
-      console.log("loading jwt");
-      console.log(authContext.authState);
+      // console.log("loading jwt");
+      // console.log(authContext.authState.authenticated);
+      console.log(authContext.authState.user.role === "staff");
       setStatus("success");
     } catch (error: Error | any) {
       setStatus("error");
@@ -48,15 +51,36 @@ const Navigation = () => {
         authenticated: false,
         user: null,
       });
+    } finally {
+      setStatus("success");
     }
   }, []);
+
+  const getIntialRoute = () => {
+    if (authContext?.authState?.authenticated === false) {
+      return "Login";
+    } else {
+      if (authContext?.authState?.user?.role === "staff") {
+        return "StaffTab";
+      } else if (authContext?.authState?.user?.role === "user") {
+        return "UserTab";
+      } else if (authContext?.authState?.user?.role === "admin") {
+        return "AdminTab";
+      } else if (authContext?.authState?.user?.role === "host") {
+        return "HostTab";
+      }
+    }
+  };
 
   useEffect(() => {
     loadJWT();
   }, [loadJWT]);
+
+  if (status === "loading") return <></>;
+
   return (
     <NavigationContainer>
-      {authContext?.authState?.authenticated === true ? (
+      {authContext?.authState?.authenticated === false ? (
         <Stack.Navigator
           initialRouteName="Login"
           screenOptions={{
@@ -84,7 +108,7 @@ const Navigation = () => {
           />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator initialRouteName="InitialHome">
+        <Stack.Navigator initialRouteName={getIntialRoute()}>
           {authContext?.authState?.user?.role === "user" ? (
             <Stack.Screen
               name="UserTab"
@@ -101,10 +125,25 @@ const Navigation = () => {
             />
           ) : null}
           <Stack.Screen
-            name="InitialHome"
-            component={UserTab}
-            options={{ headerShown: false }}
+            name="VoucherDetail"
+            component={VoucherDetail}
+            options={{
+              headerShown: false,
+              title: "Voucher Detail",
+              animation: "slide_from_right",
+            }}
           />
+
+          <Stack.Screen
+            name="VNPay"
+            component={VNPayWebView}
+            options={{
+              headerShown: false,
+              title: "VNPayl",
+              animation: "slide_from_right",
+            }}
+          />
+
           <Stack.Screen
             name="ReportDetail"
             component={ReportDetail}

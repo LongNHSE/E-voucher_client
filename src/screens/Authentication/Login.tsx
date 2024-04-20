@@ -39,7 +39,7 @@ const Login = () => {
         username,
         password,
       });
-
+      console.log(response.data);
       const { token, refreshToken, user } = response.data;
       await SecureStore.setItemAsync("accessToken", token);
       await SecureStore.setItemAsync("refreshToken", refreshToken);

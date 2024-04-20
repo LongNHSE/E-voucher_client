@@ -5,6 +5,9 @@ import { Ionicons } from "@expo/vector-icons";
 import TimeLimit from "./TimeLimit";
 import ReportList from "./ReportList";
 import Setting from "../../components/Setting";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import QRScanner from "./QRScanner";
+import QRCodeComponent from "../../components/QRCode";
 
 const staffTabValue: TabBarProps[] = [
   {
@@ -27,11 +30,11 @@ const staffTabValue: TabBarProps[] = [
   },
   {
     route: "QRScanner",
-    component: ReportList,
-    tabBarLabel: "Report",
+    component: QRScanner,
+    tabBarLabel: "QR Scanner",
     tabBarIconProps: {
-      iconType: FontAwesome,
-      iconName: "list",
+      iconType: MaterialCommunityIcons,
+      iconName: "qrcode-scan",
     },
   },
   {
@@ -41,6 +44,15 @@ const staffTabValue: TabBarProps[] = [
     tabBarIconProps: {
       iconType: Ionicons,
       iconName: "time-outline",
+    },
+  },
+  {
+    route: "QRCode",
+    component: QRCodeComponent,
+    tabBarLabel: "QR Code",
+    tabBarIconProps: {
+      iconType: Ionicons,
+      iconName: "qr-code-outline",
     },
   },
   {

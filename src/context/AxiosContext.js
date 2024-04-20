@@ -4,17 +4,29 @@ import { AuthContext } from "./AuthContext";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import * as SecureStore from "expo-secure-store";
 const AxiosContext = createContext();
+import { Platform } from "react-native";
+import * as Device from "expo-device";
+
 const { Provider } = AxiosContext;
 
 const AxiosProvider = ({ children }) => {
   const authContext = useContext(AuthContext);
+  function getBaseURL() {
+    if (Platform.OS === "android") {
+      const isEmulator = !Device.isDevice;
+      return isEmulator ? "http://10.0.2.2:8000" : "http://localhost:8000";
+    } else {
+      return "http://localhost:8000";
+    }
+  }
+  const baseURL = getBaseURL();
 
   const authAxios = axios.create({
-    baseURL: "http://10.0.2.2:8000",
+    baseURL: baseURL,
   });
 
   const publicAxios = axios.create({
-    baseURL: "http://10.0.2.2:8000",
+    baseURL: baseURL,
   });
 
   authAxios.interceptors.request.use(

@@ -5,6 +5,7 @@ import Login from "../../src/screens/Authentication/Login";
 import { NavigationContainer } from "@react-navigation/native";
 import Signup from "../screens/Authentication/Signup";
 import UserTab from "../screens/User/UserTab";
+import VoucherDetail from "../screens/User/VoucherDetail";
 import StaffTab from "../screens/Staff/StaffTab";
 import ReportDetail from "../screens/Staff/ReportDetail";
 import RequestVoucherDetail from "../screens/Staff/RequestVoucherDetail";
@@ -12,6 +13,7 @@ import { AxiosContext } from "../context/AxiosContext";
 import { AuthContext } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import Voucher from "../screens/User/Voucher";
+import VNPayWebView from "../screens/User/VNPayWebView";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -105,6 +107,27 @@ const Navigation = () => {
             component={UserTab}
             options={{ headerShown: false }}
           />
+
+          <Stack.Screen
+            name="VoucherDetail"
+            component={VoucherDetail}
+            options={{
+              headerShown: false,
+              title: "Voucher Detail",
+              animation: "slide_from_right",
+            }}
+          />
+
+          <Stack.Screen
+            name="VNPay"
+            component={VNPayWebView}
+            options={{
+              headerShown: false,
+              title: "VNPayl",
+              animation: "slide_from_right",
+            }}
+          />
+
           <Stack.Screen
             name="ReportDetail"
             component={ReportDetail}

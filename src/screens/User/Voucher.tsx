@@ -248,7 +248,7 @@ const Voucher = ({ navigation }: any) => {
             style={[styles.item]}
             key={item._id}
             onPress={() => {
-              // navigation.navigate("VoucherDetail");
+              navigation.navigate("VoucherDetail", { item });
             }}
           >
             <View style={styles.item}>

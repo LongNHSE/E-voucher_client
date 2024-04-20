@@ -15,20 +15,23 @@ import * as SecureStore from "expo-secure-store";
 const Setting = () => {
   const navigator = useNavigation();
   const { authAxios } = React.useContext(AxiosContext);
-  const { authState, setAuthState } = React.useContext(AuthContext);
   const authContext = React.useContext(AuthContext);
   const logout = async () => {
-    console.log("running");
+    await authContext.logout();
 
     try {
-      await authContext.logout();
       await authAxios.get("/auth/logout");
     } catch (error) {
       console.log(error);
+    } finally {
+      await SecureStore.deleteItemAsync("accessToken");
+      await SecureStore.deleteItemAsync("refreshToken");
+      await SecureStore.deleteItemAsync("user");
     }
   };
   return (
     <View style={styles.container}>
+      <View></View>
       <TouchableOpacity onPress={() => logout()}>
         <Text>Logout</Text>
       </TouchableOpacity>

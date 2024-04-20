@@ -37,8 +37,9 @@ const Navigation = () => {
         authenticated: jwt.accessToken !== null,
         user: user ? JSON.parse(user) : null,
       });
-      console.log("loading jwt");
-      console.log(authContext.authState);
+      // console.log("loading jwt");
+      // console.log(authContext.authState.authenticated);
+      console.log(authContext.authState.user.role === "staff");
       setStatus("success");
     } catch (error: Error | any) {
       setStatus("error");
@@ -50,15 +51,36 @@ const Navigation = () => {
         authenticated: false,
         user: null,
       });
+    } finally {
+      setStatus("success");
     }
   }, []);
+
+  const getIntialRoute = () => {
+    if (authContext?.authState?.authenticated === false) {
+      return "Login";
+    } else {
+      if (authContext?.authState?.user?.role === "staff") {
+        return "StaffTab";
+      } else if (authContext?.authState?.user?.role === "user") {
+        return "UserTab";
+      } else if (authContext?.authState?.user?.role === "admin") {
+        return "AdminTab";
+      } else if (authContext?.authState?.user?.role === "host") {
+        return "HostTab";
+      }
+    }
+  };
 
   useEffect(() => {
     loadJWT();
   }, [loadJWT]);
+
+  if (status === "loading") return <></>;
+
   return (
     <NavigationContainer>
-      {authContext?.authState?.authenticated === true ? (
+      {authContext?.authState?.authenticated === false ? (
         <Stack.Navigator
           initialRouteName="Login"
           screenOptions={{
@@ -86,7 +108,7 @@ const Navigation = () => {
           />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator initialRouteName="InitialHome">
+        <Stack.Navigator initialRouteName={getIntialRoute()}>
           {authContext?.authState?.user?.role === "user" ? (
             <Stack.Screen
               name="UserTab"
@@ -102,12 +124,6 @@ const Navigation = () => {
               options={{ headerShown: false }}
             />
           ) : null}
-          <Stack.Screen
-            name="InitialHome"
-            component={UserTab}
-            options={{ headerShown: false }}
-          />
-
           <Stack.Screen
             name="VoucherDetail"
             component={VoucherDetail}

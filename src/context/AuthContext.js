@@ -14,6 +14,7 @@ const AuthProvider = ({ children }) => {
   const logout = async () => {
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("refreshToken");
+    await SecureStore.deleteItemAsync("user");
     setAuthState({
       accessToken: null,
       refreshToken: null,

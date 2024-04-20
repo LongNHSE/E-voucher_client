@@ -26,6 +26,15 @@ const staffTabValue: TabBarProps[] = [
     },
   },
   {
+    route: "QRScanner",
+    component: ReportList,
+    tabBarLabel: "Report",
+    tabBarIconProps: {
+      iconType: FontAwesome,
+      iconName: "list",
+    },
+  },
+  {
     route: "TimeLimit",
     component: TimeLimit,
     tabBarLabel: "Time",

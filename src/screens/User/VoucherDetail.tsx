@@ -15,14 +15,19 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import * as SecureStore from "expo-secure-store";
 
 import { FontAwesome } from "@expo/vector-icons";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import Voucher from "./Voucher";
 import VoucherBottomSheet from "../../components/VoucherBottomSheet";
+import moment from "moment";
+import NotiDialog from "../../components/NotiDialog";
 
-const VoucherDetail = ({ navigation }: any) => {
+const VoucherDetail = ({ navigation, route }: any) => {
+  const { item } = route.params;
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
+  const [isOpenNotiDialog, setIsOpenNotiDialog] = useState<boolean>(false);
   const [isGift, setIsGift] = useState<boolean>(false);
   const [amountVoucher, setAmountVoucher] = useState(1);
 
@@ -44,30 +49,37 @@ const VoucherDetail = ({ navigation }: any) => {
           <View style={styles.topSection}>
             <View style={styles.voucherInfo}>
               <Image
-                style={{ width: 70, height: 70 }}
-                source={require("../../../assets/favicon.png")}
+                style={{
+                  width: 100,
+                  height: 70,
+                }}
+                source={{ uri: item.imageUrl }}
               />
 
               <View style={styles.discountInfo}>
-                <Text style={styles.discountText}>25% OFF</Text>
-                <Text style={{ fontSize: 20 }}>KFC</Text>
+                <Text style={styles.discountText}>{item.discount}% OFF</Text>
+                <Text style={{ fontSize: 20 }}>{item.name}</Text>
               </View>
             </View>
             <View style={styles.voucherDes}>
-              <Text style={styles.descriptionText}>
-                Get 25% at your next KFC buy
-              </Text>
+              <Text style={styles.descriptionText}>{item.description}</Text>
               <View style={styles.conditionList}>
-                <Text style={styles.conditionText}>{"\u2022 abcd"}</Text>
-                <Text style={styles.conditionText}>{"\u2022 abcd"}</Text>
-                <Text style={styles.conditionText}>{"\u2022 abcd"}</Text>
+                {item?.condition?.map((data, index) => {
+                  return (
+                    <View key={index} style={{ flexDirection: "row", gap: 2 }}>
+                      <Text>{"\u2022"}</Text>
+
+                      <Text style={styles.conditionText}>{` ${data}`}</Text>
+                    </View>
+                  );
+                })}
               </View>
             </View>
           </View>
           <View style={styles.bottomSection}>
             <View style={styles.before}></View>
             <View style={styles.after}></View>
-            <Text style={styles.price}>$30</Text>
+            <Text style={styles.price}>{item.price} VND</Text>
 
             <View style={styles.buttonSection}>
               <TouchableOpacity onPress={() => setIsOpenDialog(true)}>
@@ -82,27 +94,43 @@ const VoucherDetail = ({ navigation }: any) => {
                 </View>
               </TouchableOpacity> */}
             </View>
-            <Text style={{ marginTop: 15 }}>Valid Until 16 July 23</Text>
+            <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "400" }}>
+              Valid Until {moment(item.endUseTime).format("Do MMM YY")}
+            </Text>
           </View>
         </View>
 
         <View>
-          <TouchableOpacity style={styles.backContainer}>
+          <TouchableOpacity
+            style={styles.backContainer}
+            onPress={() => navigation.goBack()}
+          >
             <FontAwesome name="close" size={30} color="black" />
           </TouchableOpacity>
         </View>
       </View>
 
-      {isOpenDialog ? (
+      {isOpenDialog && (
         <VoucherBottomSheet
+          navigation={navigation}
           isOpenDialog={isOpenDialog}
           setIsOpenDialog={setIsOpenDialog}
-          image={require("../../../assets/favicon.png")}
-          voucherName={"abcdef"}
-          price={50}
+          setIsOpenNotiDialog={setIsOpenNotiDialog}
+          image={item.imageUrl}
+          voucherName={item.name}
+          price={item.price}
+          voucherId={item._id}
         />
-      ) : (
-        ""
+      )}
+
+      {isOpenNotiDialog && (
+        <NotiDialog
+          navigation={navigation}
+          isOpenDialog={isOpenNotiDialog}
+          setIsOpenDialog={setIsOpenNotiDialog}
+          title={"Alert"}
+          message={"You must login before buy or gift voucher"}
+        />
       )}
     </>
   );
@@ -116,23 +144,23 @@ const styles = StyleSheet.create({
   },
 
   ticketContainer: {
-    width: 342,
-    height: 550,
+    width: 360,
+    height: 600,
     backgroundColor: "#FBFBFB",
     borderRadius: 12,
-    paddingVertical: 30,
+    paddingVertical: 20,
     marginTop: 80,
   },
 
   topSection: {
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     flex: 1,
   },
 
   voucherInfo: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    gap: 30,
   },
 
   discountInfo: {},
@@ -145,7 +173,7 @@ const styles = StyleSheet.create({
 
   voucherDes: {
     marginTop: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
 
   conditionList: {
@@ -155,10 +183,9 @@ const styles = StyleSheet.create({
   },
 
   descriptionText: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "bold",
-    lineHeight: 30,
-    // textAlign: "center",
+    textAlign: "auto",
   },
 
   conditionText: {
@@ -166,7 +193,7 @@ const styles = StyleSheet.create({
   },
 
   bottomSection: {
-    flex: 0.6,
+    flex: 0.45,
     marginTop: 10,
     borderTopWidth: 3,
     borderStyle: "dashed",

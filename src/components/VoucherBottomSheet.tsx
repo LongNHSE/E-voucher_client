@@ -2,7 +2,9 @@ import { View, Text, AlertDialog, Actionsheet, Divider } from "native-base";
 
 import { Button, RadioButton } from "react-native-paper";
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+
+import * as SecureStore from "expo-secure-store";
 
 import {
   Image,
@@ -14,21 +16,26 @@ import {
 
 import { Entypo } from "@expo/vector-icons";
 import { PaymentMethod } from "../constants/PaymentMethod";
+import { AxiosContext } from "../context/AxiosContext";
 
 const VoucherBottomSheet = ({
   navigation,
   isOpenDialog,
   setIsOpenDialog,
+  setIsOpenNotiDialog,
   title,
   message,
   image,
   voucherName,
   price,
+  voucherId,
 }: any) => {
   const [amount, setAmount] = useState<number>(1);
-  const [checked, setChecked] = useState("VNPay");
-  const [email, setEmail] = useState("");
+  const [checked, setChecked] = useState<string>("VNPay");
+  const [email, setEmail] = useState<string>("");
+  const [paymentURL, setPaymentURl] = useState<string>("");
   const [isGift, setIsGift] = useState<boolean>(false);
+  const { authAxios, publicAxios } = useContext(AxiosContext);
 
   const onChangeAmount = (choice: string) => {
     if (choice === "minus") {
@@ -38,12 +45,52 @@ const VoucherBottomSheet = ({
     }
   };
 
+  const handlePurchase = async (total: number) => {
+    let storedUser = await SecureStore.getItem("user");
+
+    let userId = "66227c966a3084c6b6c44837";
+
+    try {
+      if (!storedUser) {
+        setIsOpenDialog(false);
+        setIsOpenNotiDialog(true);
+        return;
+      }
+
+      if (isGift) {
+        const response = await authAxios.get(`/users/email/${email}`);
+        console.log("response", response.data);
+        userId = response.data._id;
+      }
+
+      // const response = await authAxios.get(`/vnpay/`, {
+      //   userId,
+      //   quantity: amount,
+      //   voucherId,
+      // });
+
+      const url = await authAxios.post(`/vnpay/create-payment`, {
+        total,
+        bankcode: "",
+        voucherId,
+      });
+
+      navigation.navigate("VNPay", {
+        paymentURL: url.data,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    // const response = await authAxios.post("/invoice", {});
+  };
+
   return (
     <View>
       <Actionsheet isOpen={isOpenDialog} onClose={() => setIsOpenDialog(false)}>
         <Actionsheet.Content>
           <View style={styles.voucherInfor}>
-            <Image style={{ width: 70, height: 70 }} source={image} />
+            <Image style={{ width: 70, height: 70 }} source={{ uri: image }} />
             <View>
               <Text style={{ fontSize: 18, fontWeight: "400" }}>
                 {voucherName}
@@ -177,7 +224,10 @@ const VoucherBottomSheet = ({
               <Text style={{ fontWeight: "400" }}>{price * amount}$</Text>
             </Text>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handlePurchase(price * amount)}
+            >
               <Text style={styles.buttonText}>Confirm</Text>
             </TouchableOpacity>
           </View>

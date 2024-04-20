@@ -6,24 +6,37 @@ import CustomBottomTab, { TabBarProps } from "../../layouts/CustomBottomTab";
 import GiftVoucher from "./GiftVoucher";
 import VoucherDetail from "./VoucherDetail";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Setting from "../../components/Setting";
+import { Ionicons } from "@expo/vector-icons";
+import Inventory from "./Inventory";
+import Profile from "./Profile";
 
 const userTabValue: TabBarProps[] = [
   {
     route: "Voucher",
     component: Voucher,
-    tabBarLabel: "Voucher",
+    tabBarLabel: "Home",
     tabBarIconProps: {
       iconType: AntDesign,
-      iconName: "gift",
+      iconName: "home",
     },
   },
   {
-    route: "GiftVoucher",
-    component: GiftVoucher,
-    tabBarLabel: "GiftVoucher",
+    route: "Inventory",
+    component: Inventory,
+    tabBarLabel: "Inventory",
     tabBarIconProps: {
       iconType: AntDesign,
-      iconName: "gift",
+      iconName: "inbox",
+    },
+  },
+  {
+    route: "Setting",
+    component: Setting,
+    tabBarLabel: "Setting",
+    tabBarIconProps: {
+      iconType: Ionicons,
+      iconName: "settings-outline",
     },
   },
 ];

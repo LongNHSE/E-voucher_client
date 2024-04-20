@@ -241,8 +241,8 @@ const Voucher = ({ navigation }: any) => {
         backgroundColor={"#004165"}
         data={vouchers}
         keyExtractor={(item: Voucher) => "_" + item._id.toString()}
-        onScroll={() => setIsShowHeader(false)}
-        onStartReached={() => setIsShowHeader(true)}
+        // onScroll={() => setIsShowHeader(false)}
+        // onStartReached={() => setIsShowHeader(true)}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[styles.item]}

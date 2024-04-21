@@ -16,12 +16,17 @@ const VNPayWebView = ({ route }) => {
     return navState.url.startsWith("https://sandbox.vnpayment.vn");
   };
 
+  const onMessage = (data) => {
+    console.log("onMassage", data.nativeEvent.data);
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar backgroundColor="white" />
       {paymentURL && (
         <WebView
           source={{ uri: paymentURL }}
+          onMessage={onMessage}
           onNavigationStateChange={handleNavigationStateChange}
           onShouldStartLoadWithRequest={shouldStartLoadWithRequest} // Ensuring we are only loading certain requests
           javaScriptEnabled={true} // Enable JavaScript if needed

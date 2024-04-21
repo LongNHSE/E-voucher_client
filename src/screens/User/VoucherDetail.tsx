@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
+// import * as WebBrowser from "expo-web-browser";
 
 import { FontAwesome } from "@expo/vector-icons";
 import ConfirmDialog from "../../components/ConfirmDialog";
@@ -24,12 +25,18 @@ import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
 import NotiDialog from "../../components/NotiDialog";
 
+import * as Linking from "expo-linking";
+
 const VoucherDetail = ({ navigation, route }: any) => {
   const { item } = route.params;
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
   const [isOpenNotiDialog, setIsOpenNotiDialog] = useState<boolean>(false);
   const [isGift, setIsGift] = useState<boolean>(false);
   const [amountVoucher, setAmountVoucher] = useState(1);
+
+  const redirectUri = Linking.createURL();
+
+  console.log("redirectUri", redirectUri);
 
   const handleOpenDialog = (check) => {
     if (check === "gift") {
@@ -63,6 +70,9 @@ const VoucherDetail = ({ navigation, route }: any) => {
             </View>
             <View style={styles.voucherDes}>
               <Text style={styles.descriptionText}>{item.description}</Text>
+              <Text style={{ fontSize: 20, fontWeight: "500", marginTop: 15 }}>
+                Condition:{" "}
+              </Text>
               <View style={styles.conditionList}>
                 {item?.condition?.map((data, index) => {
                   return (
@@ -95,7 +105,13 @@ const VoucherDetail = ({ navigation, route }: any) => {
               </TouchableOpacity> */}
             </View>
             <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "400" }}>
-              Valid Until {moment(item.endUseTime).format("Do MMM YY")}
+              Sell From {moment(item.startSellTime).format("Do MMM YY")} -{" "}
+              {moment(item.endSellTime).format("Do MMM YY")}
+            </Text>
+
+            <Text style={{ marginTop: -10, fontSize: 16, fontWeight: "400" }}>
+              Valid From {moment(item.startUseTime).format("Do MMM YY")} -{" "}
+              {moment(item.endUseTime).format("Do MMM YY")}
             </Text>
           </View>
         </View>
@@ -120,6 +136,8 @@ const VoucherDetail = ({ navigation, route }: any) => {
           voucherName={item.name}
           price={item.price}
           voucherId={item._id}
+          quantity={item.quantity}
+          redirectUri={redirectUri}
         />
       )}
 
@@ -145,11 +163,11 @@ const styles = StyleSheet.create({
 
   ticketContainer: {
     width: 360,
-    height: 600,
+    height: 630,
     backgroundColor: "#FBFBFB",
     borderRadius: 12,
     paddingVertical: 20,
-    marginTop: 80,
+    marginTop: 50,
   },
 
   topSection: {

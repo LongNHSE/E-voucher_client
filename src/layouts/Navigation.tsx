@@ -19,10 +19,24 @@ import Voucher from "../screens/User/Voucher";
 import VNPayWebView from "../screens/User/VNPayWebView";
 import InventoryVoucherDetail from "../screens/User/InventoryVoucherDetails";
 import QR from "../screens/User/QR";
+import * as Linking from "expo-linking";
 
 const Stack: any = createNativeStackNavigator();
 
+const prefix = Linking.createURL("/");
+
 const Navigation = () => {
+  const linking = {
+    prefixes: [prefix],
+    config: {
+      screens: {
+        Login: "login",
+      },
+    },
+  };
+
+  console.log("prefix", prefix);
+
   const [status, setStatus] = useState<string>("loading");
   const authContext = useContext(AuthContext);
   const loadJWT = useCallback(async () => {
@@ -84,7 +98,7 @@ const Navigation = () => {
   if (status === "loading") return <></>;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       {authContext?.authState?.authenticated === false ? (
         <Stack.Navigator
           initialRouteName="Login"

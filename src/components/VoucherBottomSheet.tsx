@@ -6,6 +6,8 @@ import React, { useContext, useState } from "react";
 
 import * as SecureStore from "expo-secure-store";
 
+import * as WebBrowser from "expo-web-browser";
+
 import {
   Image,
   ScrollView,
@@ -28,7 +30,9 @@ const VoucherBottomSheet = ({
   image,
   voucherName,
   price,
+  quantity,
   voucherId,
+  redirectUri,
 }: any) => {
   const [amount, setAmount] = useState<number>(1);
   const [checked, setChecked] = useState<string>("VNPay");
@@ -48,7 +52,11 @@ const VoucherBottomSheet = ({
   const handlePurchase = async (total: number) => {
     let storedUser = await SecureStore.getItem("user");
 
+    const userData = JSON.parse(storedUser);
+
     let userId = "66227c966a3084c6b6c44837";
+
+    let giftUserId = "";
 
     try {
       if (!storedUser) {
@@ -61,9 +69,19 @@ const VoucherBottomSheet = ({
         const response = await authAxios.get(`/users/email/${email}`);
         console.log("response", response.data);
         userId = response.data._id;
+        giftUserId = userData._id;
+
+        // const responsePurchase = await authAxios.post(`/invoices`, {
+        //   userId,
+        //   quantity: amount,
+        //   voucherId,
+        //   giftUserId,
+        // });
+
+        // return;
       }
 
-      // const response = await authAxios.get(`/vnpay/`, {
+      // const response = await authAxios.post(`/invoices`, {
       //   userId,
       //   quantity: amount,
       //   voucherId,
@@ -73,16 +91,21 @@ const VoucherBottomSheet = ({
         total,
         bankcode: "",
         voucherId,
+        redirectUri,
       });
 
-      navigation.navigate("VNPay", {
-        paymentURL: url.data,
-      });
+      console.log(url.data);
+
+      await WebBrowser.openBrowserAsync(url.data);
+
+      // navigation.navigate("VNPay", {
+      //   paymentURL: url.data,
+      // });
     } catch (error) {
       console.log(error);
     }
 
-    // const response = await authAxios.post("/invoice", {});
+    const response = await authAxios.post("/invoice", {});
   };
 
   return (
@@ -97,7 +120,11 @@ const VoucherBottomSheet = ({
               </Text>
               <Text
                 style={{ fontSize: 20, fontWeight: "500", marginTop: 10 }}
-              >{`$${price}`}</Text>
+              >{`${price} VND`}</Text>
+
+              <Text style={{ fontSize: 18, fontWeight: "400", marginTop: 10 }}>
+                {quantity} vouchers left
+              </Text>
             </View>
           </View>
           <Divider borderColor="black" />
@@ -179,10 +206,14 @@ const VoucherBottomSheet = ({
                     borderRightWidth: 0.5,
                     width: 70,
                     borderColor: "grey",
-                    paddingLeft: 31,
+                    textAlign: "center",
                   }}
                 />
-                <Button mode="text" onPress={() => onChangeAmount("plus")}>
+                <Button
+                  disabled={amount === quantity}
+                  mode="text"
+                  onPress={() => onChangeAmount("plus")}
+                >
                   <Entypo name="plus" size={18} color="black" />{" "}
                 </Button>
               </View>

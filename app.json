@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "myapp",
     "name": "e-voucher_client",
     "slug": "e-voucher_client",
     "version": "1.0.0",

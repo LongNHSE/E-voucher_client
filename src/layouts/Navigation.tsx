@@ -14,6 +14,7 @@ import { AuthContext } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import Voucher from "../screens/User/Voucher";
 import VNPayWebView from "../screens/User/VNPayWebView";
+import InventoryVoucherDetail from "../screens/User/InventoryVoucherDetails";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -130,6 +131,15 @@ const Navigation = () => {
             options={{
               headerShown: false,
               title: "Voucher Detail",
+              animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="InventoryVoucherDetail"
+            component={InventoryVoucherDetail}
+            options={{
+              headerShown: false,
+              title: "VInventoryVoucherDetail",
               animation: "slide_from_right",
             }}
           />

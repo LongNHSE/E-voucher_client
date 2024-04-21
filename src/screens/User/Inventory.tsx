@@ -148,7 +148,9 @@ const Inventory = ({ navigation }: any) => {
             style={[styles.item]}
             key={item._id}
             onPress={() => {
-              navigation.navigate("VoucherDetail", { item: item.voucherId });
+              navigation.navigate("InventoryVoucherDetail", {
+                voucherSell: item,
+              });
             }}
           >
             <View style={styles.item}>
@@ -231,7 +233,7 @@ const Inventory = ({ navigation }: any) => {
                     borderRadius: 5,
                   }}
                   onPress={() => {
-                    navigation.navigate("VoucherDetail", { item });
+                    navigation.navigate("QR", { voucherSell: item });
                   }}
                 >
                   <Text color={"white"}>Use now</Text>

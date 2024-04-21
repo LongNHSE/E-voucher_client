@@ -10,6 +10,8 @@ import Setting from "../../components/Setting";
 import { Ionicons } from "@expo/vector-icons";
 import Inventory from "./Inventory";
 import Profile from "./Profile";
+import QRCode from "react-native-qrcode-svg";
+import QR from "./QR";
 
 const userTabValue: TabBarProps[] = [
   {

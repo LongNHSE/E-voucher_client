@@ -46,15 +46,6 @@ const staffTabValue: TabBarProps[] = [
     },
   },
   {
-    route: "QRCode",
-    component: QRCodeComponent,
-    tabBarLabel: "QR Code",
-    tabBarIconProps: {
-      iconType: Ionicons,
-      iconName: "qr-code-outline",
-    },
-  },
-  {
     route: "Setting",
     component: Setting,
     tabBarLabel: "Setting",

@@ -58,7 +58,7 @@ const Navigation = () => {
       });
       // console.log("loading jwt");
       // console.log(authContext.authState.authenticated);
-      console.log(authContext.authState.user.role === "staff");
+      console.log(authContext.authState);
       setStatus("success");
     } catch (error: Error | any) {
       setStatus("error");

@@ -68,16 +68,6 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
   const [isGift, setIsGift] = useState<boolean>(false);
   const [amountVoucher, setAmountVoucher] = useState(1);
 
-  const handleOpenDialog = (check) => {
-    if (check === "gift") {
-      setIsGift(true);
-      setIsOpenDialog(true);
-    } else {
-      setIsGift(false);
-      setIsOpenDialog(true);
-    }
-  };
-
   return (
     <>
       <StatusBar backgroundColor={"#004165"} />
@@ -98,19 +88,8 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
                 <Text style={{ fontSize: 20 }}>{voucher.name}</Text>
               </View>
             </View>
-            <View style={styles.voucherDes}>
-              <Text style={styles.descriptionText}>{voucher.description}</Text>
-              <View style={styles.conditionList}>
-                {voucher?.condition?.map((data, index) => {
-                  return (
-                    <View key={index} style={{ flexDirection: "row", gap: 2 }}>
-                      <Text>{"\u2022"}</Text>
-
-                      <Text style={styles.conditionText}>{` ${data}`}</Text>
-                    </View>
-                  );
-                })}
-              </View>
+            <View alignItems={"center"}>
+              <View style={styles.voucherQR}></View>
             </View>
           </View>
           <View style={styles.bottomSection}>
@@ -118,23 +97,6 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
             <View style={styles.after}></View>
             <Text style={styles.price}>{voucher.price} VND</Text>
 
-            <View style={styles.buttonSection}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("QR", { voucherSell: voucherSell });
-                }}
-              >
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Use now</Text>
-                </View>
-              </TouchableOpacity>
-
-              {/* <TouchableOpacity onPress={() => handleOpenDialog("gift")}>
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Gift Other</Text>
-                </View>
-              </TouchableOpacity> */}
-            </View>
             <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "400" }}>
               Valid Until {moment(voucher.endUseTime).format("Do MMM YY")}
             </Text>
@@ -161,16 +123,6 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
           voucherName={voucher.name}
           price={voucher.price}
           voucherId={voucher._id}
-        />
-      )}
-
-      {isOpenNotiDialog && (
-        <NotiDialog
-          navigation={navigation}
-          isOpenDialog={isOpenNotiDialog}
-          setIsOpenDialog={setIsOpenNotiDialog}
-          title={"Alert"}
-          message={"You must login before buy or gift voucher"}
         />
       )}
     </>
@@ -212,9 +164,15 @@ const styles = StyleSheet.create({
     lineHeight: 30, // Adjust line height as needed
   },
 
-  voucherDes: {
-    marginTop: 30,
+  voucherQR: {
+    marginTop: 20,
     paddingHorizontal: 10,
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#000000",
   },
 
   conditionList: {

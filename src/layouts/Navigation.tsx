@@ -15,6 +15,7 @@ import * as SecureStore from "expo-secure-store";
 import Voucher from "../screens/User/Voucher";
 import VNPayWebView from "../screens/User/VNPayWebView";
 import InventoryVoucherDetail from "../screens/User/InventoryVoucherDetails";
+import QR from "../screens/User/QR";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -142,6 +143,11 @@ const Navigation = () => {
               title: "VInventoryVoucherDetail",
               animation: "slide_from_right",
             }}
+          />
+          <Stack.Screen
+            name="QR"
+            component={QR}
+            options={{ title: "QR", animation: "slide_from_right" }}
           />
 
           <Stack.Screen

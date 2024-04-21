@@ -1,8 +1,7 @@
 import CustomBottomTab, { TabBarProps } from "../../layouts/CustomBottomTab";
 import StaffDashboard from "./StaffDashboard";
-import { FontAwesome } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
-import TimeLimit from "./TimeLimit";
+import { FontAwesome, Ionicons, AntDesign } from "@expo/vector-icons";
+import Config from "./Config";
 import ReportList from "./ReportList";
 import Setting from "../../components/Setting";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -13,10 +12,10 @@ const staffTabValue: TabBarProps[] = [
   {
     route: "StaffDashboard",
     component: StaffDashboard,
-    tabBarLabel: "Voucher request",
+    tabBarLabel: "Request",
     tabBarIconProps: {
-      iconType: FontAwesome,
-      iconName: "dashboard",
+      iconType: Ionicons,
+      iconName: "pricetags-outline",
     },
   },
   {
@@ -28,22 +27,22 @@ const staffTabValue: TabBarProps[] = [
       iconName: "list",
     },
   },
-  {
-    route: "QRScanner",
-    component: QRScanner,
-    tabBarLabel: "QR Scanner",
-    tabBarIconProps: {
-      iconType: MaterialCommunityIcons,
-      iconName: "qrcode-scan",
-    },
-  },
+  // {
+  //   route: "QRScanner",
+  //   component: ReportList,
+  //   tabBarLabel: "Report",
+  //   tabBarIconProps: {
+  //     iconType: FontAwesome,
+  //     iconName: "list",
+  //   },
+  // },
   {
     route: "TimeLimit",
-    component: TimeLimit,
-    tabBarLabel: "Time",
+    component: Config,
+    tabBarLabel: "Config",
     tabBarIconProps: {
-      iconType: Ionicons,
-      iconName: "time-outline",
+      iconType: AntDesign,
+      iconName: "tool",
     },
   },
   {

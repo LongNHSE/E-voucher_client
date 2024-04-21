@@ -9,6 +9,9 @@ import VoucherDetail from "../screens/User/VoucherDetail";
 import StaffTab from "../screens/Staff/StaffTab";
 import ReportDetail from "../screens/Staff/ReportDetail";
 import RequestVoucherDetail from "../screens/Staff/RequestVoucherDetail";
+import HostTab from "../screens/Host/HostTab";
+import VoucherHostDetail from "../screens/Host/VoucherHostDetail";
+import { VoucherCreation } from "../screens/Host/VoucherCreation";
 import { AxiosContext } from "../context/AxiosContext";
 import { AuthContext } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
@@ -153,6 +156,22 @@ const Navigation = () => {
             name="RequestVoucherDetail"
             component={RequestVoucherDetail}
             options={{ title: "Voucher Detail", animation: "slide_from_right" }}
+          />
+          {/* Host */}
+          <Stack.Screen
+            name="HostTab"
+            component={HostTab}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="VoucherHostDetail"
+            component={VoucherHostDetail}
+            options={{ title: "Voucher Detail", animation: "slide_from_right" }}
+          />
+          <Stack.Screen
+            name="VoucherCreation"
+            component={VoucherCreation}
+            options={{ title: "Voucher Create", animation: "slide_from_right" }}
           />
         </Stack.Navigator>
       )}

@@ -3,6 +3,7 @@ import React from "react";
 
 const NotiDialog = ({
   navigation,
+  navigateFunc,
   isOpenDialog,
   setIsOpenDialog,
   title,
@@ -32,7 +33,7 @@ const NotiDialog = ({
               <Button
                 variant="outline"
                 colorScheme="coolGray"
-                onPress={onClose}
+                onPress={navigateFunc ? navigateFunc : onClose}
                 ref={cancelRef}
               >
                 Got It

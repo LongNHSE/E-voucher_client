@@ -2,7 +2,7 @@ import { View, Text, AlertDialog, Actionsheet, Divider } from "native-base";
 
 import { Button, RadioButton } from "react-native-paper";
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import * as SecureStore from "expo-secure-store";
 
@@ -40,6 +40,18 @@ const VoucherBottomSheet = ({
   const [paymentURL, setPaymentURl] = useState<string>("");
   const [isGift, setIsGift] = useState<boolean>(false);
   const { authAxios, publicAxios } = useContext(AxiosContext);
+  const [userId, setUserId] = useState<string>("");
+  useEffect(() => {
+    const fetchUser = async () => {
+      let storedUser = await SecureStore.getItem("user");
+
+      const userData = JSON.parse(storedUser);
+
+      setUserId(userData._id);
+    };
+
+    fetchUser();
+  }, []);
 
   const onChangeAmount = (choice: string) => {
     if (choice === "minus") {
@@ -54,7 +66,7 @@ const VoucherBottomSheet = ({
 
     const userData = JSON.parse(storedUser);
 
-    let userId = "66227c966a3084c6b6c44837";
+    let userId = userData._id;
 
     let giftUserId = "";
 
@@ -94,9 +106,15 @@ const VoucherBottomSheet = ({
         redirectUri,
       });
 
-      console.log(url.data);
-
-      await WebBrowser.openBrowserAsync(url.data);
+      console.log("---------vouchersheet", url.data);
+      setIsOpenDialog(false);
+      navigation.navigate("Payment", {
+        url: url.data,
+        userId,
+        giftUserId,
+        amount,
+        voucherId,
+      });
 
       // navigation.navigate("VNPay", {
       //   paymentURL: url.data,
@@ -252,7 +270,7 @@ const VoucherBottomSheet = ({
           <View style={styles.totalSection}>
             <Text style={styles.title}>
               Total:{" "}
-              <Text style={{ fontWeight: "400" }}>{price * amount}$</Text>
+              <Text style={{ fontWeight: "400" }}>{price * amount} VND</Text>
             </Text>
 
             <TouchableOpacity

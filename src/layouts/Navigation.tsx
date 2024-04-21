@@ -20,6 +20,7 @@ import VNPayWebView from "../screens/User/VNPayWebView";
 import InventoryVoucherDetail from "../screens/User/InventoryVoucherDetails";
 import QR from "../screens/User/QR";
 import * as Linking from "expo-linking";
+import Payment from "../screens/User/Payment";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -158,6 +159,15 @@ const Navigation = () => {
             options={{
               headerShown: false,
               title: "Voucher Detail",
+              animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="Payment"
+            component={Payment}
+            options={{
+              headerShown: false,
+              title: "Payment",
               animation: "slide_from_right",
             }}
           />

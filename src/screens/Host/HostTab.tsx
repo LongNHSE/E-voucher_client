@@ -1,9 +1,9 @@
 import CustomBottomTab, { TabBarProps } from "../../layouts/CustomBottomTab";
 import HostDashboard from "./HostDashboard";
-import { FontAwesome,FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import VoucherRequest from "./VoucherRequest";
-
+import Setting from "../../components/Setting";
 
 const hostTabValue: TabBarProps[] = [
   {
@@ -20,8 +20,17 @@ const hostTabValue: TabBarProps[] = [
     component: VoucherRequest,
     tabBarLabel: "VoucherRequest",
     tabBarIconProps: {
-      iconType: FontAwesome5 ,
+      iconType: FontAwesome5,
       iconName: "ticket-alt",
+    },
+  },
+  {
+    route: "Setting",
+    component: Setting,
+    tabBarLabel: "Setting",
+    tabBarIconProps: {
+      iconType: Ionicons,
+      iconName: "settings-outline",
     },
   },
   // {

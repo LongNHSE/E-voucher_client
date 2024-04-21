@@ -127,6 +127,15 @@ const Navigation = () => {
               options={{ headerShown: false }}
             />
           ) : null}
+
+          {authContext?.authState?.user?.role === "host" ? (
+            <Stack.Screen
+              name="HostTab"
+              component={HostTab}
+              options={{ headerShown: false }}
+            />
+          ) : null}
+
           <Stack.Screen
             name="VoucherDetail"
             component={VoucherDetail}
@@ -158,11 +167,7 @@ const Navigation = () => {
             options={{ title: "Voucher Detail", animation: "slide_from_right" }}
           />
           {/* Host */}
-          <Stack.Screen
-            name="HostTab"
-            component={HostTab}
-            options={{ headerShown: false }}
-          />
+
           <Stack.Screen
             name="VoucherHostDetail"
             component={VoucherHostDetail}

@@ -53,6 +53,7 @@ const Login = () => {
       });
       console.log(authContext.authState);
     } catch (error) {
+      console.log(error);
       Alert.alert("Login Failed", error.response.data.message);
     } finally {
       setLoading(false);

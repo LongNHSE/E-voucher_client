@@ -4,6 +4,8 @@ import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import VoucherRequest from "./VoucherRequest";
 import Setting from "../../components/Setting";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import QRScanner from "../Host/QRScanner";
 
 const hostTabValue: TabBarProps[] = [
   {
@@ -13,6 +15,15 @@ const hostTabValue: TabBarProps[] = [
     tabBarIconProps: {
       iconType: FontAwesome,
       iconName: "dashboard",
+    },
+  },
+  {
+    route: "QRScanner",
+    component: QRScanner,
+    tabBarLabel: "QR Scanner",
+    tabBarIconProps: {
+      iconType: MaterialCommunityIcons,
+      iconName: "qrcode-scan",
     },
   },
   {

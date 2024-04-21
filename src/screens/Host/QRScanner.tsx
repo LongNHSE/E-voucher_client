@@ -11,6 +11,12 @@ import {
 import { AxiosContext } from "../../context/AxiosContext";
 import Spinner from "../../components/Spinner";
 import * as Device from "expo-device";
+interface VoucherScanned {
+  voucher: {
+    voucher_id: string;
+    hash: string;
+  };
+}
 
 export default function QRScanner() {
   const { publicAxios } = useContext(AxiosContext);
@@ -30,10 +36,18 @@ export default function QRScanner() {
 
   const handleQRCodeScanned = async (data) => {
     const dataObject = JSON.parse(data);
+    console.log(dataObject);
+    if (!dataObject.voucher_id || !dataObject.hash) {
+      Alert.alert("Error", "Invalid QR Code", [
+        { text: "OK", onPress: () => setScanned(false) },
+      ]);
+      return;
+    }
     setLoading(true);
     try {
       const response = await publicAxios.post("/voucherSell/QRCode", {
-        voucherId: dataObject.voucher._id,
+        voucherId: dataObject.voucher_id,
+        hash: dataObject.hash,
       });
       console.log(response.data);
       Alert.alert("Success", response.data.message, [
@@ -48,8 +62,6 @@ export default function QRScanner() {
       setLoading(false);
     }
   };
-  console.log(Device.isDevice);
-  console.log("iSd");
   return (
     <View style={styles.container}>
       {loading && <Spinner />}

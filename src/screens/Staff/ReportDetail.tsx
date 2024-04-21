@@ -6,22 +6,63 @@ import {
   Button,
   ScrollView,
   Input,
+  useToast,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { AxiosContext } from "../../context/AxiosContext";
+import { AuthContext } from "../../context/AuthContext";
 
-const ReportDetail = ({ route }: any) => {
+const ReportDetail = ({ route, navigation }: any) => {
+  const toast = useToast();
   const { report } = route.params;
+  const { authAxios } = useContext(AxiosContext);
+  const authContext: any = useContext(AuthContext);
   const [showResponseForm, setShowResponseForm] = useState<boolean>(false);
+  const [response, setResponse] = useState<string>("");
+
+  const handleSubmitResponse = async () => {
+    console.log("response", response);
+    console.log("user", authContext.authState.user);
+    try {
+      const res = await authAxios.patch(`/reports/${report._id}`, {
+        staffMessage: response,
+        staff: authContext.authState.user._id,
+      });
+      if (res.data.message === "Success") {
+        setShowResponseForm(false);
+        setResponse("");
+        navigation.goBack();
+        toast.show({
+          title: "Success",
+          description: "Response submitted",
+        });
+      } else {
+        setShowResponseForm(false);
+        toast.show({
+          title: "Error",
+          description: "Failed to submit response",
+        });
+      }
+    } catch (error: any) {
+      toast.show({
+        title: "Error",
+        description: "Something went wrong",
+      });
+      console.log("error", error.message);
+    }
+  };
   return (
     <ScrollView>
       <View className="m-4">
         <View className="mb-2">
           <Heading className="text-center text-2xl font-extrabold">
-            {report.voucherName}
+            {report.voucherSell.voucherId.name}
           </Heading>
         </View>
         <Image
-          source={report.image}
+          source={{
+            uri: report.voucherSell.voucherId.imageUrl,
+          }}
           alt="voucher"
           size={40}
           rounded="full"
@@ -46,43 +87,46 @@ const ReportDetail = ({ route }: any) => {
             <Text fontSize="xl" className="font-semibold">
               Voucher Code:
             </Text>
-            <Text fontSize="lg">{report.voucherCode}</Text>
+            <Text fontSize="lg">{report.voucherSell.voucherId.code}</Text>
           </View>
           <View className="mb-2 flex-row justify-between">
             <Text fontSize="xl" className="font-semibold">
               Percentage Discount:
             </Text>
-            <Text fontSize="lg">{report.percentDiscount}</Text>
+            <Text fontSize="lg">
+              {report.voucherSell.voucherId.discount}{" "}
+              {report.voucherSell.voucherId.discountType === "percentage" &&
+                "%"}
+            </Text>
           </View>
           <View className="mb-2 flex-row justify-between">
             <Text fontSize="xl" className="font-semibold">
-              Number of report:
+              Price:
             </Text>
-            <Text fontSize="lg">{report.numberOfReport}</Text>
+            <Text fontSize="lg">
+              {report.voucherSell.voucherId.price
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}{" "}
+              VND
+            </Text>
           </View>
           <View className="mb-2 flex-row justify-between">
             <Text fontSize="xl" className="font-semibold">
-              Create date:
+              Category:
             </Text>
-            <Text fontSize="lg">{report.createDate}</Text>
+            <Text fontSize="lg">{report.voucherSell.voucherId.category}</Text>
           </View>
           <View className="mb-2 flex-row justify-between">
             <Text fontSize="xl" className="font-semibold">
-              User name:
+              Repor username:
             </Text>
-            <Text fontSize="lg">{report.userName}</Text>
+            <Text fontSize="lg">{report.user.username}</Text>
           </View>
           <View className="mb-2 flex-row justify-between">
             <Text fontSize="xl" className="font-semibold">
-              Role:
+              Report type:
             </Text>
-            <Text fontSize="lg">{report.role}</Text>
-          </View>
-          <View className="mb-2 flex-row justify-between">
-            <Text fontSize="xl" className="font-semibold">
-              Status:
-            </Text>
-            <Text fontSize="lg">{report.status}</Text>
+            <Text fontSize="lg">{report.reportType.name}</Text>
           </View>
         </View>
         <View
@@ -101,9 +145,11 @@ const ReportDetail = ({ route }: any) => {
         >
           <View>
             <Text fontSize="xl" className="font-bold text-center">
-              Report reason
+              Report message
             </Text>
-            <Text fontSize="lg">{report.reportReason}</Text>
+            <Text fontSize="lg" textAlign="center">
+              {report.userMessage}
+            </Text>
           </View>
         </View>
 
@@ -131,6 +177,8 @@ const ReportDetail = ({ route }: any) => {
                 bg: "gray.200",
                 borderColor: "gray.200",
               }}
+              value={response || ""}
+              onChange={(e) => setResponse(e.nativeEvent.text)}
             />
             <Button
               variant={"solid"}
@@ -138,6 +186,7 @@ const ReportDetail = ({ route }: any) => {
               marginTop="4"
               rounded="full"
               _pressed={{ bg: "gray.500" }}
+              onPress={handleSubmitResponse}
             >
               Submit
             </Button>

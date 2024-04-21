@@ -23,6 +23,7 @@ import Voucher from "./Voucher";
 import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
 import NotiDialog from "../../components/NotiDialog";
+import QRCode from "react-native-qrcode-svg";
 interface Voucher {
   _id: string;
   name: string;
@@ -85,11 +86,23 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
 
               <View style={styles.discountInfo}>
                 <Text style={styles.discountText}>{voucher.discount}% OFF</Text>
-                <Text style={{ fontSize: 20 }}>{voucher.name}</Text>
+                <Text style={{ fontSize: 20, width: 200 }} numberOfLines={2}>
+                  {voucher.name}
+                </Text>
               </View>
             </View>
             <View alignItems={"center"}>
-              <View style={styles.voucherQR}></View>
+              <View style={styles.voucherQR}>
+                <View style={{ marginTop: 7, marginLeft: 7 }}>
+                  <QRCode
+                    value={JSON.stringify({
+                      voucher_id: voucherSell._id,
+                      hash: voucherSell.hash,
+                    })}
+                    size={235}
+                  ></QRCode>
+                </View>
+              </View>
             </View>
           </View>
           <View style={styles.bottomSection}>
@@ -166,7 +179,7 @@ const styles = StyleSheet.create({
 
   voucherQR: {
     marginTop: 20,
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
     width: 250,
     height: 250,
     borderRadius: 10,

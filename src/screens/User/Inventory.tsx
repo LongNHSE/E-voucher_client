@@ -1,30 +1,7 @@
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import {
-  View,
-  Text,
-  FlatList,
-  ScrollView,
-  Image,
-  Icon,
-  SearchIcon,
-  Center,
-  Input,
-  Modal,
-  FormControl,
-  Button,
-  HStack,
-  Select,
-  Divider,
-  CheckIcon,
-} from "native-base";
-import {
-  Pressable,
-  StyleSheet,
-  Touchable,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, Image } from "native-base";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Constants from "expo-constants";
 import { TextInput } from "react-native-paper";
@@ -33,6 +10,7 @@ import voucherPlaceholder from "../../../assets/icon.png";
 import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import * as SecureStore from "expo-secure-store";
+import { AxiosContext } from "../../context/AxiosContext";
 
 interface Voucher {
   _id: string;
@@ -73,6 +51,7 @@ interface RO {
 }
 
 const Inventory = ({ navigation }: any) => {
+  const { publicAxios } = useContext(AxiosContext);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -130,6 +109,19 @@ const Inventory = ({ navigation }: any) => {
 
   //scroll hide header
   const [isShowHeader, setIsShowHeader] = React.useState(true);
+
+  //Handle use QR
+  const handleUseQR = async (voucherSell: VoucherSell) => {
+    console.log("handleUseQR", voucherSell);
+    const voucherSellResult = await publicAxios.post(
+      "/voucherSell/generateQRCode",
+      {
+        voucherId: voucherSell._id,
+      }
+    );
+    console.log("voucherSellResult", voucherSellResult.data);
+    navigation.navigate("QR", { voucherSell: voucherSellResult.data.voucher });
+  };
 
   return (
     <View style={styles.container}>
@@ -233,7 +225,8 @@ const Inventory = ({ navigation }: any) => {
                     borderRadius: 5,
                   }}
                   onPress={() => {
-                    navigation.navigate("QR", { voucherSell: item });
+                    handleUseQR(item);
+                    // navigation.navigate("QR", { voucherSell: item });
                   }}
                 >
                   <Text color={"white"}>Use now</Text>

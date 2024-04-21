@@ -91,11 +91,6 @@ const Inventory = ({ navigation }: any) => {
       .get(url)
       .then((res) => {
         console.log(`------------${url}`);
-        Array.isArray(res.data) &&
-          res.data.forEach((item: VoucherSell) => {
-            console.log(item);
-          });
-
         setVoucherSells(res.data);
         setLoading(false);
       })

@@ -71,12 +71,14 @@ const Voucher = ({ navigation }: any) => {
   const fetchVouchers = () => {
     setLoading(true);
     //filter&search logic
+
     let query: string = "";
     if (category !== "All" && category !== "") {
       query = `&category=${category}`;
+      console.log(">>>category", category);
     }
     if (searchName !== "") {
-      query = `&name=${searchName}`;
+      query += `&name=${searchName}`;
     }
 
     const url = `${baseUrl}/vouchers/search?status=available${query}`;
@@ -115,12 +117,12 @@ const Voucher = ({ navigation }: any) => {
   ];
   const [category, setCategory] = useState<string>(initFilter[0]);
 
-  useEffect(() => {
-    fetchVouchers();
-  }, [isFocused, category]);
-
   //search name
   const [searchName, setSearchName] = useState<string>("");
+
+  useEffect(() => {
+    fetchVouchers();
+  }, [isFocused, category, searchName]);
 
   //modal
   const [modalVisible, setModalVisible] = React.useState(false);

@@ -19,7 +19,6 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
   const toast = useToast();
   const [showModal, setShowModal] = useState<boolean>(false);
   const [rejectReason, setRejectReason] = useState<string | null>(null);
-  console.log("voucher", voucher);
 
   const handleChangeVoucherStatus = async (status: string) => {
     console.log("status", status, rejectReason);

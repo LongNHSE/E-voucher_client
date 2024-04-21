@@ -2,24 +2,16 @@ import {
   View,
   Text,
   ScrollView,
-  Heading,
-  Icon,
-  Box,
   Pressable,
-  Input,
-  AlertDialog,
-  Button,
   Image,
-  Divider,
-  Select,
   Spinner,
   useToast,
 } from "native-base";
-import React, { useContext, useEffect, useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { AxiosContext } from "../../context/AxiosContext";
-import { Dimensions } from "react-native";
+import { Animated, Dimensions } from "react-native";
+import StickyHeader from "../../components/StickyHeader";
 
 // const requestVoucher = [
 //   {
@@ -116,8 +108,9 @@ interface RequestVoucher {
 const { width, height }: { width: any; height: any } = Dimensions.get("window");
 
 const StaffDashboard = ({ navigation }: any) => {
+  const scrollOffsetY = useRef(new Animated.Value(0)).current;
   const [requestVoucher, setRequestVoucher] = useState<RequestVoucher[]>([]);
-  const [filterVoucher, setFilterVoucher] = useState<string>("all");
+  const [filterVoucher, setFilterVoucher] = useState<string>("pending");
   const toast = useToast();
   const focus = useIsFocused();
   const { authAxios } = useContext<any>(AxiosContext);
@@ -154,90 +147,90 @@ const StaffDashboard = ({ navigation }: any) => {
     if (focus) fetchVouchers();
   }, [focus]);
   return (
-    <View className="mt-4 mx-4">
-      <Heading fontSize="2xl">Request voucher list</Heading>
-      <View display="flex" flexDirection="row" justifyContent="space-between">
-        <Input
-          width={width / 1.8}
-          rounded="full"
-          marginY={2}
-          InputLeftElement={
-            <Icon as={MaterialIcons} name="search" size={8} ml={2} />
-          }
-          _focus={{
-            backgroundColor: "coolGray.300",
-            borderColor: "coolGray.300",
-          }}
-        />
-        <Select
-          width={width / 3}
-          placeholder="Filter by status"
-          marginY={2}
-          rounded="full"
-          onValueChange={(e) => setFilterVoucher(e)}
-        >
-          <Select.Item label="All" value="all" />
-          <Select.Item label="Pending" value="pending" />
-          <Select.Item label="Available" value="available" />
-          <Select.Item label="Reject" value="reject" />
-        </Select>
-      </View>
-      {/* Voucher design sample */}
-      <ScrollView>
-        {requestVoucher
-          .filter((voucher) => {
-            return filterVoucher === "all" || voucher.status === filterVoucher;
-          })
-          .map((voucher) => (
-            <Pressable
-              key={voucher.id}
-              onPress={() =>
-                navigation.navigate("RequestVoucherDetail", {
-                  voucher: voucher,
-                })
-              }
-            >
-              {({ isPressed }) => {
-                return (
-                  <View
-                    style={{
-                      transform: [{ scale: isPressed ? 0.95 : 1 }],
-                    }}
-                    className="flex-row items-center bg-gray-200 rounded-md mt-4"
-                  >
-                    <View className="border-r-2 border-gray-400 border-dashed mx-2">
-                      <Image
-                        source={{ uri: voucher.imageUrl }}
-                        alt="voucher"
-                        size={20}
-                        rounded="full"
-                        marginRight={1}
+    <View>
+      <StickyHeader
+        header="Voucher request list"
+        filterList={["Pending", "Reject", "Available", "All"]}
+        scrollOffsetY={scrollOffsetY}
+        setFilterItem={setFilterVoucher}
+      />
+      <ScrollView
+        bg={"#004165"}
+        height={height - 200}
+        onScroll={() => {
+          Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollOffsetY } } }],
+            {
+              useNativeDriver: false,
+            }
+          );
+        }}
+      >
+        <View className="mt-4 mx-4">
+          {/* Voucher design sample */}
+          {requestVoucher
+            .filter((voucher) => {
+              return (
+                filterVoucher === "all" || voucher.status === filterVoucher
+              );
+            })
+            .map((voucher) => (
+              <Pressable
+                key={voucher.id}
+                onPress={() =>
+                  navigation.navigate("RequestVoucherDetail", {
+                    voucher: voucher,
+                  })
+                }
+              >
+                {({ isPressed }) => {
+                  return (
+                    <View
+                      style={{
+                        transform: [{ scale: isPressed ? 0.95 : 1 }],
+                      }}
+                      bg={"white"}
+                      className="flex-row items-center rounded-md mt-4"
+                    >
+                      <View className="border-r-2 border-gray-400 border-dashed mx-2">
+                        <Image
+                          source={{ uri: voucher.imageUrl }}
+                          alt="voucher"
+                          size={20}
+                          rounded="full"
+                          marginRight={1}
+                        />
+                      </View>
+                      <View className="m-2 flex-column justify-center">
+                        <Text className="text-xl font-bold">
+                          {voucher.name}
+                        </Text>
+                        <Text className="text-md font-semibold">
+                          {voucher.discount} % off
+                        </Text>
+                        <Text
+                          className="text-lg capitalize"
+                          color={
+                            voucher.status === "reject"
+                              ? "red.500"
+                              : voucher.status === "available"
+                              ? "green.500"
+                              : "gray.500"
+                          }
+                        >
+                          {voucher.status}
+                        </Text>
+                      </View>
+                      <View
+                        bg={"#004165"}
+                        className="w-10 h-10 rounded-full absolute -right-5"
                       />
                     </View>
-                    <View className="m-2 flex-column justify-center">
-                      <Text className="text-xl font-bold">{voucher.name}</Text>
-                      <Text className="text-md font-semibold">
-                        {voucher.discount} % off
-                      </Text>
-                      <Text
-                        className="text-lg capitalize"
-                        color={
-                          voucher.status === "reject"
-                            ? "red.500"
-                            : voucher.status === "available"
-                            ? "green.500"
-                            : "gray.500"
-                        }
-                      >
-                        {voucher.status}
-                      </Text>
-                    </View>
-                    <View className="w-10 h-10 bg-gray-100 rounded-full absolute -right-5" />
-                  </View>
-                );
-              }}
-            </Pressable>
-          ))}
+                  );
+                }}
+              </Pressable>
+            ))}
+        </View>
       </ScrollView>
     </View>
   );

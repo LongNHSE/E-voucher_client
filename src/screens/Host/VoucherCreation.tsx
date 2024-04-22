@@ -16,11 +16,10 @@ import { AntDesign } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
 import { AxiosContext } from "../../context/AxiosContext";
-import { baseUrl } from "../../utils/appConstant";
+import { baseUrl, getBaseURL } from "../../utils/appConstant";
 import axios from "axios"; // Import axios library
 import * as FileSystem from "expo-file-system";
 import { AuthContext } from "../../context/AuthContext";
-
 
 export const VoucherCreation = () => {
   const { authAxios } = useContext(AxiosContext);
@@ -41,9 +40,9 @@ export const VoucherCreation = () => {
     imageURL: "",
     discountType: "percentage",
     category: "",
-    host: authContext.authState.user._id
+    host: authContext.authState.user._id,
   });
-  const url = `${baseUrl}/vouchers`;
+  const url = `${getBaseURL()}/vouchers`;
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDateEndPicker, setShowDateEndPicker] = useState(false);
   const [showStartSellDatePicker, setShowStartSellDatePicker] = useState(false);
@@ -78,7 +77,7 @@ export const VoucherCreation = () => {
       }
     }
   };
-  
+
   const onChangeStartSellTime = (event: Event, selectedDate: Date) => {
     setShowStartSellDatePicker(false);
     if (event.type === "set" || event.type === "dismissed") {
@@ -95,7 +94,7 @@ export const VoucherCreation = () => {
       // Check if the selected date is not earlier than startSellTime
       if (currentDate >= startSellTime) {
         setEndSellTime(currentDate);
-        setVoucher({ ...voucher, endSellTime: currentDate }); 
+        setVoucher({ ...voucher, endSellTime: currentDate });
       } else {
         // Notify the user about the invalid selection
         Toast.show({
@@ -134,7 +133,7 @@ export const VoucherCreation = () => {
   }
   const uploadImage = async (uri: string) => {
     const result = await FileSystem.uploadAsync(
-      "http://10.0.2.2:8000/vouchers/image",
+      `${getBaseURL()}/vouchers/image`,
       uri,
       {
         httpMethod: "POST",
@@ -151,6 +150,8 @@ export const VoucherCreation = () => {
     try {
       if (voucher.imageURL) {
         const uploadedImageUrl = await uploadImage(voucher.imageURL);
+        console.log("-------------", url);
+
         const response = await authAxios.post(url, {
           ...voucher,
           imageUrl: uploadedImageUrl.data,

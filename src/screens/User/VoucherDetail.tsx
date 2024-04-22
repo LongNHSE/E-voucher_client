@@ -29,7 +29,7 @@ import * as Linking from "expo-linking";
 import { formatNumber } from "../../utils/NumberFormatter";
 
 const VoucherDetail = ({ navigation, route }: any) => {
-  const { item } = route.params;
+  const item = route?.params?.item;
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
   const [isOpenNotiDialog, setIsOpenNotiDialog] = useState<boolean>(false);
   const [isGift, setIsGift] = useState<boolean>(false);

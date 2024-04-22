@@ -24,7 +24,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Constants from "expo-constants";
 import { TextInput } from "react-native-paper";
@@ -34,6 +34,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import * as Linking from "expo-linking";
 import { formatNumber } from "../../utils/NumberFormatter";
+import { AxiosContext } from "../../context/AxiosContext";
 
 interface Voucher {
   _id: string;
@@ -69,7 +70,7 @@ const Voucher = ({ navigation }: any) => {
 
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const isFocused = useIsFocused();
-
+  const { publicAxios } = useContext(AxiosContext);
   const fetchVouchers = () => {
     setLoading(true);
     //filter&search logic
@@ -83,9 +84,9 @@ const Voucher = ({ navigation }: any) => {
       query += `&name=${searchName}`;
     }
 
-    const url = `${baseUrl}/vouchers/search?status=available${query}`;
+    const url = `/vouchers/search?status=available${query}`;
 
-    axios
+    publicAxios
       .get(url)
       .then((res) => {
         console.log(`------------${url}`);

@@ -68,6 +68,8 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
   const [isGift, setIsGift] = useState<boolean>(false);
   const [amountVoucher, setAmountVoucher] = useState(1);
 
+  console.log(voucherSell);
+
   const handleOpenDialog = (check) => {
     if (check === "gift") {
       setIsGift(true);
@@ -153,6 +155,18 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
               {moment(voucher.endUseTime).format("Do MMM YY")}
             </Text>
           </View>
+
+          <TouchableOpacity
+            style={{ position: "absolute", right: 10, top: 15 }}
+            onPress={() =>
+              navigation.navigate("UserReport", {
+                voucherId: voucher._id,
+                voucherSellId: voucherSell._id,
+              })
+            }
+          >
+            <FontAwesome name="flag" size={30} color="red" />
+          </TouchableOpacity>
         </View>
 
         <View>

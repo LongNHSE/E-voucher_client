@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Button,
@@ -27,7 +27,7 @@ export const VoucherCreation = () => {
   const [voucher, setVoucher] = useState({
     id: 0,
     code: "",
-    name: "Banana",
+    name: "Voucher",
     discount: "0",
     description: "",
     price: "",
@@ -105,26 +105,32 @@ export const VoucherCreation = () => {
       }
     }
   };
-
-  const handleInputChange = (field: any, value: any) => {
-    if (field === "imageURL") {
-      const imageUri = value.assets[0]?.uri || null;
-
-      setVoucher({ ...voucher, [field]: imageUri });
-    } else if (field === "discount" && voucher.discountType === "percentage") {
-      const discountValue = parseFloat(value);
-      if (discountValue >= 0 && discountValue <= 100) {
-        setVoucher({ ...voucher, [field]: value });
-      }
-    } else if (field === "discount" && voucher.discountType === "VND") {
-      const discountValue = parseInt(value);
-      if (discountValue >= 0 && discountValue <= 1000000000) {
-        setVoucher({ ...voucher, [field]: value });
-      }
-    } else {
+const handleInputChange = (field: any, value: any) => {
+  if (field === "imageURL") {
+    const imageUri = value.assets[0]?.uri || null;
+    setVoucher({ ...voucher, [field]: imageUri });
+  } else if (field === "discount" && voucher.discountType === "percentage") {
+    const discountValue = parseFloat(value);
+    if (!isNaN(discountValue) && discountValue >= 0 && discountValue <= 100) {
       setVoucher({ ...voucher, [field]: value });
     }
-  };
+  } else if (field === "discount" && voucher.discountType === "VND") {
+    const discountValue = parseInt(value);
+    if (!isNaN(discountValue) && discountValue >= 0 && discountValue <= 1000000000) {
+      setVoucher({ ...voucher, [field]: value });
+    }
+  } else if (field === "quantity" || field === "price") {
+    const numericValue = parseInt(value);
+    if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 1000000) {
+      setVoucher({ ...voucher, [field]: value });
+    } else {
+      setVoucher({ ...voucher, [field]: "" }); // Set to empty string if not a valid number or out of range
+    }
+  } else {
+    setVoucher({ ...voucher, [field]: value });
+  }
+};
+
 
   interface ro {
     message: string;
@@ -133,7 +139,7 @@ export const VoucherCreation = () => {
   }
   const uploadImage = async (uri: string) => {
     const result = await FileSystem.uploadAsync(
-      `${getBaseURL()}/vouchers/image`,
+      "http://10.0.2.2:8000/vouchers/image",
       uri,
       {
         httpMethod: "POST",
@@ -148,19 +154,35 @@ export const VoucherCreation = () => {
 
   const handleCreateVoucher = async () => {
     try {
+      if (startSellTime >= startUseTime || endSellTime >= endUseTime) {
+        Toast.show({
+          title: "Invalid Date Selection",
+          status: "error",
+          description: "Sell time must be earlier than Use time.",
+        });
+        return;
+      }
+      const sellTimeDifference =
+        Math.abs(endSellTime.getTime() - startSellTime.getTime()) /
+        (1000 * 60 * 60 * 24);
+      // if (sellTimeDifference < timeLimits) {
+      //   Toast.show({
+      //     title: "Invalid Sell Time",
+      //     status: "error",
+      //     description: `Sell time must be higher than ${timeLimits} days.`,
+      //   });
+      //   return;
+      // }
       if (voucher.imageURL) {
         const uploadedImageUrl = await uploadImage(voucher.imageURL);
-        console.log("-------------", url);
-
         const response = await authAxios.post(url, {
           ...voucher,
           imageUrl: uploadedImageUrl.data,
         });
+        Toast.show({
+          description: "Successfully added",
+        });
       }
-
-      Toast.show({
-        description: "Successfully added",
-      });
     } catch (error) {
       console.error("Error creating voucher:", error);
     }
@@ -322,7 +344,6 @@ export const VoucherCreation = () => {
             value={startUseTime || new Date()}
             mode="date"
             display="default"
-            maximumDate={new Date()}
             onChange={onChange}
           />
         )}
@@ -349,7 +370,6 @@ export const VoucherCreation = () => {
             value={endUseTime || new Date()}
             mode="date"
             display="default"
-            maximumDate={new Date()}
             onChange={onChangeEnd}
           />
         )}
@@ -411,7 +431,6 @@ export const VoucherCreation = () => {
             value={startSellTime || new Date()}
             mode="date"
             display="default"
-            maximumDate={new Date()}
             onChange={onChangeStartSellTime}
           />
         )}
@@ -438,10 +457,12 @@ export const VoucherCreation = () => {
             value={endSellTime || new Date()}
             mode="date"
             display="default"
-            maximumDate={new Date()}
             onChange={onChangeEndSellTime}
           />
         )}
+      </View>
+      <View justifyContent={"center"} alignItems={"center"}>
+        {/* <Text color={'amber.500'}>Sell time must higher than {timeLimits} days</Text> */}
       </View>
       <View alignItems={"center"}>
         <Button

@@ -22,7 +22,7 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
 
   const handleChangeVoucherStatus = async (status: string) => {
     console.log("status", status, rejectReason);
-    if (status === "reject" && !rejectReason) {
+    if (status === "rejected" && !rejectReason) {
       toast.show({
         title: "Error",
         description: "Please provide a reason to reject this voucher",
@@ -40,7 +40,7 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
       if (response.data.message === "Success") {
         setRejectReason(null);
         setShowModal(false);
-        if (status === "reject") {
+        if (status === "rejected") {
           navigation.goBack();
           toast.show({
             title: "Success",
@@ -193,7 +193,7 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
               Disable
             </Button>
           )}
-          {voucher.status === "reject" && (
+          {voucher.status === "rejected" && (
             <Button
               marginTop={20}
               variant={"solid"}
@@ -247,7 +247,7 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
                 <Button
                   rounded="full"
                   bg={"black"}
-                  onPress={() => handleChangeVoucherStatus("reject")}
+                  onPress={() => handleChangeVoucherStatus("rejected")}
                   _pressed={{
                     bg: "gray.500",
                   }}

@@ -1,6 +1,6 @@
 import { View, Text, Image, Button, ScrollView } from "native-base";
-import React from "react";
-import { ImageBackground } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, ImageBackground } from "react-native";
 import { Chip } from "react-native-paper";
 
 import axios from "axios"; // Import axios library
@@ -10,11 +10,36 @@ const url = `${baseUrl}/vouchers`;
 
 const VoucherHostDetail = ({ route }: any) => {
   const { voucher } = route.params;
-  console.log("................................", voucher);
+  const [updatedVoucher, setUpdatedVoucher] = useState(voucher);
+  const [showToast, setShowToast] = useState(false);
+  const updateVoucherStatus = async () => {
+    try {
+      const response = await axios.patch(`${url}/${voucher._id}/status`, {
+        status: "unavailable",
+      });
+      setUpdatedVoucher(response.data.data);
+      console.log(':::::::::::::::::::::',response.data.data);
+      
+      setShowToast(true);
+    } catch (error) {
+      console.error("Error updating voucher status:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (showToast) {
+      Alert.alert("Update Successful", "Voucher status updated successfully");
+      setShowToast(false);
+    }
+  }, [showToast]);
+ 
   const formatNumber = (number) => {
-    const parts = number.toFixed(0).toString().split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    return parts.join(".");
+    if (number !== undefined && number !== null) {
+      const parts = number.toFixed(0).toString().split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return parts.join(".");
+    }
+    return "N/A";
   };
 
   const getColorForStatus = (status: any) => {
@@ -31,7 +56,7 @@ const VoucherHostDetail = ({ route }: any) => {
         return { textColor: "white", backgroundColor: "black" };
     }
   };
-  const { icon, backgroundColor } = getColorForStatus(voucher.status);
+  const { icon, backgroundColor } = getColorForStatus(updatedVoucher.status);
   const formatDate = (dateTimeString) => {
     const dateTime = new Date(dateTimeString);
     const day = dateTime.getDate();
@@ -103,7 +128,7 @@ const VoucherHostDetail = ({ route }: any) => {
               style={{ backgroundColor: backgroundColor, width: 120 }}
             >
               <Text className="capitalize" style={{ color: "black" }}>
-                {voucher.status}
+                {updatedVoucher.status}
               </Text>
             </Chip>
           </View>
@@ -204,7 +229,7 @@ const VoucherHostDetail = ({ route }: any) => {
               </Button>
             </View>
           )} */}
-          {voucher.status === "available" && (
+          {updatedVoucher.status === "available" && (
             <Button
               marginTop={20}
               variant={"solid"}
@@ -215,12 +240,13 @@ const VoucherHostDetail = ({ route }: any) => {
               _pressed={{
                 bg: "red.700",
               }}
+              onPress={updateVoucherStatus}
             >
               Unavailable Voucher
             </Button>
           )}
 
-          {voucher.status === "rejected" && (
+          {updatedVoucher.status === "rejected" && (
             <View
               borderWidth={2}
               minWidth={200}
@@ -232,7 +258,7 @@ const VoucherHostDetail = ({ route }: any) => {
               alignItems={"center"}
               padding={3}
             >
-              <Text fontSize={16}>{voucher.rejectReason}</Text>
+              <Text fontSize={16}>{updatedVoucher.rejectReason}</Text>
             </View>
           )}
 

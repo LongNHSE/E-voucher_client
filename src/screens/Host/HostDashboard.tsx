@@ -1,16 +1,48 @@
-import React from "react";
-import { ScrollView, Heading, Select, View, CheckIcon, Text, Box } from "native-base";
-import { FontAwesome5 } from '@expo/vector-icons';
+import React, { useContext, useEffect, useState } from "react";
+import {
+  ScrollView,
+  Heading,
+  Select,
+  View,
+  CheckIcon,
+  Text,
+  Box,
+} from "native-base";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
+import { AxiosContext } from "../../context/AxiosContext";
+import { formatNumber } from "../../utils/NumberFormatter";
 const Dashboard = () => {
-  // Generate options for months from 1 to 12
-  const months = Array.from({ length: 12 }, (_, index) => index + 1);
+  const { publicAxios } = useContext(AxiosContext);
 
+  const [totalVoucher, setTotalVoucher] = useState(0);
+  const url = `/vouchers/totalQuantity`;
+  useEffect(() => {
+    // Call axios to get the total voucher count
+    publicAxios.get(url)
+      .then((response) => {
+        setTotalVoucher(response.data);
+        console.log(totalVoucher);
+        
+      })
+      .catch((error) => {
+        console.error("Error fetching total voucher count:", error);
+      });
+  }, []);
+  const months = Array.from({ length: 12 }, (_, index) => index + 1);
   return (
-    <ScrollView style={{ marginTop: 60 ,padding:3}}>
-      <Heading fontSize="xl" textAlign="center">Dashboard</Heading>
-      <View style={{ marginTop: 20 }} flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
+    <ScrollView style={{ marginTop: 60, padding: 3 }}>
+      <Heading fontSize="xl" textAlign="center">
+        Dashboard
+      </Heading>
+      <View
+        style={{ marginTop: 20 }}
+        flexDirection={"row"}
+        alignItems={"center"}
+        justifyContent={"space-between"}
+      >
         <Text>
-      <FontAwesome5 name="coins" size={18} color="black" /> 250.000 VND
+          <FontAwesome5 name="coins" size={18} color="black" /> 250.000 VND
         </Text>
         <Select
           width={200}
@@ -28,28 +60,46 @@ const Dashboard = () => {
           ))}
         </Select>
       </View>
-      <View style={{ flexDirection: "row", marginTop: 20, justifyContent: "space-between" }}>
-        <Box width="45%" bg="primary.100" borderRadius={10} p={4}>
-          <Text fontSize="lg" fontWeight="bold">Total Voucher</Text>
-          <Text fontSize="2xl" mt={2}>100</Text> {/* Example value, replace with actual data */}
+
+      <View style={{ flexDirection: "column", marginTop: 20, padding: 10 }}>
+        <Box style={styles.box}>
+          <Text fontSize="lg" fontWeight="bold">
+            Total Voucher
+          </Text>
+          <Text fontSize="2xl" mt={2}>
+          {formatNumber(totalVoucher)}
+          </Text>
         </Box>
-        <Box width="45%" bg="primary.100" borderRadius={10} p={4}>
-          <Text fontSize="lg" fontWeight="bold">Total Quantity of Voucher</Text>
-          <Text fontSize="2xl" mt={2}>500</Text> {/* Example value, replace with actual data */}
+        <Box style={styles.box}>
+          <Text fontSize="lg" fontWeight="bold">
+            Total Quantity of Voucher
+          </Text>
+          <Text fontSize="2xl" mt={2}>
+            500
+          </Text>
         </Box>
-      </View>
-      <View style={{ flexDirection: "row", marginTop: 20, justifyContent: "space-between" }}>
-        <Box width="45%" bg="primary.100" borderRadius={10} p={4}>
-          <Text fontSize="lg" fontWeight="bold">Total Voucher Sell</Text>
-          <Text fontSize="2xl" mt={2}>200</Text> {/* Example value, replace with actual data */}
-        </Box>
-        <Box width="45%" bg="primary.100" borderRadius={10} p={4}>
-          <Text fontSize="lg" fontWeight="bold">Fourth Box Content</Text>
-          <Text fontSize="2xl" mt={2}>400</Text> {/* Example value, replace with actual data */}
+        <Box style={styles.box}>
+          <Text fontSize="lg" fontWeight="bold">
+            Total Voucher Sell
+          </Text>
+          <Text fontSize="2xl" mt={2}>
+            200
+          </Text>
         </Box>
       </View>
     </ScrollView>
   );
 };
 
+const styles = StyleSheet.create({
+  box: {
+    width: "100%",
+    height:120,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+  },
+});
 export default Dashboard;

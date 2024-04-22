@@ -123,7 +123,7 @@ const StaffDashboard = ({ navigation }: any) => {
     isLoading = true;
     try {
       const response = await authAxios.post("/vouchers/status", {
-        status: ["pending", "reject", "available"],
+        status: ["pending", "rejected", "available"],
       });
       if (response.data.message === "Success") {
         setRequestVoucher(response.data.data);
@@ -150,7 +150,7 @@ const StaffDashboard = ({ navigation }: any) => {
     <View flex={1} bg={"#004165"}>
       <StickyHeader
         header="Voucher request list"
-        filterList={["Pending", "Reject", "Available", "All"]}
+        filterList={["Pending", "Rejected", "Available", "All"]}
         scrollOffsetY={scrollOffsetY}
         setFilterItem={setFilterVoucher}
       />
@@ -210,7 +210,7 @@ const StaffDashboard = ({ navigation }: any) => {
                         <Text
                           className="text-lg capitalize"
                           color={
-                            voucher.status === "reject"
+                            voucher.status === "rejected"
                               ? "red.500"
                               : voucher.status === "available"
                               ? "green.500"

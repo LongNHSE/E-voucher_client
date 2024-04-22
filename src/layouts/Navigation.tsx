@@ -183,7 +183,11 @@ const Navigation = () => {
           <Stack.Screen
             name="QR"
             component={QR}
-            options={{ title: "QR", animation: "slide_from_right" }}
+            options={{
+              headerShown: false,
+              title: "QR",
+              animation: "slide_from_right",
+            }}
           />
 
           <Stack.Screen

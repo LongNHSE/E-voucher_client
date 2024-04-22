@@ -94,12 +94,20 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
               />
 
               <View style={styles.discountInfo}>
-                <Text style={styles.discountText}>{voucher.discount}% OFF</Text>
-                <Text style={{ fontSize: 20 }}>{voucher.name}</Text>
+                <Text style={styles.discountText}>
+                  {voucher.discount}
+                  <Text>
+                    {voucher.discountType === "percentage" ? "% OFF" : "K OFF"}
+                  </Text>
+                </Text>
+                <Text style={{ fontSize: 20, width: 180 }}>{voucher.name}</Text>
               </View>
             </View>
             <View style={styles.voucherDes}>
               <Text style={styles.descriptionText}>{voucher.description}</Text>
+              <Text style={{ fontSize: 20, fontWeight: "500", marginTop: 15 }}>
+                Condition:{" "}
+              </Text>
               <View style={styles.conditionList}>
                 {voucher?.condition?.map((data, index) => {
                   return (
@@ -136,7 +144,13 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
               </TouchableOpacity> */}
             </View>
             <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "400" }}>
-              Valid Until {moment(voucher.endUseTime).format("Do MMM YY")}
+              Sell From {moment(voucher.startSellTime).format("Do MMM YY")} -{" "}
+              {moment(voucher.endSellTime).format("Do MMM YY")}
+            </Text>
+
+            <Text style={{ marginTop: -10, fontSize: 16, fontWeight: "400" }}>
+              Valid From {moment(voucher.startUseTime).format("Do MMM YY")} -{" "}
+              {moment(voucher.endUseTime).format("Do MMM YY")}
             </Text>
           </View>
         </View>
@@ -186,11 +200,11 @@ const styles = StyleSheet.create({
 
   ticketContainer: {
     width: 360,
-    height: 600,
+    height: 630,
     backgroundColor: "#FBFBFB",
     borderRadius: 12,
     paddingVertical: 20,
-    marginTop: 80,
+    marginTop: 50,
   },
 
   topSection: {

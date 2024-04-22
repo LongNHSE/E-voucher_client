@@ -56,6 +56,7 @@ const Inventory = ({ navigation }: any) => {
   const [error, setError] = useState<string>("");
 
   const [voucherSells, setVoucherSells] = useState<VoucherSell[]>([]);
+  const [voucherSellGroup, setVoucherSellGroup] = useState<any>([]);
   const isFocused = useIsFocused();
 
   const fetchVouchers = async () => {
@@ -71,6 +72,7 @@ const Inventory = ({ navigation }: any) => {
       .then((res) => {
         console.log(`------------${url}`);
         setVoucherSells(res.data);
+
         setLoading(false);
       })
       .catch((err) => {
@@ -98,6 +100,37 @@ const Inventory = ({ navigation }: any) => {
   useEffect(() => {
     fetchVouchers();
   }, [isFocused, category]);
+
+  useEffect(() => {
+    // Group transactions by voucherId._id and calculate quantity
+    const groupTransactions = () => {
+      const grouped: { [key: string]: any } = {};
+
+      voucherSells.forEach((transaction) => {
+        const voucherId = transaction.voucherId._id;
+
+        if (grouped[voucherId]?.quantity >= 1) {
+          grouped[voucherId].quantity += 1;
+          grouped[voucherId].transactions.push(transaction);
+        } else {
+          grouped[voucherId] = {
+            quantity: 1,
+            transactions: [transaction],
+          };
+        }
+      });
+
+      const groupedArray = Object.keys(grouped).map((key) => ({
+        voucherId: key,
+        quantity: grouped[key].quantity,
+        transactions: grouped[key].transactions,
+      }));
+
+      setVoucherSellGroup(groupedArray);
+    };
+
+    groupTransactions();
+  }, [voucherSells]);
 
   //search name
   const [searchName, setSearchName] = useState<string>("");
@@ -131,17 +164,17 @@ const Inventory = ({ navigation }: any) => {
 
       <FlatList
         backgroundColor={"#004165"}
-        data={voucherSells}
-        keyExtractor={(item: VoucherSell) => "_" + item._id.toString()}
+        data={voucherSellGroup}
+        keyExtractor={(item: any) => "_" + item.voucherId.toString()}
         // onScroll={() => setIsShowHeader(false)}
         // onStartReached={() => setIsShowHeader(true)}
-        renderItem={({ item }) => (
+        renderItem={({ item }: any) => (
           <TouchableOpacity
             style={[styles.item]}
-            key={item._id}
+            key={item.voucherId}
             onPress={() => {
               navigation.navigate("InventoryVoucherDetail", {
-                voucherSell: item,
+                voucherSell: item.transactions[0],
               });
             }}
           >
@@ -149,15 +182,20 @@ const Inventory = ({ navigation }: any) => {
               <View style={styles.voucherHeader}>
                 <Image
                   source={{
-                    uri: item.voucherId.imageUrl,
+                    uri: item.transactions[0].voucherId.imageUrl,
                   }}
                   alt={"(voucher-image)"}
                   height={90}
                   width={"30%"}
                 />
-                <View flexDirection={"column"} marginLeft={5} marginRight={5}>
+                <View
+                  flexDirection={"column"}
+                  marginLeft={5}
+                  marginRight={5}
+                  width={240}
+                >
                   <Text fontSize={20} fontWeight={"bold"}>
-                    {item.voucherId.name}
+                    {item.transactions[0].voucherId.name}
                   </Text>
                   <View flexDirection={"row"} alignItems={"center"}>
                     <Ionicons
@@ -167,10 +205,11 @@ const Inventory = ({ navigation }: any) => {
                       size={24}
                     />
                     <Text fontSize={30} color={"green.800"}>
-                      {item.voucherId.discount}
+                      {item.transactions[0].voucherId.discount}
                     </Text>
                     <Text fontSize={30} color={"green.800"}>
-                      {item.voucherId.discountType === "percentage"
+                      {item.transactions[0].voucherId.discountType ===
+                      "percentage"
                         ? "% OFF"
                         : "K OFF"}
                     </Text>
@@ -184,7 +223,7 @@ const Inventory = ({ navigation }: any) => {
                   height={50}
                   position={"absolute"}
                   left={-58}
-                  top={-12}
+                  top={-8}
                   borderRadius={50}
                   backgroundColor={"#004165"}
                 />
@@ -195,25 +234,30 @@ const Inventory = ({ navigation }: any) => {
                   borderColor={"gray.500"}
                   borderStyle={"dashed"}
                   margin={2}
+                  marginTop={5}
                 />
                 <View
                   width={50}
                   height={50}
                   position={"absolute"}
                   right={-58}
-                  top={-12}
+                  top={-8}
                   borderRadius={50}
                   backgroundColor={"#004165"}
                 />
               </View>
-              <View flexDirection={"row"} justifyContent={"space-between"}>
+              <View
+                flexDirection={"row"}
+                justifyContent={"space-between"}
+                mt={3}
+              >
                 <View flexDirection={"row"}>
                   <Ionicons name="calendar-outline" size={20} color="green" />
                   <Text color={"gray.500"} paddingLeft={2}>
                     {`${new Date(
-                      item.voucherId.startUseTime
+                      item.transactions[0].voucherId.startUseTime
                     ).toLocaleDateString()} - ${new Date(
-                      item.voucherId.endSellTime
+                      item.transactions[0].voucherId.endSellTime
                     ).toLocaleDateString()}`}
                   </Text>
                 </View>
@@ -232,6 +276,10 @@ const Inventory = ({ navigation }: any) => {
                   <Text color={"white"}>Use now</Text>
                 </TouchableOpacity>
               </View>
+
+              <Text style={{ fontSize: 16, fontWeight: "500" }}>
+                Quantity: {item.quantity}
+              </Text>
             </View>
           </TouchableOpacity>
         )}

@@ -36,8 +36,6 @@ const VoucherDetail = ({ navigation, route }: any) => {
 
   const redirectUri = Linking.createURL();
 
-  console.log("redirectUri", redirectUri);
-
   const handleOpenDialog = (check) => {
     if (check === "gift") {
       setIsGift(true);
@@ -64,8 +62,13 @@ const VoucherDetail = ({ navigation, route }: any) => {
               />
 
               <View style={styles.discountInfo}>
-                <Text style={styles.discountText}>{item.discount}% OFF</Text>
-                <Text style={{ fontSize: 20 }}>{item.name}</Text>
+                <Text style={styles.discountText}>
+                  {item.discount}
+                  <Text>
+                    {item.discountType === "percentage" ? "% OFF" : "K OFF"}
+                  </Text>
+                </Text>
+                <Text style={{ fontSize: 20, width: 180 }}>{item.name}</Text>
               </View>
             </View>
             <View style={styles.voucherDes}>

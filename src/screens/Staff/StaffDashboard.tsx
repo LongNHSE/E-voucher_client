@@ -147,7 +147,7 @@ const StaffDashboard = ({ navigation }: any) => {
     if (focus) fetchVouchers();
   }, [focus]);
   return (
-    <View>
+    <View flex={1} bg={"#004165"}>
       <StickyHeader
         header="Voucher request list"
         filterList={["Pending", "Reject", "Available", "All"]}
@@ -155,7 +155,6 @@ const StaffDashboard = ({ navigation }: any) => {
         setFilterItem={setFilterVoucher}
       />
       <ScrollView
-        bg={"#004165"}
         height={height - 200}
         onScroll={() => {
           Animated.event(

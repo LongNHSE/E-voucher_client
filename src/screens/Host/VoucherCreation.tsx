@@ -10,121 +10,101 @@
     Toast,
   } from "native-base";
 
-  import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
-  import DateTimePicker, { Event } from "@react-native-community/datetimepicker";
-  import { AntDesign } from "@expo/vector-icons";
-  import * as ImagePicker from "expo-image-picker";
-  import { Feather } from "@expo/vector-icons";
-  import { AxiosContext } from "../../context/AxiosContext";
-  import { baseUrl } from "../../utils/appConstant";
-  import axios from "axios"; // Import axios library
-  import * as FileSystem from "expo-file-system";
-  import { AuthContext } from "../../context/AuthContext";
+import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import DateTimePicker, { Event } from "@react-native-community/datetimepicker";
+import { AntDesign } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { Feather } from "@expo/vector-icons";
+import { AxiosContext } from "../../context/AxiosContext";
+import { baseUrl, getBaseURL } from "../../utils/appConstant";
+import axios from "axios"; // Import axios library
+import * as FileSystem from "expo-file-system";
+import { AuthContext } from "../../context/AuthContext";
 
-
-  export const VoucherCreation = () => {
-    const { authAxios } = useContext(AxiosContext);
-    const authContext = useContext(AuthContext);
-    const [voucher, setVoucher] = useState({
-      id: 0,
-      code: "",
-      name: "Banana",
-      discount: "0",
-      description: "",
-      price: "",
-      quantity: "",
-      startUseTime: new Date(),
-      endUseTime: new Date(),
-      startSellTime: new Date(),
-      endSellTime: new Date(),
-      status: "pending",
-      imageURL: "",
-      discountType: "percentage",
-      category: "",
-      host: authContext.authState.user._id
-    });
-    const url = `${baseUrl}/vouchers`;
-    const timeUrl = `${baseUrl}/timeLimits`;
-    
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [showDateEndPicker, setShowDateEndPicker] = useState(false);
-    const [showStartSellDatePicker, setShowStartSellDatePicker] = useState(false);
-    const [showEndSellDatePicker, setShowEndSellDatePicker] = useState(false);
-    const [startUseTime, setStartUseTime] = useState<Date>(null);
-    const [endUseTime, setEndUseTime] = useState<Date>(null);
-    const [startSellTime, setStartSellTime] = useState<Date>(null);
-    const [endSellTime, setEndSellTime] = useState<Date>(null);
-
-    const [timeLimits, setTimeLimits] = useState(null); // State to hold time limits
-
-    useEffect(() => {
-      getTimeLimits(); // Fetch time limits when the component mounts
-    }, []); // Empty dependency array to ensure this effect runs only once
-
-    const getTimeLimits = async () => {
-      try {
-        const response = await axios.get(timeUrl);
-        setTimeLimits(response.data.data[0].duration); // Set the time limits in state
-        console.log('::::::::::::::::::...',response.data.data[0].duration);
-        
-      } catch (error) {
-        console.error("Error fetching time limits:", error);
+export const VoucherCreation = () => {
+  const { authAxios } = useContext(AxiosContext);
+  const authContext = useContext(AuthContext);
+  const [voucher, setVoucher] = useState({
+    id: 0,
+    code: "",
+    name: "Banana",
+    discount: "0",
+    description: "",
+    price: "",
+    quantity: "",
+    startUseTime: new Date(),
+    endUseTime: new Date(),
+    startSellTime: new Date(),
+    endSellTime: new Date(),
+    status: "pending",
+    imageURL: "",
+    discountType: "percentage",
+    category: "",
+    host: authContext.authState.user._id,
+  });
+  const url = `${getBaseURL()}/vouchers`;
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDateEndPicker, setShowDateEndPicker] = useState(false);
+  const [showStartSellDatePicker, setShowStartSellDatePicker] = useState(false);
+  const [showEndSellDatePicker, setShowEndSellDatePicker] = useState(false);
+  const [startUseTime, setStartUseTime] = useState<Date>(null);
+  const [endUseTime, setEndUseTime] = useState<Date>(null);
+  const [startSellTime, setStartSellTime] = useState<Date>(null);
+  const [endSellTime, setEndSellTime] = useState<Date>(null);
+  const onChange = (event: Event, selectedDate: Date) => {
+    setShowDatePicker(false);
+    if (event.type === "set" || event.type === "dismissed") {
+      const currentDate = selectedDate || startUseTime;
+      setStartUseTime(currentDate);
+      setVoucher({ ...voucher, startUseTime: currentDate });
+    }
+  };
+  const onChangeEnd = (event: Event, selectedDate: Date) => {
+    setShowDateEndPicker(false);
+    if (event.type === "set" || event.type === "dismissed") {
+      const currentDate = selectedDate || endUseTime;
+      // Check if the selected date is not earlier than startUseTime
+      if (currentDate >= startUseTime) {
+        setEndUseTime(currentDate);
+        setVoucher({ ...voucher, endUseTime: currentDate });
+      } else {
+        // Notify the user about the invalid selection
+        Toast.show({
+          title: "Invalid Date Selection",
+          status: "error",
+          description: "End use time cannot be earlier than start use time.",
+        });
       }
-    };
-    const onChange = (event: Event, selectedDate: Date) => {
-      setShowDatePicker(false);
-      if (event.type === "set" || event.type === "dismissed") {
-        const currentDate = selectedDate || startUseTime;
-        setStartUseTime(currentDate);
-        setVoucher({ ...voucher, startUseTime: currentDate });
-      }
-    };
-    const onChangeEnd = (event: Event, selectedDate: Date) => {
-      setShowDateEndPicker(false);
-      if (event.type === "set" || event.type === "dismissed") {
-        const currentDate = selectedDate || endUseTime;
-        // Check if the selected date is not earlier than startUseTime
-        if (currentDate >= startUseTime) {
-          setEndUseTime(currentDate);
-          setVoucher({ ...voucher, endUseTime: currentDate });
-        } else {
-          // Notify the user about the invalid selection
-          Toast.show({
-            title: "Invalid Date Selection",
-            status: "error",
-            description: "End use time cannot be earlier than start use time.",
-          });
-        }
-      }
-    };
-    
-    const onChangeStartSellTime = (event: Event, selectedDate: Date) => {
-      setShowStartSellDatePicker(false);
-      if (event.type === "set" || event.type === "dismissed") {
-        const currentDate = selectedDate || startSellTime;
-        setStartSellTime(currentDate);
-        setVoucher({ ...voucher, startSellTime: currentDate });
-      }
-    };
+    }
+  };
 
-    const onChangeEndSellTime = (event: Event, selectedDate: Date) => {
-      setShowEndSellDatePicker(false);
-      if (event.type === "set" || event.type === "dismissed") {
-        const currentDate = selectedDate || endSellTime;
-        // Check if the selected date is not earlier than startSellTime
-        if (currentDate >= startSellTime) {
-          setEndSellTime(currentDate);
-          setVoucher({ ...voucher, endSellTime: currentDate }); 
-        } else {
-          // Notify the user about the invalid selection
-          Toast.show({
-            title: "Invalid Date Selection",
-            status: "error",
-            description: "End sell time cannot be earlier than start sell time.",
-          });
-        }
+  const onChangeStartSellTime = (event: Event, selectedDate: Date) => {
+    setShowStartSellDatePicker(false);
+    if (event.type === "set" || event.type === "dismissed") {
+      const currentDate = selectedDate || startSellTime;
+      setStartSellTime(currentDate);
+      setVoucher({ ...voucher, startSellTime: currentDate });
+    }
+  };
+
+  const onChangeEndSellTime = (event: Event, selectedDate: Date) => {
+    setShowEndSellDatePicker(false);
+    if (event.type === "set" || event.type === "dismissed") {
+      const currentDate = selectedDate || endSellTime;
+      // Check if the selected date is not earlier than startSellTime
+      if (currentDate >= startSellTime) {
+        setEndSellTime(currentDate);
+        setVoucher({ ...voucher, endSellTime: currentDate });
+      } else {
+        // Notify the user about the invalid selection
+        Toast.show({
+          title: "Invalid Date Selection",
+          status: "error",
+          description: "End sell time cannot be earlier than start sell time.",
+        });
       }
-    };
+    }
+  };
 
     const handleInputChange = (field: any, value: any) => {
       if (field === "imageURL") {

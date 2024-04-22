@@ -239,23 +239,26 @@ const Config = () => {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Input
-            placeholder="Enter time (hour)"
-            w={"80%"}
-            _focus={
-              openEdit
-                ? {
-                    borderColor: "black",
-                    backgroundColor: "gray.200",
-                  }
-                : {}
-            }
-            keyboardType="numeric"
-            rounded="full"
-            defaultValue={time.duration.toString()}
-            isReadOnly={openEdit === false}
-            onChangeText={(value) => setDuration(parseInt(value) || 0)}
-          />
+          <InputGroup w={"80%"} rounded={"full"}>
+            <Input
+              placeholder="Enter time"
+              w={"80%"}
+              _focus={
+                openEdit
+                  ? {
+                      borderColor: "black",
+                      backgroundColor: "gray.200",
+                    }
+                  : {}
+              }
+              keyboardType="numeric"
+              rounded="full"
+              defaultValue={time.duration.toString()}
+              isReadOnly={openEdit === false}
+              onChangeText={(value) => setDuration(parseInt(value) || 0)}
+            />
+            <InputRightAddon rounded="full" children={"(day)"} />
+          </InputGroup>
           <Button
             rounded="full"
             bg={"black"}

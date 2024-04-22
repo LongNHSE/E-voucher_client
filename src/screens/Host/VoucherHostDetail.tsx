@@ -56,7 +56,7 @@ const VoucherHostDetail = ({ route }: any) => {
         resizeMode="cover"
       >
         <Image
-          source={{ uri: voucher.imageUrl }}
+          source={{ uri: voucher?.imageUrl }}
           alt="voucher"
           size={40}
           rounded="full"

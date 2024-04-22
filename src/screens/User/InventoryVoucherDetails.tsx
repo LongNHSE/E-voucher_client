@@ -90,7 +90,7 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
                   width: 100,
                   height: 70,
                 }}
-                source={{ uri: voucher.imageUrl }}
+                source={{ uri: voucher?.imageUrl }}
               />
 
               <View style={styles.discountInfo}>

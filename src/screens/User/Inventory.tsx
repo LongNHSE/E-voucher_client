@@ -59,6 +59,7 @@ const Inventory = ({ navigation }: any) => {
   const [voucherSellGroup, setVoucherSellGroup] = useState<any>([]);
   const isFocused = useIsFocused();
   const [isEmpty, setIsEmpty] = useState<boolean>(false);
+  const [status, setStatus] = useState<string>("pending");
 
   const fetchVouchers = async () => {
     setLoading(true);
@@ -66,7 +67,7 @@ const Inventory = ({ navigation }: any) => {
     let query: string = "";
     let storedUser = await SecureStore.getItem("user");
     let userId = storedUser ? JSON.parse(storedUser)._id : "";
-    const url = `/voucherSell/search?userId=${userId}&${query}`;
+    const url = `/voucherSell/search?userId=${userId}&${query}&status=${status}`;
 
     publicAxios
       .get(url)
@@ -194,7 +195,7 @@ const Inventory = ({ navigation }: any) => {
             key={item.voucherId}
             onPress={() => {
               navigation.navigate("InventoryVoucherDetail", {
-                voucherSell: item.transactions[0],
+                voucherSell: item?.transactions[0],
               });
             }}
           >
@@ -202,7 +203,7 @@ const Inventory = ({ navigation }: any) => {
               <View style={styles.voucherHeader}>
                 <Image
                   source={{
-                    uri: item.transactions[0].voucherId.imageUrl,
+                    uri: item?.transactions[0]?.voucherId?.imageUrl,
                   }}
                   alt={"(voucher-image)"}
                   height={90}
@@ -214,7 +215,7 @@ const Inventory = ({ navigation }: any) => {
                   marginRight={5}
                   width={240}
                 >
-                  <Text fontSize={20} fontWeight={"bold"}>
+                  <Text numberOfLines={1} fontSize={20} fontWeight={"bold"}>
                     {item.transactions[0].voucherId.name}
                   </Text>
                   <View flexDirection={"row"} alignItems={"center"}>

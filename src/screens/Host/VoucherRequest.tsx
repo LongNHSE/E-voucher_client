@@ -134,7 +134,7 @@ const Voucher = () => {
                   <View className="border-r-2 border-gray-400 border-dashed mx-2">
                     <Image
                       source={{
-                        uri: voucher.imageUrl,
+                        uri: voucher?.imageUrl,
                       }}
                       alt="voucher"
                       size={20}
@@ -191,8 +191,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   container: {
-    // margin: 4,
-    flex: 1,
+    margin: 4,
   },
 });
 

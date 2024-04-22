@@ -61,7 +61,7 @@ const ReportDetail = ({ route, navigation }: any) => {
         </View>
         <Image
           source={{
-            uri: report.voucherSell.voucherId.imageUrl,
+            uri: report?.voucherSell?.voucherId?.imageUrl,
           }}
           alt="voucher"
           size={40}

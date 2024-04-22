@@ -267,7 +267,7 @@ const Voucher = ({ navigation }: any) => {
                   width={"30%"}
                 />
                 <View flexDirection={"column"} marginLeft={5} marginRight={5}>
-                  <Text fontSize={20} fontWeight={"bold"}>
+                  <Text numberOfLines={1} fontSize={20} fontWeight={"bold"}>
                     {item.name}
                   </Text>
                   <View flexDirection={"row"} alignItems={"center"}>

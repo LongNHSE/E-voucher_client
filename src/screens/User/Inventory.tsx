@@ -147,19 +147,19 @@ const Inventory = ({ navigation }: any) => {
 
   //Handle use QR
   const handleUseQR = async (voucherSell: VoucherSell) => {
-    console.log("handleUseQR", voucherSell);
     try {
       const voucherSellResult = await publicAxios.post(
         "/voucherSell/generateQRCode",
         {
-          voucherId: voucherSell._id,
+          voucherId: voucherSell.transactions[0]._id,
         }
       );
+      navigation.navigate("QR", {
+        voucherSell: voucherSellResult.data.voucher,
+      });
     } catch (error) {
       console.log("----handleUseQR", error);
     }
-    console.log("voucherSellResult", voucherSellResult.data);
-    navigation.navigate("QR", { voucherSell: voucherSellResult.data.voucher });
   };
 
   return (

@@ -191,7 +191,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   container: {
-    margin: 4,
+    // margin: 4,
+    flex: 1,
   },
 });
 

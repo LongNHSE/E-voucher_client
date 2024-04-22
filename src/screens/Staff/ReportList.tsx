@@ -188,7 +188,7 @@ const ReportList = ({ navigation }: any) => {
     }
   };
   return (
-    <View>
+    <View flex={1} bg={"#004165"}>
       <StickyHeader
         header="Voucher report list"
         // searchBar={false}
@@ -196,7 +196,7 @@ const ReportList = ({ navigation }: any) => {
         setFilterItem={setFilterReport}
         scrollOffsetY={scrollOffsetY}
       />
-      <ScrollView bg={"#004165"} height={height - 200}>
+      <ScrollView>
         <View className="my-4 mx-4">
           {reportList
             .filter((report) => {

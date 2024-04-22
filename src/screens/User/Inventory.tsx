@@ -1,5 +1,5 @@
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { View, Text, FlatList, Image } from "native-base";
+import { View, Text, FlatList, Image, Center, Button } from "native-base";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
@@ -58,6 +58,7 @@ const Inventory = ({ navigation }: any) => {
   const [voucherSells, setVoucherSells] = useState<VoucherSell[]>([]);
   const [voucherSellGroup, setVoucherSellGroup] = useState<any>([]);
   const isFocused = useIsFocused();
+  const [isEmpty, setIsEmpty] = useState<boolean>(false);
 
   const fetchVouchers = async () => {
     setLoading(true);
@@ -65,18 +66,19 @@ const Inventory = ({ navigation }: any) => {
     let query: string = "";
     let storedUser = await SecureStore.getItem("user");
     let userId = storedUser ? JSON.parse(storedUser)._id : "";
-    const url = `${baseUrl}/voucherSell/search?userId=${userId}&${query}`;
+    const url = `/voucherSell/search?userId=${userId}&${query}`;
 
-    axios
+    publicAxios
       .get(url)
       .then((res) => {
         console.log(`------------${url}`);
+        res.data.length === 0 ? setIsEmpty(true) : setIsEmpty(false);
         setVoucherSells(res.data);
-
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
+        setIsEmpty(true);
         console.log("error", err.message);
         setLoading(false);
       });
@@ -146,12 +148,16 @@ const Inventory = ({ navigation }: any) => {
   //Handle use QR
   const handleUseQR = async (voucherSell: VoucherSell) => {
     console.log("handleUseQR", voucherSell);
-    const voucherSellResult = await publicAxios.post(
-      "/voucherSell/generateQRCode",
-      {
-        voucherId: voucherSell._id,
-      }
-    );
+    try {
+      const voucherSellResult = await publicAxios.post(
+        "/voucherSell/generateQRCode",
+        {
+          voucherId: voucherSell._id,
+        }
+      );
+    } catch (error) {
+      console.log("----handleUseQR", error);
+    }
     console.log("voucherSellResult", voucherSellResult.data);
     navigation.navigate("QR", { voucherSell: voucherSellResult.data.voucher });
   };
@@ -161,6 +167,20 @@ const Inventory = ({ navigation }: any) => {
       <View display={isShowHeader ? "" : "none"} style={styles.header}>
         <Text style={styles.title}>My Vouchers</Text>
       </View>
+
+      {isEmpty ? (
+        <Center height={"700"} backgroundColor={"#004165"}>
+          <Image size={"lg"} source={require("../../../assets/box.png")} />
+          <Text color={"white"}>- You haven't bought any voucher yet -</Text>
+          <Button
+            onPress={() => navigation.navigate("Voucher")}
+            backgroundColor={"amber.500"}
+            borderRadius={80}
+          >
+            Go to voucher shop
+          </Button>
+        </Center>
+      ) : null}
 
       <FlatList
         backgroundColor={"#004165"}

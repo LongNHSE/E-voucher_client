@@ -122,8 +122,7 @@ const VoucherBottomSheet = ({
     } catch (error) {
       console.log(error);
     }
-
-    const response = await authAxios.post("/invoice", {});
+    // const response = await authAxios.post("/invoice", {});
   };
 
   return (

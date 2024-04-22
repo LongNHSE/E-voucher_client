@@ -34,7 +34,6 @@ const Payment = ({ route, navigation }: any) => {
   const { authAxios, publicAxios } = useContext(AxiosContext);
 
   const createInvoice = async (userId, voucherId, quantity, giftUserId) => {
-    console.log("----creating-invoice");
     try {
       const res = await publicAxios.post(`/invoices`, {
         userId,
@@ -51,8 +50,14 @@ const Payment = ({ route, navigation }: any) => {
   };
 
   const checkPaidVNPay = async (queryParams) => {
-    const result = await publicAxios.post(`/vnpay/get-payment?${queryParams}`);
-    console.log("----get-payment2", result);
+    try {
+      const result = await publicAxios.post(
+        `/vnpay/get-payment?${queryParams}`
+      );
+      console.log("----get-payment", result);
+    } catch (error) {
+      console.log(error);
+    }
     return result;
   };
 

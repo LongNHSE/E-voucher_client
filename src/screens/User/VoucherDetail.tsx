@@ -26,6 +26,7 @@ import moment from "moment";
 import NotiDialog from "../../components/NotiDialog";
 
 import * as Linking from "expo-linking";
+import { formatNumber } from "../../utils/NumberFormatter";
 
 const VoucherDetail = ({ navigation, route }: any) => {
   const { item } = route.params;
@@ -92,7 +93,7 @@ const VoucherDetail = ({ navigation, route }: any) => {
           <View style={styles.bottomSection}>
             <View style={styles.before}></View>
             <View style={styles.after}></View>
-            <Text style={styles.price}>{item.price} VND</Text>
+            <Text style={styles.price}>{formatNumber(item.price)} VND</Text>
 
             <View style={styles.buttonSection}>
               <TouchableOpacity onPress={() => setIsOpenDialog(true)}>

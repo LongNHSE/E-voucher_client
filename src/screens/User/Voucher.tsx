@@ -33,6 +33,7 @@ import voucherPlaceholder from "../../../assets/icon.png";
 import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import * as Linking from "expo-linking";
+import { formatNumber } from "../../utils/NumberFormatter";
 
 interface Voucher {
   _id: string;
@@ -334,7 +335,7 @@ const Voucher = ({ navigation }: any) => {
                     size={20}
                     color="green"
                   />
-                  <Text>{item.price.toLocaleString()} VND</Text>
+                  <Text>{formatNumber(item.price)} VND</Text>
                 </View>
               </View>
             </View>

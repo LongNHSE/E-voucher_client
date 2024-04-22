@@ -113,7 +113,7 @@ const Setting = () => {
       <Button
         marginX={5}
         marginY={5}
-        onPress={logout}
+        onPress={() => logout()}
         bg={"black"}
         variant="solid"
         rounded={"full"}

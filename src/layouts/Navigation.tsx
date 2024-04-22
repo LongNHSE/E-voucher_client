@@ -17,10 +17,27 @@ import { AuthContext } from "../context/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import Voucher from "../screens/User/Voucher";
 import VNPayWebView from "../screens/User/VNPayWebView";
+import InventoryVoucherDetail from "../screens/User/InventoryVoucherDetails";
+import QR from "../screens/User/QR";
+import * as Linking from "expo-linking";
+import Payment from "../screens/User/Payment";
 
 const Stack: any = createNativeStackNavigator();
 
+const prefix = Linking.createURL("/");
+
 const Navigation = () => {
+  const linking = {
+    prefixes: [prefix],
+    config: {
+      screens: {
+        Login: "login",
+      },
+    },
+  };
+
+  console.log("prefix", prefix);
+
   const [status, setStatus] = useState<string>("loading");
   const authContext = useContext(AuthContext);
   const loadJWT = useCallback(async () => {
@@ -42,7 +59,7 @@ const Navigation = () => {
       });
       // console.log("loading jwt");
       // console.log(authContext.authState.authenticated);
-      console.log(authContext.authState.user.role === "staff");
+      console.log(authContext.authState);
       setStatus("success");
     } catch (error: Error | any) {
       setStatus("error");
@@ -82,7 +99,7 @@ const Navigation = () => {
   if (status === "loading") return <></>;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       {authContext?.authState?.authenticated === false ? (
         <Stack.Navigator
           initialRouteName="Login"
@@ -142,6 +159,33 @@ const Navigation = () => {
             options={{
               headerShown: false,
               title: "Voucher Detail",
+              animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="Payment"
+            component={Payment}
+            options={{
+              headerShown: false,
+              title: "Payment",
+              animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="InventoryVoucherDetail"
+            component={InventoryVoucherDetail}
+            options={{
+              headerShown: false,
+              title: "VInventoryVoucherDetail",
+              animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="QR"
+            component={QR}
+            options={{
+              headerShown: false,
+              title: "QR",
               animation: "slide_from_right",
             }}
           />

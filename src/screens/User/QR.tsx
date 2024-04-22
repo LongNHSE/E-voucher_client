@@ -16,7 +16,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
-// import * as WebBrowser from "expo-web-browser";
 
 import { FontAwesome } from "@expo/vector-icons";
 import ConfirmDialog from "../../components/ConfirmDialog";
@@ -24,27 +23,51 @@ import Voucher from "./Voucher";
 import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
 import NotiDialog from "../../components/NotiDialog";
+import QRCode from "react-native-qrcode-svg";
+interface Voucher {
+  _id: string;
+  name: string;
+  code: string;
+  quantity: number;
+  startUseTime: string;
+  endUseTime: string;
+  discount: number;
+  discountType: string;
+  price: number;
+  status: string;
+  startSellTime: string;
+  endSellTime: string;
+  description: string;
+  imageUrl: string;
+  condition: string[];
+  host: string;
+  staff: string;
+  rejectReason: string;
+  id: string;
+}
 
-import * as Linking from "expo-linking";
+interface VoucherSell {
+  _id: string;
+  voucherId: Voucher;
+  userId: any;
+  giftUserId: string | undefined;
+  status: string;
+  hash: string;
+  generateAt: Date;
+}
 
-const VoucherDetail = ({ navigation, route }: any) => {
-  const { item } = route.params;
+interface RO {
+  statusCode: String;
+  message: String;
+  data: Voucher[];
+}
+const InventoryVoucherDetail = ({ navigation, route }: any) => {
+  const voucherSell: VoucherSell = route.params.voucherSell;
+  const voucher: Voucher = voucherSell.voucherId;
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
   const [isOpenNotiDialog, setIsOpenNotiDialog] = useState<boolean>(false);
   const [isGift, setIsGift] = useState<boolean>(false);
   const [amountVoucher, setAmountVoucher] = useState(1);
-
-  const redirectUri = Linking.createURL();
-
-  const handleOpenDialog = (check) => {
-    if (check === "gift") {
-      setIsGift(true);
-      setIsOpenDialog(true);
-    } else {
-      setIsGift(false);
-      setIsOpenDialog(true);
-    }
-  };
 
   return (
     <>
@@ -58,63 +81,37 @@ const VoucherDetail = ({ navigation, route }: any) => {
                   width: 100,
                   height: 70,
                 }}
-                source={{ uri: item.imageUrl }}
+                source={{ uri: voucher.imageUrl }}
               />
 
               <View style={styles.discountInfo}>
-                <Text style={styles.discountText}>
-                  {item.discount}
-                  <Text>
-                    {item.discountType === "percentage" ? "% OFF" : "K OFF"}
-                  </Text>
+                <Text style={styles.discountText}>{voucher.discount}% OFF</Text>
+                <Text style={{ fontSize: 20, width: 200 }} numberOfLines={2}>
+                  {voucher.name}
                 </Text>
-                <Text style={{ fontSize: 20, width: 180 }}>{item.name}</Text>
               </View>
             </View>
-            <View style={styles.voucherDes}>
-              <Text style={styles.descriptionText}>{item.description}</Text>
-              <Text style={{ fontSize: 20, fontWeight: "500", marginTop: 15 }}>
-                Condition:{" "}
-              </Text>
-              <View style={styles.conditionList}>
-                {item?.condition?.map((data, index) => {
-                  return (
-                    <View key={index} style={{ flexDirection: "row", gap: 2 }}>
-                      <Text>{"\u2022"}</Text>
-
-                      <Text style={styles.conditionText}>{` ${data}`}</Text>
-                    </View>
-                  );
-                })}
+            <View alignItems={"center"}>
+              <View style={styles.voucherQR}>
+                <View style={{ marginTop: 7, marginLeft: 7 }}>
+                  <QRCode
+                    value={JSON.stringify({
+                      voucher_id: voucherSell._id,
+                      hash: voucherSell.hash,
+                    })}
+                    size={235}
+                  ></QRCode>
+                </View>
               </View>
             </View>
           </View>
           <View style={styles.bottomSection}>
             <View style={styles.before}></View>
             <View style={styles.after}></View>
-            <Text style={styles.price}>{item.price} VND</Text>
+            <Text style={styles.price}>{voucher.price} VND</Text>
 
-            <View style={styles.buttonSection}>
-              <TouchableOpacity onPress={() => setIsOpenDialog(true)}>
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Buy Now</Text>
-                </View>
-              </TouchableOpacity>
-
-              {/* <TouchableOpacity onPress={() => handleOpenDialog("gift")}>
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Gift Other</Text>
-                </View>
-              </TouchableOpacity> */}
-            </View>
             <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "400" }}>
-              Sell From {moment(item.startSellTime).format("Do MMM YY")} -{" "}
-              {moment(item.endSellTime).format("Do MMM YY")}
-            </Text>
-
-            <Text style={{ marginTop: -10, fontSize: 16, fontWeight: "400" }}>
-              Valid From {moment(item.startUseTime).format("Do MMM YY")} -{" "}
-              {moment(item.endUseTime).format("Do MMM YY")}
+              Valid Until {moment(voucher.endUseTime).format("Do MMM YY")}
             </Text>
           </View>
         </View>
@@ -135,22 +132,10 @@ const VoucherDetail = ({ navigation, route }: any) => {
           isOpenDialog={isOpenDialog}
           setIsOpenDialog={setIsOpenDialog}
           setIsOpenNotiDialog={setIsOpenNotiDialog}
-          image={item.imageUrl}
-          voucherName={item.name}
-          price={item.price}
-          voucherId={item._id}
-          quantity={item.quantity}
-          redirectUri={redirectUri}
-        />
-      )}
-
-      {isOpenNotiDialog && (
-        <NotiDialog
-          navigation={navigation}
-          isOpenDialog={isOpenNotiDialog}
-          setIsOpenDialog={setIsOpenNotiDialog}
-          title={"Alert"}
-          message={"You must login before buy or gift voucher"}
+          image={voucher.imageUrl}
+          voucherName={voucher.name}
+          price={voucher.price}
+          voucherId={voucher._id}
         />
       )}
     </>
@@ -166,11 +151,11 @@ const styles = StyleSheet.create({
 
   ticketContainer: {
     width: 360,
-    height: 630,
+    height: 600,
     backgroundColor: "#FBFBFB",
     borderRadius: 12,
     paddingVertical: 20,
-    marginTop: 50,
+    marginTop: 80,
   },
 
   topSection: {
@@ -192,9 +177,15 @@ const styles = StyleSheet.create({
     lineHeight: 30, // Adjust line height as needed
   },
 
-  voucherDes: {
-    marginTop: 30,
-    paddingHorizontal: 10,
+  voucherQR: {
+    marginTop: 20,
+    // paddingHorizontal: 10,
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#000000",
   },
 
   conditionList: {
@@ -283,4 +274,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VoucherDetail;
+export default InventoryVoucherDetail;

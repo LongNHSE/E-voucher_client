@@ -9,14 +9,14 @@ const StickyHeader = ({
   filterList,
   scrollOffsetY,
   setFilterItem,
-  searchBar = true,
+  // searchBar = true,
   filterBar = true,
 }: {
   header: string;
   filterList: string[];
   scrollOffsetY: any;
   setFilterItem: React.Dispatch<React.SetStateAction<string>>;
-  searchBar?: boolean;
+  // searchBar?: boolean;
   filterBar?: boolean;
 }) => {
   return (
@@ -45,7 +45,7 @@ const StickyHeader = ({
       >
         <Heading>{header}</Heading>
         <View display="flex" flexDirection="row" justifyContent="space-between">
-          {searchBar && (
+          {/* {searchBar && (
             <Input
               width={width / 1.7}
               marginRight={3}
@@ -60,14 +60,14 @@ const StickyHeader = ({
                 borderColor: "coolGray.300",
               }}
             />
-          )}
+          )} */}
           {filterBar && (
             <Select
-              width={width / 3}
+              width={width - 100}
               marginY={2}
               rounded="full"
               onValueChange={(e) => setFilterItem(e)}
-              defaultValue={filterList[0].toLowerCase()}
+              defaultValue={filterList[0]?.toLowerCase()}
             >
               {filterList.map((item, idx) => {
                 return (

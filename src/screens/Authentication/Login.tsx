@@ -51,6 +51,8 @@ const Login = () => {
         authenticated: true,
         user,
       });
+    
+      
       console.log(authContext.authState);
     } catch (error) {
       console.log(error);

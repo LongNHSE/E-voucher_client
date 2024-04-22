@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import {
@@ -14,86 +14,12 @@ import {
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Chip } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-const requestVoucher = [
-  {
-    id: 1,
-    name: "Starbucks",
-    discount: "50% off",
-    userName: "Dat",
-    price: 100,
-    image: require("../../../assets/icon.png"),
-    startUseTime: "2022-01-01",
-    endUseTime: "2022-02-01",
-    status: "rejected",
-  },
-  {
-    id: 2,
-    name: "KFC",
-    discount: "30% off",
-    userName: "Phi",
-    price: 200,
-    image: require("../../../assets/icon.png"),
-    startUseTime: "2022-01-01",
-    endUseTime: "2022-02-01",
-    status: "available",
-  },
-  {
-    id: 3,
-    name: "Pizza Hut",
-    discount: "20% off",
-    userName: "Long",
-    price: 300,
-    image: require("../../../assets/icon.png"),
-    startUseTime: "2022-01-01",
-    endUseTime: "2022-02-01",
-    status: "unavailable",
-  },
-  {
-    id: 4,
-    name: "Burger King",
-    discount: "40% off",
-    userName: "Nghia",
-    price: 400,
-    image: require("../../../assets/icon.png"),
-    startUseTime: "2022-01-01",
-    endUseTime: "2022-02-01",
-    status: "pending",
-  },
-  {
-    id: 5,
-    name: "Lotteria",
-    discount: "10% off",
-    userName: "Son",
-    price: 500,
-    image: require("../../../assets/icon.png"),
-    startUseTime: "2022-01-01",
-    endUseTime: "2022-02-01",
-    status: "rejected",
-  },
-  {
-    id: 6,
-    name: "McDonald",
-    discount: "60% off",
-    userName: "Tam",
-    price: 600,
-    image: require("../../../assets/icon.png"),
-    startUseTime: "2022-01-01",
-    endUseTime: "2022-02-01",
-    status: "available",
-  },
-  {
-    id: 7,
-    name: "Subway",
-    discount: "70% off",
-    userName: "Dang",
-    price: 700,
-    image: require("../../../assets/icon.png"),
-    startUseTime: "2022-01-01",
-    endUseTime: "2022-02-01",
-    status: "pending",
-  },
-];
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { baseUrl } from "../../utils/appConstant";
+import axios from "axios"; // Import axios library
+import { SimpleLineIcons } from '@expo/vector-icons';
+const url = `${baseUrl}/vouchers`;
+
 const getColorForStatus = (status: any) => {
   switch (status) {
     case "pending":
@@ -111,22 +37,49 @@ const getColorForStatus = (status: any) => {
 const Voucher = () => {
   const [filterVoucher, setFilterVoucher] = useState("all");
   const navigation =useNavigation()
+  const [vouchers, setVouchers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const fetchVouchers = async () => {
+    try {
+      const response = await axios.get(url);
+      setVouchers(response.data);
+      console.log("Vouchers:", response.data);
+    } catch (error) {
+      console.error("Error fetching vouchers:", error);
+    }
+  };
+
+  // Use the useFocusEffect hook to call fetchVouchers when the component gains focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchVouchers();
+      // Cleanup function, if necessary
+      return () => {
+        // Cleanup code, if necessary
+      };
+    }, [])
+  );
   return (
     <ScrollView style={styles.container}>
-      <Heading fontSize="xl">Voucher list</Heading>
-      <Button onPress={()=>navigation.navigate('VoucherCreation')}>Create Voucher</Button>
+      <Heading textAlign={"center"} fontSize="xl">Voucher List</Heading>
+      <View style={{justifyContent:"center", alignItems:"flex-start", marginTop:10, marginBottom:10}}>
+      
+      <Button borderRadius={20} width={200} onPress={()=>navigation.navigate('VoucherCreation')}>Create Voucher</Button>
+      </View>
       <Input
-        rounded="full"
-        marginY={2}
-        InputLeftElement={
-          <Icon as={MaterialIcons} name="search" size={8} ml={2} />
-        }
-        _focus={{
-          backgroundColor: "coolGray.300",
-          borderColor: "coolGray.300",
-        }}
-      />
+  rounded="full"
+  marginY={2}
+  value={searchQuery}
+  onChangeText={(text) => setSearchQuery(text)}
+  InputLeftElement={
+    <Icon as={MaterialIcons} name="search" size={8} ml={2} />
+  }
+  _focus={{
+    backgroundColor: "coolGray.300",
+    borderColor: "coolGray.300",
+  }}
+/>
       <Select
         placeholder="Filter by status"
         marginY={2}
@@ -135,75 +88,78 @@ const Voucher = () => {
       >
         <Select.Item label="All" value="all" />
         <Select.Item label="Pending" value="pending" />
-        <Select.Item label="Available" value="available" />{" "}
+        <Select.Item label="Available" value="available" />
         <Select.Item label="Unavailable" value="unavailable" />
         <Select.Item label="Rejected" value="rejected" />
       </Select>
       {/* Voucher design sample */}
-      {requestVoucher
-        .filter(
-          (voucher) =>
-            filterVoucher === "all" || voucher.status === filterVoucher
-        )
-        .map((voucher) => {
-          const { icon, backgroundColor } = getColorForStatus(
-            voucher.status
-          );
-          return (
-            <Pressable
-              key={voucher.id}
-              onPress={() =>
-                navigation.navigate("VoucherHostDetail", { voucher })
-              }
-            >
-              {({ isPressed }) => (
-                <View
-                  style={{
-                    transform: [{ scale: isPressed ? 0.95 : 1 }],
-                  }}
-                  className="flex-row items-center bg-gray-200 rounded-md mt-4 "
-                >
-                  <View className="border-r-2 border-gray-400 border-dashed mx-2">
-                    <Image
-                      source={voucher.image}
-                      alt="voucher"
-                      size={20}
-                      rounded="full"
-                      marginRight={1}
-                    />
-                  </View>
-                  <View className="m-2 flex-column justify-center">
-                    <Text className="text-xl font-bold">{voucher.name}</Text>
-                    <Text className="text-md font-semibold">
-                      {voucher.discount}
-                    </Text>
+      {vouchers
+  .filter(
+    (voucher) =>
+      (filterVoucher === "all" || voucher.status === filterVoucher) &&
+      voucher.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  .map((voucher) => {
+    const { icon, backgroundColor } = getColorForStatus(
+      voucher.status
+    );
+    return (
+      <Pressable
+        key={voucher._id}
+        onPress={() =>
+          navigation.navigate("VoucherHostDetail", { voucher })
+        }
+      >
+        {({ isPressed }) => (
+          <View
+            style={{
+              transform: [{ scale: isPressed ? 0.95 : 1 }],
+            }}
+            className="flex-row items-center bg-gray-200 rounded-md mt-4 "
+          >
+            <View className="border-r-2 border-gray-400 border-dashed mx-2">
+              <Image
+                source={{
+                  uri: voucher.imageUrl,
+                }}
+                alt="voucher"
+                size={20}
+                rounded="full"
+                marginRight={1}
+              />
+            </View>
+            <View className="m-2 flex-column justify-center align-middle">
+              <Text className="text-xl font-bold">{voucher.name}</Text>
+              <View className="align-middle flex-row">
+                <Text marginRight={2}>
+              <SimpleLineIcons name="tag" size={17} color="black" />
 
-                    <Chip
-                      className="capitalize"
-                      icon={icon}
-                      style={{ backgroundColor: backgroundColor }}
-                    >
-                     <Text className="capitalize" style={{color: 'black'}}>{voucher.status}</Text>
-                    </Chip>
-                  </View>
-                  <View className="w-10 h-10 bg-gray-100 rounded-full absolute -right-5" />
-                </View>
-              )}
-            </Pressable>
-          );
-        })}
+                </Text>
+              <Text className="text-md font-semibold">
+                {voucher.discount} {voucher.discountType === 'percentage' ? '% OFF' : 'VND'}
+              </Text>
+              </View>
+              <Chip
+                className="capitalize"
+                icon={icon}
+                style={{ backgroundColor: backgroundColor , width: 120 }}
+              >
+               <Text className="capitalize" style={{color: 'black'}}>{voucher.status}</Text>
+              </Chip>
+            </View>
+            <View className="w-10 h-10 bg-gray-100 rounded-full absolute -right-5" />
+          </View>
+        )}
+      </Pressable>
+    );
+  })}
     </ScrollView>
   );
 };
 
 const VoucherRequest = () => {
   return (
-    <ScrollView>
-      <View style={styles.header}>
-        <AntDesign name="back" size={24} color="black" />
-        <Text>Voucher</Text>
-        <Text></Text>
-      </View>
+    <ScrollView style={{marginTop:60}}>
       <Voucher />
     </ScrollView>
   );

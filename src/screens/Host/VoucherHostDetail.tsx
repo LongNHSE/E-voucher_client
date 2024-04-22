@@ -1,17 +1,62 @@
-import { View, Text, Image, Button } from "native-base";
+import { View, Text, Image, Button, ScrollView } from "native-base";
 import React from "react";
 import { ImageBackground } from "react-native";
+import { Chip } from "react-native-paper";
+
+import axios from "axios"; // Import axios library
+import { baseUrl } from "../../utils/appConstant";
+import { SimpleLineIcons } from "@expo/vector-icons";
+const url = `${baseUrl}/vouchers`;
 
 const VoucherHostDetail = ({ route }: any) => {
   const { voucher } = route.params;
+  console.log("................................", voucher);
+  const formatNumber = (number) => {
+    const parts = number.toFixed(0).toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return parts.join(".");
+  };
+
+  const getColorForStatus = (status: any) => {
+    switch (status) {
+      case "pending":
+        return { icon: "playlist-edit", backgroundColor: "#ffff80" };
+      case "available":
+        return { icon: "check", backgroundColor: "#99ff99" };
+      case "rejected":
+        return { icon: "close", backgroundColor: "#ff8080" };
+      case "unavailable":
+        return { icon: "text-box-remove-outline", backgroundColor: "#c2d6d6" };
+      default:
+        return { textColor: "white", backgroundColor: "black" };
+    }
+  };
+  const { icon, backgroundColor } = getColorForStatus(voucher.status);
+  const formatDate = (dateTimeString) => {
+    const dateTime = new Date(dateTimeString);
+    const day = dateTime.getDate();
+    const month = dateTime.getMonth() + 1;
+    const year = dateTime.getFullYear();
+    const hours = dateTime.getHours();
+    const minutes = dateTime.getMinutes();
+    const seconds = dateTime.getSeconds();
+
+    const formattedDay = `${day < 10 ? "0" : ""}${day}`;
+    const formattedMonth = `${month < 10 ? "0" : ""}${month}`;
+    const formattedHours = `${hours < 10 ? "0" : ""}${hours}`;
+    const formattedMinutes = `${minutes < 10 ? "0" : ""}${minutes}`;
+
+    return `${formattedHours}:${formattedMinutes} ${formattedDay}/${formattedMonth}/${year}`;
+  };
+
   return (
-    <View>
+    <ScrollView>
       <ImageBackground
         source={require("../../../assets/graybackground.png")}
         resizeMode="cover"
       >
         <Image
-          source={voucher.image}
+          source={{ uri: voucher.imageUrl }}
           alt="voucher"
           size={40}
           rounded="full"
@@ -20,6 +65,7 @@ const VoucherHostDetail = ({ route }: any) => {
           top={20}
           zIndex={1}
         />
+
         <View
           width="100%"
           display="flex"
@@ -32,42 +78,17 @@ const VoucherHostDetail = ({ route }: any) => {
           paddingBottom={10}
         >
           <Text className="text-3xl font-bold">{voucher.name}</Text>
-          <Text className="text-xl font-semibold">{voucher.discount}</Text>
-          <View
-            width={"80%"}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-          >
-            <Text className="text-lg">Price: </Text>
-            <Text className="text-xl">{voucher.price} VND</Text>
+          <View className="align-middle flex-row">
+            <Text marginRight={2}>
+              <SimpleLineIcons name="tag" size={17} color="black" />
+            </Text>
+            <Text className="text-md font-semibold">
+              {voucher.discount}{" "}
+              {voucher.discountType === "percentage" ? "% OFF" : "VND"}
+            </Text>
           </View>
-          <View
-            width={"80%"}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-          >
-            <Text className="text-lg">User name: </Text>
-            <Text className="text-lg">{voucher.userName}</Text>
-          </View>
-          <View
-            width={"80%"}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-          >
-            <Text className="text-lg">Start use time: </Text>
-            <Text className="text-lg">{voucher.startUseTime}</Text>
-          </View>
-          <View
-            width={"80%"}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-          >
-            <Text className="text-lg">End use time: </Text>
-            <Text className="text-lg">{voucher.endUseTime}</Text>
+          <View width={"80%"} alignItems={"center"} marginBottom={30}>
+            <Text className="text-xl">{voucher.description}</Text>
           </View>
           <View
             width={"80%"}
@@ -76,9 +97,82 @@ const VoucherHostDetail = ({ route }: any) => {
             justifyContent="space-between"
           >
             <Text className="text-lg">Status: </Text>
-            <Text className="text-lg">{voucher.status}</Text>
+            <Chip
+              className="capitalize"
+              icon={icon}
+              style={{ backgroundColor: backgroundColor, width: 120 }}
+            >
+              <Text className="capitalize" style={{ color: "black" }}>
+                {voucher.status}
+              </Text>
+            </Chip>
           </View>
-          {voucher.status === "pending" && (
+          <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">Code: </Text>
+            <Text className="text-xl">{voucher.code}</Text>
+          </View>
+          <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">Category: </Text>
+            <Text className="text-xl">{voucher.category}</Text>
+          </View>
+
+          <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">Price: </Text>
+            <Text className="text-xl">{formatNumber(voucher.price)} VND</Text>
+          </View>
+          <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">Quantity: </Text>
+            <Text className="text-xl">{voucher.quantity} Vouchers</Text>
+          </View>
+          {/* <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">User name: </Text>
+            <Text className="text-lg">{voucher.name}</Text>
+          </View> */}
+          <View
+            width={"100%"}
+            flexDirection="row"
+            justifyContent="center"
+            marginTop={1}
+          >
+            <Text className="text-lg">
+              Use: {formatDate(voucher.startUseTime)} -{" "}
+              {formatDate(voucher.endUseTime)}
+            </Text>
+          </View>
+
+          <View width={"100%"} flexDirection="row" justifyContent="center">
+            <Text className="text-lg">
+              Sell: {formatDate(voucher.endSellTime)} -{" "}
+              {formatDate(voucher.endSellTime)}
+            </Text>
+          </View>
+
+          {/* {voucher.status === "pending" && (
             <View
               style={{
                 marginTop: 20,
@@ -109,13 +203,14 @@ const VoucherHostDetail = ({ route }: any) => {
                 Reject
               </Button>
             </View>
-          )}
+          )} */}
           {voucher.status === "available" && (
             <Button
               marginTop={20}
               variant={"solid"}
               rounded="full"
-            width="100%"
+              maxWidth={200}
+              width="100%"
               bg={"red.500"}
               _pressed={{
                 bg: "red.700",
@@ -124,12 +219,31 @@ const VoucherHostDetail = ({ route }: any) => {
               Unavailable Voucher
             </Button>
           )}
+
           {voucher.status === "rejected" && (
-           <Text>Reject reson</Text>
+            <View
+              borderWidth={2}
+              minWidth={200}
+              minHeight={10}
+              marginTop={5}
+              borderRadius={30}
+              borderColor={"#b3b3b3"}
+              justifyContent={"center"}
+              alignItems={"center"}
+              padding={3}
+            >
+              <Text fontSize={16}>{voucher.rejectReason}</Text>
+            </View>
           )}
+
+          <View alignItems={"center"}>
+            <Button width={170} borderRadius={25} marginTop={10}>
+              Delete
+            </Button>
+          </View>
         </View>
       </ImageBackground>
-    </View>
+    </ScrollView>
   );
 };
 

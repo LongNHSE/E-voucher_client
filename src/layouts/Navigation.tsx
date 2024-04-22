@@ -21,6 +21,7 @@ import InventoryVoucherDetail from "../screens/User/InventoryVoucherDetails";
 import QR from "../screens/User/QR";
 import * as Linking from "expo-linking";
 import Payment from "../screens/User/Payment";
+import Report from "../screens/User/Report";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -195,7 +196,7 @@ const Navigation = () => {
             component={VNPayWebView}
             options={{
               headerShown: false,
-              title: "VNPayl",
+              title: "VNPay",
               animation: "slide_from_right",
             }}
           />
@@ -205,6 +206,24 @@ const Navigation = () => {
             component={ReportDetail}
             options={{ title: "Report Detail", animation: "slide_from_right" }}
           />
+
+          <Stack.Screen
+            name="UserReport"
+            component={Report}
+            options={{
+              title: "Report This Voucher",
+              animation: "slide_from_right",
+              headerStyle: {
+                backgroundColor: "white",
+              },
+
+              headerTitleStyle: {
+                fontWeight: "bold",
+                alignItem: "center",
+              },
+            }}
+          />
+
           <Stack.Screen
             name="RequestVoucherDetail"
             component={RequestVoucherDetail}

@@ -5,11 +5,12 @@ import {
   Image,
   Alert,
   Button,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useContext, useEffect, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
-import * as Linking from "expo-linking";
+// import * as Linking from "expo-linking";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ActivityIndicator } from "react-native-paper";
 import { StyleSheet } from "react-native";
@@ -112,6 +113,7 @@ const Payment = ({ route, navigation }: any) => {
 
   const handleDeepLink = (event) => {
     const data = Linking.parse(event.url);
+
     console.log("--------deeplink", data.queryParams.vnp_ResponseCode);
     if (
       data?.queryParams &&

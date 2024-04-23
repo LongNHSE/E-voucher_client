@@ -27,6 +27,10 @@ const Payment = ({ route, navigation }: any) => {
 
   console.log("-------------------------------link", route.params);
   const voucherId = route.params.voucherId;
+  if (!voucherId) {
+    // Alert.alert("Error", "Please select a voucher to buy");
+    navigation.goBack();
+  }
   // const transactionId = route.params.transactionId?.replace(/-/g, "");
   const quantity = route.params.amount;
   const userId = route.params.userId;

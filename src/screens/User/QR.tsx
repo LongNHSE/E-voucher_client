@@ -9,25 +9,20 @@ import {
 import React, { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import {
+  Alert,
   Dimensions,
   Image,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import * as SecureStore from "expo-secure-store";
-
 import { FontAwesome } from "@expo/vector-icons";
-import ConfirmDialog from "../../components/ConfirmDialog";
 import Voucher from "./Voucher";
 import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
-import NotiDialog from "../../components/NotiDialog";
 import QRCode from "react-native-qrcode-svg";
 import socket from "../../utils/socket";
-import { getBaseURL } from "../../utils/appConstant";
-import { useFocusEffect } from "@react-navigation/native";
-import { AsyncStorage } from "react-native";
+
 interface Voucher {
   _id: string;
   name: string;
@@ -71,37 +66,29 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
   const [socketId, setSocketId] = useState<string>("");
   const [isOpenNotiDialog, setIsOpenNotiDialog] = useState<boolean>(false);
-  const [isGift, setIsGift] = useState<boolean>(false);
-  const [amountVoucher, setAmountVoucher] = useState(1);
-  const url = getBaseURL();
-  const getSocketId = async () => {
-    const socketId = await AsyncStorage.getItem("socketId");
-    console.log("socketId", socketId);
-    setSocketId(socketId);
+  const [count, setCount] = useState(0);
+
+  const handleSocket = () => {
+    socket.on("QRCodeScanned", (data) => {
+      setCount(1);
+      console.log("----------response", typeof data.success);
+      if (data.success === true) {
+        Alert.alert("Success", "QR used successfully", [
+          { text: "OK", onPress: () => navigation.navigate("Inventory") },
+        ]);
+      } else {
+        Alert.alert("Error", "QR used failed", [
+          { text: "OK", onPress: () => setCount(0) },
+        ]);
+      }
+    });
   };
 
-  useFocusEffect(() => {
-    // Connect to the socket server
-    // Set up event listeners
-    socket.on("onMessage", (message: string) => {
-      console.log("new message", message);
-    });
-
-    socket.on("QRScanned", (data: any) => {
-      console.log("QRScanned", data);
-      // setIsOpenNotiDialog(true);
-    });
-
-    socket.on("socketId", (data) => {
-      console.log("socketId", data);
-      setSocketId(socket.id);
-    });
-
-    // Clean up the effect
-    return () => {
-      socket.disconnect();
-    };
-  }); // Empty dependency array means this effect runs once on mount
+  useEffect(() => {
+    if (count === 0) {
+      handleSocket();
+    }
+  }, [socket]);
 
   return (
     <>
@@ -128,16 +115,13 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
             <View alignItems={"center"}>
               <View style={styles.voucherQR}>
                 <View style={{ marginTop: 7, marginLeft: 7 }}>
-                  {socketId && (
-                    <QRCode
-                      value={JSON.stringify({
-                        voucher_id: voucherSell._id,
-                        hash: voucherSell.hash,
-                        socketId: socketId,
-                      })}
-                      size={235}
-                    />
-                  )}
+                  <QRCode
+                    value={JSON.stringify({
+                      voucher_id: voucherSell._id,
+                      hash: voucherSell.hash,
+                    })}
+                    size={235}
+                  />
                 </View>
               </View>
             </View>

@@ -115,6 +115,10 @@ const VoucherBottomSheet = ({
         giftUserId,
         amount,
         voucherId,
+        image,
+        voucherName,
+        price,
+        quantity,
       });
 
       // navigation.navigate("VNPay", {

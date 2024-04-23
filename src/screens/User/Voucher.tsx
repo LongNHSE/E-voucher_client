@@ -252,10 +252,7 @@ const Voucher = ({ navigation }: any) => {
             justifyContent: "center",
             alignItems: "center",
           }}
-          backgroundColor={"#004165"}
-        >
-          <ActivityIndicator size={"large"} />
-        </View>
+        ></View>
       ) : vouchers && vouchers.length !== 0 ? (
         <FlatList
           flex={1}

@@ -37,6 +37,7 @@ const Payment = ({ route, navigation }: any) => {
   }
   // const transactionId = route.params.transactionId?.replace(/-/g, "");
   const quantity = route?.params?.amount;
+  const { image, voucherName, price } = route?.params;
   const userId = route?.params?.userId;
   const giftUserId = route?.params?.giftUserId;
   const { authAxios, publicAxios } = useContext(AxiosContext);
@@ -119,8 +120,6 @@ const Payment = ({ route, navigation }: any) => {
   };
 
   const handleDeepLink = (event) => {
-    console.log("99999999999999999999", event.url);
-
     const url = new URL(event.url);
     const queryParams = Object.fromEntries(url.searchParams.entries());
     console.log("--------deeplink", queryParams?.vnp_ResponseCode);
@@ -148,125 +147,154 @@ const Payment = ({ route, navigation }: any) => {
     setRenderTime(renderTime + 1);
   }, [""]);
 
+  const [voucher, setVoucher] = useState<any>(null);
+
+  useEffect(() => {
+    const getVoucher = async () => {
+      setIsLoading(true);
+      try {
+        const res = await authAxios.get(`/vouchers/${voucherId}`);
+        console.log("voucher", res.data);
+        setVoucher(res.data);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        console.log(error);
+      }
+    };
+    getVoucher();
+  }, [isFocus]);
+
   if (isLoading) {
-    return <ActivityIndicator size="large" />;
-  }
+    return (
+      <Center>
+        <ActivityIndicator size="large" />
+      </Center>
+    );
+  } else
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#004165",
+        }}
+      >
+        <View style={styles.container}>
+          <View style={styles.ticketContainer}>
+            <View style={styles.topSection}>
+              <View style={styles.voucherInfo}>
+                <Image
+                  style={{
+                    width: 100,
+                    height: 70,
+                  }}
+                  alt="voucher image"
+                  source={{ uri: voucher?.imageUrl }}
+                />
 
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <View style={styles.container}>
-        <View style={styles.ticketContainer}>
-          <View style={styles.topSection}>
-            <View style={styles.voucherInfo}>
-              <Image
-                style={{
-                  width: 100,
-                  height: 70,
-                }}
-                source={{ uri: voucherId.imageUrl }}
-              />
-
-              <View style={styles.discountInfo}>
-                <Text style={styles.discountText}>
-                  {voucherId.discount}
-                  <Text>
-                    {voucherId.discountType === "percentage"
-                      ? "% OFF"
-                      : "K OFF"}
+                <View style={styles.discountInfo}>
+                  <Text style={styles.discountText}>
+                    {voucher?.discount}
+                    <Text>
+                      {voucher?.discountType === "percentage"
+                        ? "% OFF"
+                        : "K OFF"}
+                    </Text>
                   </Text>
-                </Text>
-                <Text style={{ fontSize: 20, width: 180 }}>
-                  {voucherId.name}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.voucherDes}>
-              <Text style={styles.descriptionText}>
-                {voucherId.description}
-              </Text>
-              <Text style={{ fontSize: 20, fontWeight: "500", marginTop: 15 }}>
-                Condition:{" "}
-              </Text>
-              <View style={styles.conditionList}>
-                {voucherId?.condition?.map((data, index) => {
-                  return (
-                    <View key={index} style={{ flexDirection: "row", gap: 2 }}>
-                      <Text>{"\u2022"}</Text>
-
-                      <Text style={styles.conditionText}>{` ${data}`}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-          </View>
-          <View style={styles.bottomSection}>
-            <View style={styles.before}></View>
-            <View style={styles.after}></View>
-            <Text style={styles.price}>
-              {formatNumber(voucherId.price)} VND
-            </Text>
-
-            <View style={styles.buttonSection}>
-              {voucherId.quantity > 0 &&
-                new Date(voucherId.endSellTime) > new Date() &&
-                voucherId.status === "available" && (
-                  <TouchableOpacity onPress={() => setIsOpenDialog(true)}>
-                    <View style={styles.button}>
-                      <Text style={styles.buttonText}>Buy Now</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-
-              {/* <TouchableOpacity onPress={() => handleOpenDialog("gift")}>
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Gift Other</Text>
+                  <Text style={{ fontSize: 20, width: 180 }}>
+                    {voucher?.name}
+                  </Text>
                 </View>
-              </TouchableOpacity> */}
-            </View>
-            <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "400" }}>
-              Sell From {moment(voucherId.startSellTime).format("Do MMM YY")} -{" "}
-              {moment(voucherId.endSellTime).format("Do MMM YY")}
-            </Text>
+              </View>
+              <View style={styles.voucherDes}>
+                <Text style={styles.descriptionText}>
+                  {voucher?.description}
+                </Text>
+                <Text
+                  style={{ fontSize: 20, fontWeight: "500", marginTop: 15 }}
+                >
+                  Condition:
+                </Text>
+                <View style={styles.conditionList}>
+                  {voucher?.condition?.map((data, index) => {
+                    return (
+                      <View
+                        key={index}
+                        style={{ flexDirection: "row", gap: 2 }}
+                      >
+                        <Text>{"\u2022"}</Text>
 
-            <Text style={{ marginTop: -10, fontSize: 16, fontWeight: "400" }}>
-              Valid From {moment(voucherId.startUseTime).format("Do MMM YY")} -{" "}
-              {moment(voucherId.endUseTime).format("Do MMM YY")}
-            </Text>
+                        <Text style={styles.conditionText}>{` ${data}`}</Text>
+                      </View>
+                    );
+                  })}
+                  <Text
+                    style={{ marginTop: 10, fontSize: 16, fontWeight: "bold" }}
+                  >
+                    Valid From:{" "}
+                    {moment(voucher?.startUseTime).format("Do MMM YY")} -{" "}
+                    {moment(voucher?.endUseTime).format("Do MMM YY")}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.bottomSection}>
+              <View style={styles.before}></View>
+              <View style={styles.after}></View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  gap: 40,
+                }}
+              >
+                <Text style={{ fontSize: 15 }}>
+                  Unit price: {formatNumber(voucher?.price)}
+                </Text>
+                <Text>x</Text>
+                <Text style={{ fontSize: 15 }}>
+                  {quantity} {quantity > 1 ? "vouchers" : "voucher"}
+                </Text>
+              </View>
+              <Text style={styles.price}>
+                Total: {formatNumber(quantity * price)} VND
+              </Text>
+
+              <Text style={styles.paymentMethodText}>
+                You will be redirect to VNPAY gateway to pay your order
+              </Text>
+              <Button
+                title="Continue to pay"
+                onPress={() => WebBrowser.openBrowserAsync(link)}
+              />
+            </View>
           </View>
         </View>
+
+        {isOpenDialog && (
+          <NotiDialog
+            navigateFunc={() => navigation.goBack()}
+            navigation={navigation}
+            isOpenDialog={isOpenDialog}
+            setIsOpenDialog={setIsOpenDialog}
+            title={"Alert"}
+            message={"Payment is failed. Please try again."}
+          />
+        )}
+        {isOpenSuccessDialog && (
+          <NotiDialog
+            navigateFunc={() => navigation.navigate("Inventory")}
+            navigation={navigation}
+            isOpenDialog={isOpenSuccessDialog}
+            setIsOpenDialog={setIsOpenSuccessDialog}
+            title={"Success"}
+            message={"Payment successfully. You will be redirect to Inventory."}
+          />
+        )}
       </View>
-      <View style={styles.normalPaymentContainer}>
-        <Text style={styles.paymentMethodText}>
-          You will be redirect to VNPAY gateway to pay your order
-        </Text>
-        <Button
-          title="Continue to pay"
-          onPress={() => WebBrowser.openBrowserAsync(link)}
-        />
-      </View>
-      {isOpenDialog && (
-        <NotiDialog
-          navigateFunc={() => navigation.goBack()}
-          navigation={navigation}
-          isOpenDialog={isOpenDialog}
-          setIsOpenDialog={setIsOpenDialog}
-          title={"Alert"}
-          message={"Payment is failed. Please try again."}
-        />
-      )}
-      {isOpenSuccessDialog && (
-        <NotiDialog
-          navigateFunc={() => navigation.navigate("Inventory")}
-          navigation={navigation}
-          isOpenDialog={isOpenSuccessDialog}
-          setIsOpenDialog={setIsOpenSuccessDialog}
-          title={"Success"}
-          message={"Payment successfully. You will be redirect to Inventory."}
-        />
-      )}
-    </View>
-  );
+    );
 };
 
 export default Payment;

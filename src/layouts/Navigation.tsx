@@ -2,7 +2,11 @@ import React, { useState, useContext, useEffect, useCallback } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "../../src/screens/Home";
 import Login from "../../src/screens/Authentication/Login";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useFocusEffect,
+  useIsFocused,
+} from "@react-navigation/native";
 import Signup from "../screens/Authentication/Signup";
 import UserTab from "../screens/User/UserTab";
 import VoucherDetail from "../screens/User/VoucherDetail";
@@ -22,7 +26,7 @@ import QR from "../screens/User/QR";
 import * as Linking from "expo-linking";
 import Payment from "../screens/User/Payment";
 import Report from "../screens/User/Report";
-import { Button } from "react-native";
+import { Text } from "react-native";
 import Welcome from "../screens/Welcome";
 
 const Stack: any = createNativeStackNavigator();
@@ -50,8 +54,6 @@ const Navigation = () => {
       const accessToken = await SecureStore.getItemAsync("accessToken");
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
       const user = await SecureStore.getItemAsync("user");
-      // console.log("loading jwt");
-      console.log(accessToken, refreshToken, user);
       const jwt = {
         accessToken,
         refreshToken,
@@ -62,19 +64,17 @@ const Navigation = () => {
         authenticated: jwt.accessToken !== null,
         user: user ? JSON.parse(user) : null,
       });
+      console.log("JWT loaded-------------", authContext.authState);
       setStatus("success");
     } catch (error: Error | any) {
       setStatus("error");
-      console.log("error", error.message);
-      console.log(`Keychain Error: ${error.message}`);
+      console.log("Error loading JWT", error);
       authContext.setAuthState({
         accessToken: null,
         refreshToken: null,
         authenticated: false,
         user: null,
       });
-    } finally {
-      setStatus("success");
     }
   }, []);
 
@@ -97,9 +97,10 @@ const Navigation = () => {
 
   useEffect(() => {
     loadJWT();
-  }, [loadJWT]);
+  }, [loadJWT, authContext?.authState?.accessToken]);
 
   if (status === "loading") return <></>;
+  if (status === "error") return <Text>Error loading data</Text>;
 
   return (
     <NavigationContainer linking={linking}>

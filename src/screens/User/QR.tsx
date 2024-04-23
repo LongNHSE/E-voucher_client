@@ -77,7 +77,7 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
           { text: "OK", onPress: () => navigation.navigate("Inventory") },
         ]);
       } else {
-        Alert.alert("Error", "QR used failed", [
+        Alert.alert("Error", data.message, [
           { text: "OK", onPress: () => setCount(0) },
         ]);
       }

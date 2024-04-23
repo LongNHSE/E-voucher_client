@@ -71,6 +71,7 @@ export default function QRScanner() {
       socket.emit("QRCode", {
         hash: dataObject.hash,
         success: false,
+        message: error.response.data.message,
       });
     } finally {
       setLoading(false);

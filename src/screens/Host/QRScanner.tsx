@@ -27,8 +27,6 @@ export default function QRScanner() {
   const [voucherData, setVoucherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [scanned, setScanned] = useState(false);
-  console.log("permission---", permission);
-  console.log("asdasd");
   if (!permission) {
     requestPermission();
   }
@@ -41,39 +39,46 @@ export default function QRScanner() {
   }
 
   const handleQRCodeScanned = async (data) => {
-    const dataObject = JSON.parse(data);
-    console.log(dataObject);
-    if (!dataObject.voucher_id || !dataObject.hash) {
+    try {
+      const dataObject = JSON.parse(data);
+      console.log(data);
+      if (!dataObject.voucher_id || !dataObject.hash) {
+        Alert.alert("Error", "Invalid QR Code", [
+          { text: "OK", onPress: () => setScanned(false) },
+        ]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await publicAxios.post("/voucherSell/QRCode", {
+          voucherId: dataObject.voucher_id,
+          hash: dataObject.hash,
+        });
+        Alert.alert("Success", response.data.message, [
+          { text: "OK", onPress: () => setScanned(false) },
+        ]);
+        socket.emit("QRCode", {
+          hash: dataObject.hash,
+          success: true,
+        });
+      } catch (error) {
+        console.log(error);
+        Alert.alert("Error", error.response.data.message, [
+          { text: "OK", onPress: () => setScanned(false) },
+        ]);
+        socket.emit("QRCode", {
+          hash: dataObject.hash,
+          success: false,
+          message: error.response.data.message,
+        });
+      } finally {
+        setLoading(false);
+      }
+    } catch (e) {
       Alert.alert("Error", "Invalid QR Code", [
         { text: "OK", onPress: () => setScanned(false) },
       ]);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await publicAxios.post("/voucherSell/QRCode", {
-        voucherId: dataObject.voucher_id,
-        hash: dataObject.hash,
-      });
-      Alert.alert("Success", response.data.message, [
-        { text: "OK", onPress: () => setScanned(false) },
-      ]);
-      socket.emit("QRCode", {
-        hash: dataObject.hash,
-        success: true,
-      });
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Error", error.response.data.message, [
-        { text: "OK", onPress: () => setScanned(false) },
-      ]);
-      socket.emit("QRCode", {
-        hash: dataObject.hash,
-        success: false,
-      });
-    } finally {
-      setLoading(false);
     }
   };
   return (

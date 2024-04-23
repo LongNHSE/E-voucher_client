@@ -7,7 +7,7 @@ const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     accessToken: null,
     refreshToken: null,
-    authenticated: null,
+    authenticated: false,
     user: null,
   });
 

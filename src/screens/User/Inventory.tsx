@@ -1,5 +1,13 @@
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { View, Text, FlatList, Image, Center, Button } from "native-base";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  Center,
+  Button,
+  Select,
+} from "native-base";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
@@ -102,7 +110,7 @@ const Inventory = ({ navigation }: any) => {
 
   useEffect(() => {
     fetchVouchers();
-  }, [isFocused, category]);
+  }, [isFocused, category, status]);
 
   useEffect(() => {
     // Group transactions by voucherId._id and calculate quantity
@@ -165,8 +173,23 @@ const Inventory = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <View display={isShowHeader ? "" : "none"} style={styles.header}>
+      <View
+        flexDirection={"row"}
+        justifyContent={"space-between"}
+        display={isShowHeader ? "" : "none"}
+        style={styles.header}
+      >
         <Text style={styles.title}>My Vouchers</Text>
+        <View width={"1/3"}>
+          <Select
+            selectedValue={status}
+            backgroundColor={"white"}
+            onValueChange={(itemValue) => setStatus(itemValue)}
+          >
+            <Select.Item label="Available" value="pending" />
+            <Select.Item label="Used" value="used" />
+          </Select>
+        </View>
       </View>
 
       {isEmpty ? (
@@ -182,7 +205,6 @@ const Inventory = ({ navigation }: any) => {
           </Button>
         </Center>
       ) : null}
-
       <FlatList
         backgroundColor={"#004165"}
         data={voucherSellGroup}
@@ -282,20 +304,21 @@ const Inventory = ({ navigation }: any) => {
                     ).toLocaleDateString()}`}
                   </Text>
                 </View>
-
-                <TouchableOpacity
-                  style={{
-                    padding: 5,
-                    backgroundColor: "tomato",
-                    borderRadius: 5,
-                  }}
-                  onPress={() => {
-                    handleUseQR(item);
-                    // navigation.navigate("QR", { voucherSell: item });
-                  }}
-                >
-                  <Text color={"white"}>Use now</Text>
-                </TouchableOpacity>
+                {status === "pending" ? (
+                  <TouchableOpacity
+                    style={{
+                      padding: 5,
+                      backgroundColor: "tomato",
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      handleUseQR(item);
+                      // navigation.navigate("QR", { voucherSell: item });
+                    }}
+                  >
+                    <Text color={"white"}>Use now</Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
 
               <Text style={{ fontSize: 16, fontWeight: "500" }}>

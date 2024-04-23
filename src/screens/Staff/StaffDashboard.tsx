@@ -150,12 +150,11 @@ const StaffDashboard = ({ navigation }: any) => {
     <View flex={1} bg={"#004165"}>
       <StickyHeader
         header="Voucher request list"
-        filterList={["Pending", "Rejected", "Available", "All"]}
+        filterList={["Pending", "Reject", "Available", "All"]}
         scrollOffsetY={scrollOffsetY}
         setFilterItem={setFilterVoucher}
       />
       <ScrollView
-        height={height - 200}
         onScroll={() => {
           Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollOffsetY } } }],
@@ -210,7 +209,7 @@ const StaffDashboard = ({ navigation }: any) => {
                         <Text
                           className="text-lg capitalize"
                           color={
-                            voucher.status === "rejected"
+                            voucher.status === "reject"
                               ? "red.500"
                               : voucher.status === "available"
                               ? "green.500"

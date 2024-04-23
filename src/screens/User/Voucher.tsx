@@ -139,6 +139,12 @@ const Voucher = ({ navigation }: any) => {
     <View style={styles.container}>
       <View display={isShowHeader ? "" : "none"} style={styles.header}>
         <Text style={styles.title}>E-Vouchers</Text>
+        {/* <Image
+          source={require("../../../assets/logo.png")}
+          height={30}
+          width={160}
+          alt="logo"
+        /> */}
         <View style={{ flexDirection: "row" }}>
           <Input
             marginTop={3}

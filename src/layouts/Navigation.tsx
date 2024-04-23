@@ -42,6 +42,8 @@ const Navigation = () => {
 
   const [status, setStatus] = useState<string>("loading");
   const authContext = useContext(AuthContext);
+
+  const [tab, setTab] = useState<string>("UserTab");
   const loadJWT = useCallback(async () => {
     try {
       const accessToken = await SecureStore.getItemAsync("accessToken");
@@ -82,6 +84,7 @@ const Navigation = () => {
       if (authContext?.authState?.user?.role === "staff") {
         return "StaffTab";
       } else if (authContext?.authState?.user?.role === "user") {
+        console.log("-----------------UserTab");
         return "UserTab";
       } else if (authContext?.authState?.user?.role === "admin") {
         return "AdminTab";
@@ -94,6 +97,8 @@ const Navigation = () => {
   useEffect(() => {
     loadJWT();
   }, [loadJWT]);
+
+  if (status === "loading") return <></>;
 
   return (
     <NavigationContainer linking={linking}>
@@ -149,7 +154,11 @@ const Navigation = () => {
               options={{ headerShown: false }}
             />
           ) : null}
-
+          {/* <Stack.Screen
+            name="UserTab2"
+            component={UserTab}
+            options={{ headerShown: false }}
+          /> */}
           <Stack.Screen
             name="Payment"
             component={Payment}

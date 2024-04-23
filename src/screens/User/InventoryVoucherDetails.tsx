@@ -132,8 +132,8 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
             <Text style={styles.price}>{formatNumber(voucher.price)} VND</Text>
 
             <View style={styles.buttonSection}>
-              {voucher.status === "pending" &&
-                new Date(voucher?.endUseTime) < new Date() && (
+              {voucherSell?.status === "pending" &&
+                new Date(voucher?.endUseTime) > new Date() && (
                   <TouchableOpacity
                     onPress={() => {
                       navigation.navigate("QR", { voucherSell: voucherSell });

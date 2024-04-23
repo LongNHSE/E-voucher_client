@@ -249,114 +249,120 @@ const Voucher = ({ navigation }: any) => {
         </View>
         {/* end of modal */}
       </View>
-      <FlatList
-        backgroundColor={"#004165"}
-        data={vouchers}
-        keyExtractor={(item: Voucher) => "_" + item._id.toString()}
-        // onScroll={() => setIsShowHeader(false)}
-        // onStartReached={() => setIsShowHeader(true)}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.item]}
-            key={item._id}
-            onPress={() => {
-              navigation.navigate("VoucherDetail", { item });
-            }}
-          >
-            {item.createdAt &&
-              new Date() - new Date(item.createdAt) < 24 * 60 * 60 * 1000 && (
-                <Ribbon text="New" color={"red"} />
-              )}
+      <View backgroundColor={"#004165"}>
+        <FlatList
+          data={vouchers}
+          keyExtractor={(item: Voucher) => "_" + item._id.toString()}
+          // onScroll={() => setIsShowHeader(false)}
+          // onStartReached={() => setIsShowHeader(true)}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.item]}
+              key={item._id}
+              onPress={() => {
+                navigation.navigate("VoucherDetail", { item });
+              }}
+            >
+              {item.createdAt &&
+                new Date() - new Date(item.createdAt) < 24 * 60 * 60 * 1000 && (
+                  <Ribbon text="New" color={"red"} />
+                )}
 
-            <View style={styles.item}>
-              <View style={styles.voucherHeader}>
-                <Image
-                  source={{
-                    uri: item.imageUrl,
-                  }}
-                  alt={"(voucher-image)"}
-                  height={90}
-                  width={"30%"}
-                />
-                <View flexDirection={"column"} marginLeft={5} marginRight={5}>
-                  <Text numberOfLines={1} fontSize={20} fontWeight={"bold"}>
-                    {item.name}
-                  </Text>
-                  <View flexDirection={"row"} alignItems={"center"}>
-                    <Ionicons
-                      style={{ paddingRight: 10 }}
-                      name="ticket-outline"
-                      color="green"
-                      size={24}
-                    />
-                    <Text fontSize={30} color={"green.800"}>
-                      {item.discount}
+              <View style={styles.item}>
+                <View style={styles.voucherHeader}>
+                  <Image
+                    source={{
+                      uri: item.imageUrl,
+                    }}
+                    alt={"(voucher-image)"}
+                    height={90}
+                    width={"30%"}
+                  />
+                  <View flexDirection={"column"} marginLeft={5} marginRight={5}>
+                    <Text numberOfLines={1} fontSize={20} fontWeight={"bold"}>
+                      {item.name}
                     </Text>
-                    <Text fontSize={30} color={"green.800"}>
-                      {item.discountType === "percentage" ? "% OFF" : "K OFF"}
+                    <View flexDirection={"row"} alignItems={"center"}>
+                      <Ionicons
+                        style={{ paddingRight: 10 }}
+                        name="ticket-outline"
+                        color="green"
+                        size={24}
+                      />
+                      <Text fontSize={30} color={"green.800"}>
+                        {item.discount}
+                      </Text>
+                      <Text fontSize={30} color={"green.800"}>
+                        {item.discountType === "percentage" ? "% OFF" : "K OFF"}
+                      </Text>
+                    </View>
+                    <Text fontSize={12} color={"gray.500"}>
+                      {item.quantity} vouchers left
                     </Text>
                   </View>
-                  <Text fontSize={12} color={"gray.500"}>
-                    {item.quantity} vouchers left
-                  </Text>
                 </View>
-              </View>
 
-              <View flexDirection={"row"}>
-                <View
-                  width={50}
-                  height={50}
-                  position={"absolute"}
-                  left={-58}
-                  top={-12}
-                  borderRadius={50}
-                  backgroundColor={"#004165"}
-                />
-                <View
-                  height={0}
-                  width={"98%"}
-                  borderWidth={2}
-                  borderColor={"gray.500"}
-                  borderStyle={"dashed"}
-                  margin={2}
-                />
-                <View
-                  width={50}
-                  height={50}
-                  position={"absolute"}
-                  right={-58}
-                  top={-12}
-                  borderRadius={50}
-                  backgroundColor={"#004165"}
-                />
-              </View>
-              <View flexDirection={"row"} justifyContent={"space-between"}>
                 <View flexDirection={"row"}>
-                  <Ionicons name="calendar-outline" size={20} color="green" />
-                  <Text color={"gray.500"} paddingLeft={2}>
-                    {`${new Date(item.startUseTime).toLocaleDateString(
-                      "vi-VN",
-                      { timeZone: "Asia/Ho_Chi_Minh" }
-                    )} - ${new Date(item.endUseTime).toLocaleDateString(
-                      "vi-VN",
-                      { timeZone: "Asia/Ho_Chi_Minh" }
-                    )}`}
-                  </Text>
-                </View>
-                <View flexDirection={"row"}>
-                  <Ionicons
-                    style={{ marginRight: 5 }}
-                    name="cash-outline"
-                    size={20}
-                    color="green"
+                  <View
+                    width={50}
+                    height={50}
+                    position={"absolute"}
+                    left={-58}
+                    top={-12}
+                    borderRadius={50}
+                    backgroundColor={"#004165"}
                   />
-                  <Text>{formatNumber(item.price)} VND</Text>
+                  <View
+                    height={0}
+                    width={"98%"}
+                    borderWidth={2}
+                    borderColor={"gray.500"}
+                    borderStyle={"dashed"}
+                    margin={2}
+                  />
+                  <View
+                    width={50}
+                    height={50}
+                    position={"absolute"}
+                    right={-58}
+                    top={-12}
+                    borderRadius={50}
+                    backgroundColor={"#004165"}
+                  />
+                </View>
+                <View flexDirection={"row"} justifyContent={"space-between"}>
+                  <View flexDirection={"row"}>
+                    <Ionicons name="calendar-outline" size={20} color="green" />
+                    <Text color={"gray.500"} paddingLeft={2}>
+                      {`${new Date(item.startUseTime).toLocaleDateString(
+                        "vi-VN",
+                        { timeZone: "Asia/Ho_Chi_Minh" }
+                      )} - ${new Date(item.endUseTime).toLocaleDateString(
+                        "vi-VN",
+                        { timeZone: "Asia/Ho_Chi_Minh" }
+                      )}`}
+                    </Text>
+                  </View>
+                  <View flexDirection={"row"}>
+                    <Ionicons
+                      style={{ marginRight: 5 }}
+                      name="cash-outline"
+                      size={20}
+                      color="green"
+                    />
+                    <Text>{formatNumber(item.price)} VND</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        )}
-      ></FlatList>
+            </TouchableOpacity>
+          )}
+        ></FlatList>
+      </View>
+      {vouchers.length === 0 && (
+        <Center flex={1}>
+          <Text>No voucher found</Text>
+        </Center>
+      )}
     </View>
   );
 };

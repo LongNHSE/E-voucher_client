@@ -141,9 +141,7 @@ const Payment = ({ route, navigation }: any) => {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Text>Payment</Text>
-
+    <View style={{ flex: 1, justifyContent: "center" }}>
       <View style={styles.normalPaymentContainer}>
         <Text style={styles.paymentMethodText}>
           You will be redirect to VNPAY gateway to pay your order

@@ -96,11 +96,15 @@ const VoucherDetail = ({ navigation, route }: any) => {
             <Text style={styles.price}>{formatNumber(item.price)} VND</Text>
 
             <View style={styles.buttonSection}>
-              <TouchableOpacity onPress={() => setIsOpenDialog(true)}>
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Buy Now</Text>
-                </View>
-              </TouchableOpacity>
+              {item.quantity > 0 &&
+                new Date(item.endSellTime) > new Date() &&
+                item.status === "available" && (
+                  <TouchableOpacity onPress={() => setIsOpenDialog(true)}>
+                    <View style={styles.button}>
+                      <Text style={styles.buttonText}>Buy Now</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
 
               {/* <TouchableOpacity onPress={() => handleOpenDialog("gift")}>
                 <View style={styles.button}>

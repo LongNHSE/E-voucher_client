@@ -8,7 +8,7 @@ import {
   Button,
   Select,
 } from "native-base";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { RefreshControl, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Constants from "expo-constants";
@@ -22,6 +22,8 @@ import { AxiosContext } from "../../context/AxiosContext";
 import socket from "../../utils/socket";
 import { Feather } from "@expo/vector-icons";
 import Ribbon from "../../components/Ribbon";
+import { AuthContext } from "../../context/AuthContext";
+import NotiDialog from "../../components/NotiDialog";
 
 interface Voucher {
   _id: string;
@@ -65,12 +67,20 @@ const Inventory = ({ navigation }: any) => {
   const { publicAxios } = useContext(AxiosContext);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [reportList, setReportList] = useState(null);
+  const [isReported, setIsReported] = useState(false);
+  const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
 
   const [voucherSells, setVoucherSells] = useState<VoucherSell[]>([]);
   const [voucherSellGroup, setVoucherSellGroup] = useState<any>([]);
   const isFocused = useIsFocused();
   const [isEmpty, setIsEmpty] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("pending");
+  const [expiredVoucher, setExpiredVoucher] = useState<VoucherSell[]>([]);
+
+  const { authAxios } = useContext(AxiosContext);
+
+  const { authState } = useContext(AuthContext);
 
   const fetchVouchers = async () => {
     setLoading(true);
@@ -96,6 +106,26 @@ const Inventory = ({ navigation }: any) => {
       });
   };
 
+  const fetchReportList = async () => {
+    const response = await authAxios.get("/reports");
+    console.log("report: ", response.data.data);
+
+    setReportList(response.data.data);
+  };
+
+  const checkIsReported = (item: any) => {
+    const check = reportList.find(
+      (report) =>
+        report.user._id === authState.user._id && report.voucher === item
+    );
+
+    console.log(check);
+
+    if (check) return true;
+
+    return false;
+  };
+
   //filter
   const initFilter: string[] = [
     "All",
@@ -113,6 +143,7 @@ const Inventory = ({ navigation }: any) => {
 
   useEffect(() => {
     fetchVouchers();
+    fetchReportList();
   }, [isFocused, category, status]);
 
   useEffect(() => {
@@ -187,14 +218,15 @@ const Inventory = ({ navigation }: any) => {
         style={styles.header}
       >
         <Text style={styles.title}>My Vouchers</Text>
-        <View width={"1/3"}>
+        <View width={"2/5"}>
           <Select
             selectedValue={status}
             backgroundColor={"white"}
             onValueChange={(itemValue) => setStatus(itemValue)}
           >
-            <Select.Item label="Available" value="pending" />
+            <Select.Item label="Haven't used" value="pending" />
             <Select.Item label="Used" value="used" />
+            <Select.Item label="Expired" value="expired" />
           </Select>
         </View>
       </View>
@@ -202,25 +234,25 @@ const Inventory = ({ navigation }: any) => {
       {isEmpty ? (
         <Center height={"700"} backgroundColor={"#004165"}>
           <Image
+            alt={"empty-box"}
             size={"lg"}
             source={require("../../../assets/box.png")}
-            alt="placeholder"
           />
-          <Text color={"white"} style={{ marginBottom: 20, marginTop: 10 }}>
-            {" "}
-            You haven't bought any voucher yet
-          </Text>
-          <Button
+          <Text color={"white"}>- Empty -</Text>
+          {/* <Button
             onPress={() => navigation.navigate("Voucher")}
             backgroundColor={"amber.500"}
             borderRadius={80}
           >
             Go to voucher shop
-          </Button>
+          </Button> */}
         </Center>
       ) : null}
       <FlatList
         data={voucherSellGroup}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={fetchVouchers} />
+        }
         keyExtractor={(item: any) => "_" + item.voucherId.toString()}
         // onScroll={() => setIsShowHeader(false)}
         // onStartReached={() => setIsShowHeader(true)}
@@ -238,8 +270,8 @@ const Inventory = ({ navigation }: any) => {
               item?.transactions[0]?.voucherId.endUseTime &&
               new Date(item?.transactions[0]?.voucherId.endUseTime) -
                 new Date() <
-                24 * 60 * 60 * 1000 && (
-                <Ribbon text="Almost expired" color={"orange"} height={36} />
+                3 * 24 * 60 * 60 * 1000 && (
+                <Ribbon text="About to expired" color={"orange"} height={36} />
               )}
 
             {status === "pending" &&
@@ -369,12 +401,20 @@ const Inventory = ({ navigation }: any) => {
                       alignItems: "center",
                       justifyContent: "center",
                     }}
-                    onPress={() =>
-                      navigation.navigate("UserReport", {
-                        voucherId: item.voucherId,
-                        voucherSellId: item.transactions[0]._id,
-                      })
-                    }
+                    onPress={() => {
+                      const isCheck = checkIsReported(
+                        item?.transactions[0]?.voucherId._id
+                      );
+
+                      if (isCheck) {
+                        setIsOpenDialog(true);
+                      } else {
+                        navigation.navigate("UserReport", {
+                          voucherId: item.voucherId,
+                          voucherSellId: item.transactions[0]._id,
+                        });
+                      }
+                    }}
                   >
                     <Text style={{ color: "white", fontWeight: "bold" }}>
                       Report
@@ -385,7 +425,24 @@ const Inventory = ({ navigation }: any) => {
             </View>
           </TouchableOpacity>
         )}
+        ListFooterComponent={() =>
+          voucherSellGroup.length > 0 && (
+            <Center paddingBottom={5}>
+              <Text color={"white"}>--End of List--</Text>
+            </Center>
+          )
+        }
       ></FlatList>
+
+      {isOpenDialog && (
+        <NotiDialog
+          navigation={navigation}
+          isOpenDialog={isOpenDialog}
+          setIsOpenDialog={setIsOpenDialog}
+          title={"Alert"}
+          message={"You already reported this voucher"}
+        />
+      )}
     </View>
   );
 };
@@ -396,7 +453,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#004165",
-    paddingBottom: 10,
   },
   item: {
     backgroundColor: "white",

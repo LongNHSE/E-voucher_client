@@ -12,7 +12,14 @@ import {
   CheckIcon,
   Center,
 } from "native-base";
-import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Touchable,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Constants from "expo-constants";
@@ -245,13 +252,13 @@ const Voucher = ({ navigation }: any) => {
             justifyContent: "center",
             alignItems: "center",
           }}
-          backgroundColor={"#004165"}
-        >
-          <ActivityIndicator size={"large"} />
-        </View>
+        ></View>
       ) : vouchers && vouchers.length !== 0 ? (
         <FlatList
-          backgroundColor={"#004165"}
+          flex={1}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={fetchVouchers} />
+          }
           data={vouchers}
           keyExtractor={(item: Voucher) => "_" + item._id.toString()}
           // onScroll={() => setIsShowHeader(false)}
@@ -264,6 +271,10 @@ const Voucher = ({ navigation }: any) => {
                 navigation.navigate("VoucherDetail", { item });
               }}
             >
+              {item.createdAt &&
+                new Date() - new Date(item.createdAt) < 24 * 60 * 60 * 1000 && (
+                  <Ribbon text="New" color={"red"} />
+                )}
               <View style={styles.item}>
                 <View style={styles.voucherHeader}>
                   <Image
@@ -355,6 +366,13 @@ const Voucher = ({ navigation }: any) => {
               </View>
             </TouchableOpacity>
           )}
+          ListFooterComponent={() =>
+            vouchers.length > 0 && (
+              <Center paddingBottom={5}>
+                <Text color={"white"}>--End of List--</Text>
+              </Center>
+            )
+          }
         ></FlatList>
       ) : (
         <Center height={"100%"} backgroundColor={"#004165"}>
@@ -378,6 +396,7 @@ export default Voucher;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#004165",
   },
   item: {
     backgroundColor: "white",

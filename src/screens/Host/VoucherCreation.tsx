@@ -26,6 +26,7 @@ import { getBaseURL } from "../../utils/appConstant";
 import * as FileSystem from "expo-file-system";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
+import { ActivityIndicator } from "react-native";
 
 export const VoucherCreation = () => {
   const { authAxios } = useContext(AxiosContext);
@@ -99,6 +100,7 @@ export const VoucherCreation = () => {
     const valid = Object.values(voucher).every((value) => value !== "");
     setFormValid(valid);
   };
+  const [loading, setLoading] = useState(false);
   const onChange = (event: Event, selectedDate: Date) => {
     setShowDatePicker(false);
     if (event.type === "set" || event.type === "dismissed") {
@@ -261,6 +263,7 @@ export const VoucherCreation = () => {
   };
 
   const handleCreateVoucher = async () => {
+    setLoading(true);
     try {
       if (formValid) {
         if (startSellTime > startUseTime || endSellTime > endUseTime) {
@@ -310,6 +313,8 @@ export const VoucherCreation = () => {
       }
     } catch (error) {
       console.error("Error creating voucher:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -634,6 +639,23 @@ export const VoucherCreation = () => {
           Create Voucher
         </Button>
       </View>
+      {loading && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: "100%",
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size={"large"} color={"black"} />
+        </View>
+      )}
     </ScrollView>
   );
 };

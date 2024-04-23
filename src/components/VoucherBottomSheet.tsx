@@ -19,6 +19,7 @@ import {
 import { Entypo } from "@expo/vector-icons";
 import { PaymentMethod } from "../constants/PaymentMethod";
 import { AxiosContext } from "../context/AxiosContext";
+import { formatNumber } from "../utils/NumberFormatter";
 
 const VoucherBottomSheet = ({
   navigation,
@@ -114,6 +115,10 @@ const VoucherBottomSheet = ({
         giftUserId,
         amount,
         voucherId,
+        image,
+        voucherName,
+        price,
+        quantity,
       });
 
       // navigation.navigate("VNPay", {
@@ -137,7 +142,7 @@ const VoucherBottomSheet = ({
               </Text>
               <Text
                 style={{ fontSize: 20, fontWeight: "500", marginTop: 10 }}
-              >{`${price} VND`}</Text>
+              >{`${formatNumber(price)} VND`}</Text>
 
               <Text style={{ fontSize: 18, fontWeight: "400", marginTop: 10 }}>
                 {quantity} vouchers left
@@ -217,7 +222,13 @@ const VoucherBottomSheet = ({
                 <TextInput
                   keyboardType="numeric"
                   value={amount.toString()}
-                  onChangeText={(value) => setAmount(parseInt(value))}
+                  onChangeText={(value) => {
+                    isNaN(parseInt(value))
+                      ? setAmount(1)
+                      : parseInt(value) <= quantity
+                      ? setAmount(parseInt(value))
+                      : setAmount(quantity);
+                  }}
                   style={{
                     borderLeftWidth: 0.5,
                     borderRightWidth: 0.5,
@@ -269,7 +280,9 @@ const VoucherBottomSheet = ({
           <View style={styles.totalSection}>
             <Text style={styles.title}>
               Total:{" "}
-              <Text style={{ fontWeight: "400" }}>{price * amount} VND</Text>
+              <Text style={{ fontWeight: "400" }}>
+                {formatNumber(price * amount)} VND
+              </Text>
             </Text>
 
             <TouchableOpacity

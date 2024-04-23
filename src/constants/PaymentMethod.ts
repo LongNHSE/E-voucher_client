@@ -1,10 +1,10 @@
 export const PaymentMethod = [
-  {
-    id: 1,
-    name: "MoMo",
-    image: require("../../assets/MoMo_Logo.png"),
-    status: false,
-  },
+  // {
+  //   id: 1,
+  //   name: "MoMo",
+  //   image: require("../../assets/MoMo_Logo.png"),
+  //   status: false,
+  // },
 
   {
     id: 2,

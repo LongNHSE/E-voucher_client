@@ -22,6 +22,7 @@ import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
 import QRCode from "react-native-qrcode-svg";
 import socket from "../../utils/socket";
+import { formatNumber } from "../../utils/NumberFormatter";
 
 interface Voucher {
   _id: string;
@@ -129,7 +130,7 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
           <View style={styles.bottomSection}>
             <View style={styles.before}></View>
             <View style={styles.after}></View>
-            <Text style={styles.price}>{voucher.price} VND</Text>
+            <Text style={styles.price}>{formatNumber(voucher.price)} VND</Text>
 
             <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "400" }}>
               Valid Until {moment(voucher.endUseTime).format("Do MMM YY")}

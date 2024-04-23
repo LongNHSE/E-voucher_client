@@ -24,8 +24,8 @@ const Payment = ({ route, navigation }: any) => {
   const link = route.params.url;
 
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
-
-  console.log("-------------------------------link", route.params);
+  const [isOpenSuccessDialog, setIsOpenSuccessDialog] =
+    useState<boolean>(false);
   const voucherId = route.params.voucherId;
   // const transactionId = route.params.transactionId?.replace(/-/g, "");
   const quantity = route.params.amount;
@@ -54,11 +54,11 @@ const Payment = ({ route, navigation }: any) => {
       const result = await publicAxios.post(
         `/vnpay/get-payment?${queryParams}`
       );
-      console.log("----get-payment", result);
+      console.log("----get-payment", result.data);
+      return result;
     } catch (error) {
       console.log(error);
     }
-    return result;
   };
 
   const handleNormalPaymentStatus = async (paymentMethod, orderData) => {
@@ -84,13 +84,15 @@ const Payment = ({ route, navigation }: any) => {
           vnp_OrderInfo
         )}&vnp_PayDate=${vnp_PayDate}&vnp_ResponseCode=${vnp_ResponseCode}&vnp_TmnCode=${vnp_TmnCode}&vnp_TransactionNo=${vnp_TransactionNo}&vnp_TransactionStatus=${vnp_TransactionStatus}&vnp_TxnRef=${vnp_TxnRef}&vnp_SecureHash=${vnp_SecureHash}`;
         checkPaidVNPay(queryParams).then((res) => {
+          console.log("1111111111", res.status, res.data);
           if (res.status >= 200 && res.status < 300) {
             createInvoice(userId, voucherId, quantity, giftUserId).then(
               (res) => {
                 if (res.status >= 200 && res.status < 300) {
                   setIsLoading(false);
-                  // Alert.alert("Payment Status", "Payment is successful");
-                  navigation.navigate("Inventory");
+                  console.log("000000000", res.status, res.data);
+                  setIsOpenSuccessDialog(true);
+                  // navigation.navigate("Inventory");
                 }
               }
             );
@@ -155,6 +157,16 @@ const Payment = ({ route, navigation }: any) => {
           setIsOpenDialog={setIsOpenDialog}
           title={"Alert"}
           message={"Payment is failed. Please try again."}
+        />
+      )}
+      {isOpenSuccessDialog && (
+        <NotiDialog
+          navigateFunc={() => navigation.navigate("Inventory")}
+          navigation={navigation}
+          isOpenDialog={isOpenSuccessDialog}
+          setIsOpenDialog={setIsOpenSuccessDialog}
+          title={"Success"}
+          message={"Payment successfully. You will be redirect to Inventory."}
         />
       )}
     </View>

@@ -35,6 +35,7 @@ import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/col
 import * as Linking from "expo-linking";
 import { formatNumber } from "../../utils/NumberFormatter";
 import { AxiosContext } from "../../context/AxiosContext";
+import Ribbon from "../../components/Ribbon";
 
 interface Voucher {
   _id: string;
@@ -56,6 +57,7 @@ interface Voucher {
   staff: string;
   rejectReason: string;
   id: string;
+  createdAt: Date;
 }
 
 interface RO {
@@ -247,7 +249,6 @@ const Voucher = ({ navigation }: any) => {
         </View>
         {/* end of modal */}
       </View>
-
       <FlatList
         backgroundColor={"#004165"}
         data={vouchers}
@@ -262,6 +263,11 @@ const Voucher = ({ navigation }: any) => {
               navigation.navigate("VoucherDetail", { item });
             }}
           >
+            {item.createdAt &&
+              new Date() - new Date(item.createdAt) < 24 * 60 * 60 * 1000 && (
+                <Ribbon text="New" color={"red"} />
+              )}
+
             <View style={styles.item}>
               <View style={styles.voucherHeader}>
                 <Image

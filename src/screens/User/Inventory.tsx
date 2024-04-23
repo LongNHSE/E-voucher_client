@@ -19,6 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import * as SecureStore from "expo-secure-store";
 import { AxiosContext } from "../../context/AxiosContext";
+import Ribbon from "../../components/Ribbon";
 
 interface Voucher {
   _id: string;
@@ -221,6 +222,20 @@ const Inventory = ({ navigation }: any) => {
               });
             }}
           >
+            {status === "pending" &&
+              item?.transactions[0]?.voucherId.endUseTime &&
+              new Date(item?.transactions[0]?.voucherId.endUseTime) -
+                new Date() <
+                24 * 60 * 60 * 1000 && (
+                <Ribbon text="Almost expired" color={"orange"} height={36} />
+              )}
+
+            {status === "pending" &&
+              item?.transactions[0]?.voucherId.endUseTime &&
+              new Date(item?.transactions[0]?.voucherId.endUseTime) <
+                new Date() && (
+                <Ribbon text="Expired" color={"red"} height={36} />
+              )}
             <View style={styles.item}>
               <View style={styles.voucherHeader}>
                 <Image
@@ -304,21 +319,24 @@ const Inventory = ({ navigation }: any) => {
                     ).toLocaleDateString()}`}
                   </Text>
                 </View>
-                {status === "pending" ? (
-                  <TouchableOpacity
-                    style={{
-                      padding: 5,
-                      backgroundColor: "tomato",
-                      borderRadius: 5,
-                    }}
-                    onPress={() => {
-                      handleUseQR(item);
-                      // navigation.navigate("QR", { voucherSell: item });
-                    }}
-                  >
-                    <Text color={"white"}>Use now</Text>
-                  </TouchableOpacity>
-                ) : null}
+
+                {status === "pending" &&
+                  new Date(item?.transactions[0]?.voucherId.endUseTime) >
+                    new Date() && (
+                    <TouchableOpacity
+                      style={{
+                        padding: 5,
+                        backgroundColor: "tomato",
+                        borderRadius: 5,
+                      }}
+                      onPress={() => {
+                        handleUseQR(item);
+                        // navigation.navigate("QR", { voucherSell: item });
+                      }}
+                    >
+                      <Text color={"white"}>Use now</Text>
+                    </TouchableOpacity>
+                  )}
               </View>
 
               <Text style={{ fontSize: 16, fontWeight: "500" }}>

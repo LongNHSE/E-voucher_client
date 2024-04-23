@@ -23,6 +23,7 @@ import * as Linking from "expo-linking";
 import Payment from "../screens/User/Payment";
 import Report from "../screens/User/Report";
 import { Button } from "react-native";
+import Welcome from "../screens/Welcome";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -104,11 +105,16 @@ const Navigation = () => {
     <NavigationContainer linking={linking}>
       {authContext?.authState?.authenticated === false ? (
         <Stack.Navigator
-          initialRouteName="Login"
+          initialRouteName="Welcome"
           screenOptions={{
             animation: "default",
           }}
         >
+          <Stack.Screen
+            name="Welcome"
+            component={Welcome}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="Login"
             component={Login}

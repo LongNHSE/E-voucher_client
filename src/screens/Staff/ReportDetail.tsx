@@ -143,15 +143,37 @@ const ReportDetail = ({ route, navigation }: any) => {
             padding: 10,
           }}
         >
-          <View>
+          <Text fontSize="xl" className="font-bold text-center">
+            Report message
+          </Text>
+          <Text fontSize="lg" textAlign="center">
+            {report.userMessage}
+          </Text>
+        </View>
+
+        {(report.staff || report.staffMessage) && (
+          <View
+            style={{
+              backgroundColor: "white",
+              width: "100%",
+              height: "auto",
+              margin: 10,
+              borderStyle: "solid",
+              borderColor: "gray",
+              borderWidth: 1,
+              borderRadius: 20,
+              alignSelf: "center",
+              padding: 10,
+            }}
+          >
             <Text fontSize="xl" className="font-bold text-center">
-              Report message
+              Answer message
             </Text>
             <Text fontSize="lg" textAlign="center">
-              {report.userMessage}
+              {report.staffMessage}
             </Text>
           </View>
-        </View>
+        )}
 
         {showResponseForm === true && (
           <View
@@ -192,17 +214,18 @@ const ReportDetail = ({ route, navigation }: any) => {
             </Button>
           </View>
         )}
-        {showResponseForm === false && (
-          <Button
-            variant={"solid"}
-            bg={"black"}
-            rounded="full"
-            _pressed={{ bg: "gray.500" }}
-            onPress={() => setShowResponseForm(true)}
-          >
-            Write response
-          </Button>
-        )}
+        {!(report.staff || report.staffMessage) &&
+          showResponseForm === false && (
+            <Button
+              variant={"solid"}
+              bg={"black"}
+              rounded="full"
+              _pressed={{ bg: "gray.500" }}
+              onPress={() => setShowResponseForm(true)}
+            >
+              Write response
+            </Button>
+          )}
       </View>
     </ScrollView>
   );

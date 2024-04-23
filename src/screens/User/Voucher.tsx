@@ -334,11 +334,13 @@ const Voucher = ({ navigation }: any) => {
                 <View flexDirection={"row"}>
                   <Ionicons name="calendar-outline" size={20} color="green" />
                   <Text color={"gray.500"} paddingLeft={2}>
-                    {`${new Date(
-                      item.startUseTime
-                    ).toLocaleDateString()} - ${new Date(
-                      item.endSellTime
-                    ).toLocaleDateString()}`}
+                    {`${new Date(item.startUseTime).toLocaleDateString(
+                      "vi-VN",
+                      { timeZone: "Asia/Ho_Chi_Minh" }
+                    )} - ${new Date(item.endUseTime).toLocaleDateString(
+                      "vi-VN",
+                      { timeZone: "Asia/Ho_Chi_Minh" }
+                    )}`}
                   </Text>
                 </View>
                 <View flexDirection={"row"}>

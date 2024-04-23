@@ -24,6 +24,7 @@ import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
 import NotiDialog from "../../components/NotiDialog";
 import { Feather } from "@expo/vector-icons";
+import { formatNumber } from "../../utils/NumberFormatter";
 
 interface Voucher {
   _id: string;
@@ -128,18 +129,21 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
           <View style={styles.bottomSection}>
             <View style={styles.before}></View>
             <View style={styles.after}></View>
-            <Text style={styles.price}>{voucher.price} VND</Text>
+            <Text style={styles.price}>{formatNumber(voucher.price)} VND</Text>
 
             <View style={styles.buttonSection}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("QR", { voucherSell: voucherSell });
-                }}
-              >
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Use now</Text>
-                </View>
-              </TouchableOpacity>
+              {voucher.status === "pending" &&
+                new Date(voucher?.endUseTime) < new Date() && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("QR", { voucherSell: voucherSell });
+                    }}
+                  >
+                    <View style={styles.button}>
+                      <Text style={styles.buttonText}>Use now</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
 
               {/* <TouchableOpacity onPress={() => handleOpenDialog("gift")}>
                 <View style={styles.button}>

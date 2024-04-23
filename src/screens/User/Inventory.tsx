@@ -321,7 +321,7 @@ const Inventory = ({ navigation }: any) => {
                       {`${new Date(
                         item.transactions[0].voucherId.startUseTime
                       ).toLocaleDateString()} - ${new Date(
-                        item.transactions[0].voucherId.endSellTime
+                        item.transactions[0].voucherId.endUseTime
                       ).toLocaleDateString()}`}
                     </Text>
                   </View>
@@ -330,21 +330,24 @@ const Inventory = ({ navigation }: any) => {
                     Quantity: {item.quantity}
                   </Text>
                 </View>
-                {status === "pending" ? (
-                  <TouchableOpacity
-                    style={{
-                      padding: 5,
-                      backgroundColor: "tomato",
-                      borderRadius: 5,
-                    }}
-                    onPress={() => {
-                      handleUseQR(item);
-                      // navigation.navigate("QR", { voucherSell: item });
-                    }}
-                  >
-                    <Text color={"white"}>Use now</Text>
-                  </TouchableOpacity>
-                ) : null}
+                {status === "pending" &&
+                  new Date(item?.transactions[0]?.voucherId.endUseTime) >
+                    new Date() && (
+                    <TouchableOpacity
+                      style={{
+                        padding: 5,
+                        backgroundColor: "tomato",
+                        borderRadius: 5,
+                        height: 35,
+                      }}
+                      onPress={() => {
+                        handleUseQR(item);
+                        // navigation.navigate("QR", { voucherSell: item });
+                      }}
+                    >
+                      <Text color={"white"}>Use now</Text>
+                    </TouchableOpacity>
+                  )}
               </View>
             </View>
           </TouchableOpacity>

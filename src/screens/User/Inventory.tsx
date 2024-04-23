@@ -8,7 +8,7 @@ import {
   Button,
   Select,
 } from "native-base";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { RefreshControl, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Constants from "expo-constants";
@@ -71,6 +71,7 @@ const Inventory = ({ navigation }: any) => {
   const isFocused = useIsFocused();
   const [isEmpty, setIsEmpty] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("pending");
+  const [expiredVoucher, setExpiredVoucher] = useState<VoucherSell[]>([]);
 
   const fetchVouchers = async () => {
     setLoading(true);
@@ -187,33 +188,41 @@ const Inventory = ({ navigation }: any) => {
         style={styles.header}
       >
         <Text style={styles.title}>My Vouchers</Text>
-        <View width={"1/3"}>
+        <View width={"2/5"}>
           <Select
             selectedValue={status}
             backgroundColor={"white"}
             onValueChange={(itemValue) => setStatus(itemValue)}
           >
-            <Select.Item label="Available" value="pending" />
+            <Select.Item label="Haven't used" value="pending" />
             <Select.Item label="Used" value="used" />
+            <Select.Item label="Expired" value="expired" />
           </Select>
         </View>
       </View>
 
       {isEmpty ? (
         <Center height={"700"} backgroundColor={"#004165"}>
-          <Image size={"lg"} source={require("../../../assets/box.png")} />
-          <Text color={"white"}>- You haven't bought any voucher yet -</Text>
-          <Button
+          <Image
+            alt={"empty-box"}
+            size={"lg"}
+            source={require("../../../assets/box.png")}
+          />
+          <Text color={"white"}>- Empty -</Text>
+          {/* <Button
             onPress={() => navigation.navigate("Voucher")}
             backgroundColor={"amber.500"}
             borderRadius={80}
           >
             Go to voucher shop
-          </Button>
+          </Button> */}
         </Center>
       ) : null}
       <FlatList
         data={voucherSellGroup}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={fetchVouchers} />
+        }
         keyExtractor={(item: any) => "_" + item.voucherId.toString()}
         // onScroll={() => setIsShowHeader(false)}
         // onStartReached={() => setIsShowHeader(true)}
@@ -231,8 +240,8 @@ const Inventory = ({ navigation }: any) => {
               item?.transactions[0]?.voucherId.endUseTime &&
               new Date(item?.transactions[0]?.voucherId.endUseTime) -
                 new Date() <
-                24 * 60 * 60 * 1000 && (
-                <Ribbon text="Almost expired" color={"orange"} height={36} />
+                3 * 24 * 60 * 60 * 1000 && (
+                <Ribbon text="About to expired" color={"orange"} height={36} />
               )}
 
             {status === "pending" &&
@@ -352,6 +361,13 @@ const Inventory = ({ navigation }: any) => {
             </View>
           </TouchableOpacity>
         )}
+        ListFooterComponent={() =>
+          voucherSellGroup.length > 0 && (
+            <Center paddingBottom={5}>
+              <Text color={"white"}>--End of List--</Text>
+            </Center>
+          )
+        }
       ></FlatList>
     </View>
   );
@@ -363,7 +379,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#004165",
-    paddingBottom: 10,
   },
   item: {
     backgroundColor: "white",

@@ -19,6 +19,7 @@ import {
 import { Entypo } from "@expo/vector-icons";
 import { PaymentMethod } from "../constants/PaymentMethod";
 import { AxiosContext } from "../context/AxiosContext";
+import { formatNumber } from "../utils/NumberFormatter";
 
 const VoucherBottomSheet = ({
   navigation,
@@ -137,7 +138,7 @@ const VoucherBottomSheet = ({
               </Text>
               <Text
                 style={{ fontSize: 20, fontWeight: "500", marginTop: 10 }}
-              >{`${price} VND`}</Text>
+              >{`${formatNumber(price)} VND`}</Text>
 
               <Text style={{ fontSize: 18, fontWeight: "400", marginTop: 10 }}>
                 {quantity} vouchers left
@@ -269,7 +270,9 @@ const VoucherBottomSheet = ({
           <View style={styles.totalSection}>
             <Text style={styles.title}>
               Total:{" "}
-              <Text style={{ fontWeight: "400" }}>{price * amount} VND</Text>
+              <Text style={{ fontWeight: "400" }}>
+                {formatNumber(price * amount)} VND
+              </Text>
             </Text>
 
             <TouchableOpacity

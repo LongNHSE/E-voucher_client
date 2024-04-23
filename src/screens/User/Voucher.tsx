@@ -19,6 +19,7 @@ import {
 } from "native-base";
 import {
   Pressable,
+  RefreshControl,
   StyleSheet,
   Touchable,
   TouchableOpacity,
@@ -251,6 +252,10 @@ const Voucher = ({ navigation }: any) => {
       </View>
       <View backgroundColor={"#004165"}>
         <FlatList
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={fetchVouchers} />
+          }
+          marginBottom={32}
           data={vouchers}
           keyExtractor={(item: Voucher) => "_" + item._id.toString()}
           // onScroll={() => setIsShowHeader(false)}
@@ -356,6 +361,13 @@ const Voucher = ({ navigation }: any) => {
               </View>
             </TouchableOpacity>
           )}
+          ListFooterComponent={() =>
+            vouchers.length > 0 && (
+              <Center paddingBottom={5}>
+                <Text color={"white"}>--End of List--</Text>
+              </Center>
+            )
+          }
         ></FlatList>
       </View>
       {vouchers.length === 0 && (

@@ -8,26 +8,38 @@ import {
   Text,
   Box,
 } from "native-base";
-import { FontAwesome5 } from "@expo/vector-icons";
+import {
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 import { AxiosContext } from "../../context/AxiosContext";
 import { formatNumber } from "../../utils/NumberFormatter";
+import { AuthContext } from "../../context/AuthContext";
+
 const Dashboard = () => {
   const { publicAxios } = useContext(AxiosContext);
-
+  const authContext = useContext(AuthContext);
+  const hostId = authContext.authState.user._id;
   const [totalVoucher, setTotalVoucher] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
   const url = `/vouchers/totalQuantity`;
   useEffect(() => {
-    // Call axios to get the total voucher count
-    publicAxios.get(url)
-      .then((response) => {
-        setTotalVoucher(response.data);
-        console.log(totalVoucher);
-        
-      })
-      .catch((error) => {
-        console.error("Error fetching total voucher count:", error);
-      });
+    const fetchDashboardData = async () => {
+      try {
+        const voucherResponse = await publicAxios.get(`/vouchers/totalQuantity?hostId=${hostId}`);
+        setTotalVoucher(voucherResponse.data);
+
+        const revenueResponse = await publicAxios.get(`/invoices/totalRevenue?hostId=${hostId}`);
+        setTotalRevenue(revenueResponse.data.totalRevenue);
+        console.log("Total Revenue:::::::::::::::::::::::::", revenueResponse.data.totalRevenue);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
   const months = Array.from({ length: 12 }, (_, index) => index + 1);
   return (
@@ -63,20 +75,32 @@ const Dashboard = () => {
 
       <View style={{ flexDirection: "column", marginTop: 20, padding: 10 }}>
         <Box style={styles.box}>
-          <Text fontSize="lg" fontWeight="bold">
-            Total Voucher
-          </Text>
-          <Text fontSize="2xl" mt={2}>
-          {formatNumber(totalVoucher)}
+          <View style={{ alignItems: "center", flexDirection: "row" }}>
+            <MaterialCommunityIcons
+              name="ticket-percent-outline"
+              size={24}
+              color="blue"
+            />
+            <Text marginLeft={2} fontSize="lg">
+              Total Voucher
+            </Text>
+          </View>
+
+          <Text fontSize="2xl" mt={2} fontWeight={"bold"}>
+            {formatNumber(totalVoucher)} Vouchers
           </Text>
         </Box>
         <Box style={styles.box}>
-          <Text fontSize="lg" fontWeight="bold">
-            Total Quantity of Voucher
-          </Text>
-          <Text fontSize="2xl" mt={2}>
-            500
-          </Text>
+          <View style={{ alignItems: "center", flexDirection: "row" }}>
+            <Ionicons name="wallet-outline" size={24} color="blue" />
+            <Text marginLeft={2} fontSize="lg">
+              Total Revenue
+            </Text>
+            </View>
+            <Text fontSize="2xl" mt={2} fontWeight={'bold'}>
+              {formatNumber(totalRevenue)} VND
+            </Text>
+         
         </Box>
         <Box style={styles.box}>
           <Text fontSize="lg" fontWeight="bold">
@@ -94,7 +118,7 @@ const Dashboard = () => {
 const styles = StyleSheet.create({
   box: {
     width: "100%",
-    height:120,
+    height: 120,
     backgroundColor: "white",
     borderRadius: 10,
     padding: 16,

@@ -6,24 +6,23 @@ import {
   useDisclose,
   Actionsheet,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import {
+  Alert,
   Dimensions,
   Image,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import * as SecureStore from "expo-secure-store";
-
 import { FontAwesome } from "@expo/vector-icons";
-import ConfirmDialog from "../../components/ConfirmDialog";
 import Voucher from "./Voucher";
 import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
-import NotiDialog from "../../components/NotiDialog";
 import QRCode from "react-native-qrcode-svg";
+import socket from "../../utils/socket";
+
 interface Voucher {
   _id: string;
   name: string;
@@ -65,9 +64,31 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
   const voucherSell: VoucherSell = route.params.voucherSell;
   const voucher: Voucher = voucherSell.voucherId;
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
+  const [socketId, setSocketId] = useState<string>("");
   const [isOpenNotiDialog, setIsOpenNotiDialog] = useState<boolean>(false);
-  const [isGift, setIsGift] = useState<boolean>(false);
-  const [amountVoucher, setAmountVoucher] = useState(1);
+  const [count, setCount] = useState(0);
+
+  const handleSocket = () => {
+    socket.on("QRCodeScanned", (data) => {
+      setCount(1);
+      console.log("----------response", typeof data.success);
+      if (data.success === true) {
+        Alert.alert("Success", "QR used successfully", [
+          { text: "OK", onPress: () => navigation.navigate("Inventory") },
+        ]);
+      } else {
+        Alert.alert("Error", "QR used failed", [
+          { text: "OK", onPress: () => setCount(0) },
+        ]);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (count === 0) {
+      handleSocket();
+    }
+  }, [socket]);
 
   return (
     <>
@@ -100,7 +121,7 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
                       hash: voucherSell.hash,
                     })}
                     size={235}
-                  ></QRCode>
+                  />
                 </View>
               </View>
             </View>

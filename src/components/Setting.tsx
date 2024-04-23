@@ -39,7 +39,7 @@ const Setting = () => {
     }
   };
   return (
-    <ScrollView>
+    <View>
       <Image
         source={require("../../assets/background.png")}
         alt="logo"
@@ -124,7 +124,7 @@ const Setting = () => {
       >
         Logout
       </Button>
-    </ScrollView>
+    </View>
   );
 };
 

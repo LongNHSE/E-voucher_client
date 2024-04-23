@@ -23,6 +23,8 @@ import Voucher from "./Voucher";
 import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
 import NotiDialog from "../../components/NotiDialog";
+import { Feather } from "@expo/vector-icons";
+
 interface Voucher {
   _id: string;
   name: string;
@@ -157,7 +159,7 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
           </View>
 
           <TouchableOpacity
-            style={{ position: "absolute", right: 10, top: 15 }}
+            style={{ position: "absolute", right: 10, top: 18 }}
             onPress={() =>
               navigation.navigate("UserReport", {
                 voucherId: voucher._id,
@@ -165,7 +167,7 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
               })
             }
           >
-            <FontAwesome name="flag" size={30} color="red" />
+            <Feather name="flag" size={28} color="red" />
           </TouchableOpacity>
         </View>
 

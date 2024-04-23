@@ -73,8 +73,31 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
         source={require("../../../assets/background.png")}
         resizeMode="cover"
       >
-        <Image
-          source={{ uri: voucher?.imageUrl }}
+        {voucher.imageUrl !== "" ? (
+          <Image
+            source={{ uri: voucher.imageUrl }}
+            alt="voucher"
+            size={40}
+            rounded="full"
+            alignSelf={"center"}
+            position={"relative"}
+            top={20}
+            zIndex={1}
+          />
+        ) : (
+          <Image
+            source={require("../../../assets/icon.png")}
+            alt="voucher"
+            size={40}
+            rounded="full"
+            alignSelf={"center"}
+            position={"relative"}
+            top={20}
+            zIndex={1}
+          />
+        )}
+        {/* <Image
+          source={{ uri: voucher.imageUrl }}
           alt="voucher"
           size={40}
           rounded="full"
@@ -82,7 +105,7 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
           position={"relative"}
           top={20}
           zIndex={1}
-        />
+        /> */}
         <View
           width="100%"
           height={515}

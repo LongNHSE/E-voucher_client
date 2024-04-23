@@ -19,6 +19,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import * as SecureStore from "expo-secure-store";
 import { AxiosContext } from "../../context/AxiosContext";
+import socket from "../../utils/socket";
+import { Feather } from "@expo/vector-icons";
 import Ribbon from "../../components/Ribbon";
 
 interface Voucher {
@@ -164,6 +166,10 @@ const Inventory = ({ navigation }: any) => {
           voucherId: voucherSell.transactions[0]._id,
         }
       );
+      console.log("----handleUseQR", voucherSellResult.data.voucher.hash);
+      socket.emit("generateQRCode", {
+        hash: voucherSellResult.data.voucher.hash,
+      });
       navigation.navigate("QR", {
         voucherSell: voucherSellResult.data.voucher,
       });
@@ -207,7 +213,6 @@ const Inventory = ({ navigation }: any) => {
         </Center>
       ) : null}
       <FlatList
-        backgroundColor={"#004165"}
         data={voucherSellGroup}
         keyExtractor={(item: any) => "_" + item.voucherId.toString()}
         // onScroll={() => setIsShowHeader(false)}
@@ -309,39 +314,38 @@ const Inventory = ({ navigation }: any) => {
                 justifyContent={"space-between"}
                 mt={3}
               >
-                <View flexDirection={"row"}>
-                  <Ionicons name="calendar-outline" size={20} color="green" />
-                  <Text color={"gray.500"} paddingLeft={2}>
-                    {`${new Date(
-                      item.transactions[0].voucherId.startUseTime
-                    ).toLocaleDateString()} - ${new Date(
-                      item.transactions[0].voucherId.endSellTime
-                    ).toLocaleDateString()}`}
+                <View style={{ gap: 10 }}>
+                  <View flexDirection={"row"}>
+                    <Ionicons name="calendar-outline" size={20} color="green" />
+                    <Text color={"gray.500"} paddingLeft={2}>
+                      {`${new Date(
+                        item.transactions[0].voucherId.startUseTime
+                      ).toLocaleDateString()} - ${new Date(
+                        item.transactions[0].voucherId.endSellTime
+                      ).toLocaleDateString()}`}
+                    </Text>
+                  </View>
+
+                  <Text style={{ fontSize: 19, fontWeight: "500" }}>
+                    Quantity: {item.quantity}
                   </Text>
                 </View>
-
-                {status === "pending" &&
-                  new Date(item?.transactions[0]?.voucherId.endUseTime) >
-                    new Date() && (
-                    <TouchableOpacity
-                      style={{
-                        padding: 5,
-                        backgroundColor: "tomato",
-                        borderRadius: 5,
-                      }}
-                      onPress={() => {
-                        handleUseQR(item);
-                        // navigation.navigate("QR", { voucherSell: item });
-                      }}
-                    >
-                      <Text color={"white"}>Use now</Text>
-                    </TouchableOpacity>
-                  )}
+                {status === "pending" ? (
+                  <TouchableOpacity
+                    style={{
+                      padding: 5,
+                      backgroundColor: "tomato",
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      handleUseQR(item);
+                      // navigation.navigate("QR", { voucherSell: item });
+                    }}
+                  >
+                    <Text color={"white"}>Use now</Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
-
-              <Text style={{ fontSize: 16, fontWeight: "500" }}>
-                Quantity: {item.quantity}
-              </Text>
             </View>
           </TouchableOpacity>
         )}
@@ -355,12 +359,15 @@ export default Inventory;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#004165",
+    paddingBottom: 10,
   },
   item: {
     backgroundColor: "white",
     padding: 10,
     margin: 10,
     borderRadius: 10,
+    marginBottom: 0,
   },
   voucherHeader: {
     flexDirection: "row",

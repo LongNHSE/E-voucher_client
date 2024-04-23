@@ -64,11 +64,12 @@ const Voucher = () => {
   );
   return (
     <ScrollView style={styles.container}>
-      <Heading textAlign={"center"} fontSize="xl">
+      <Heading style={styles.header} textAlign={"center"} fontSize="xl">
         Voucher List
       </Heading>
       <View
         style={{
+          flexDirection:"row",
           justifyContent: "center",
           alignItems: "flex-start",
           marginTop: 10,
@@ -176,17 +177,13 @@ const Voucher = () => {
 };
 
 const VoucherRequest = () => {
-  return (
-    <ScrollView style={{ marginTop: 60 }}>
-      <Voucher />
-    </ScrollView>
-  );
+  return <Voucher />;
 };
 
 const styles = StyleSheet.create({
   header: {
-    marginTop: 10,
-    height: 50,
+    marginTop: 40,
+    height: 30,
     flexDirection: "row",
     justifyContent: "space-between",
   },

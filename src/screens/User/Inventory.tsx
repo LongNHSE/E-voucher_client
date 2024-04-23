@@ -22,6 +22,8 @@ import { AxiosContext } from "../../context/AxiosContext";
 import socket from "../../utils/socket";
 import { Feather } from "@expo/vector-icons";
 import Ribbon from "../../components/Ribbon";
+import { AuthContext } from "../../context/AuthContext";
+import NotiDialog from "../../components/NotiDialog";
 
 interface Voucher {
   _id: string;
@@ -65,6 +67,9 @@ const Inventory = ({ navigation }: any) => {
   const { publicAxios } = useContext(AxiosContext);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [reportList, setReportList] = useState(null);
+  const [isReported, setIsReported] = useState(false);
+  const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
 
   const [voucherSells, setVoucherSells] = useState<VoucherSell[]>([]);
   const [voucherSellGroup, setVoucherSellGroup] = useState<any>([]);
@@ -72,6 +77,10 @@ const Inventory = ({ navigation }: any) => {
   const [isEmpty, setIsEmpty] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("pending");
   const [expiredVoucher, setExpiredVoucher] = useState<VoucherSell[]>([]);
+
+  const { authAxios } = useContext(AxiosContext);
+
+  const { authState } = useContext(AuthContext);
 
   const fetchVouchers = async () => {
     setLoading(true);
@@ -97,6 +106,26 @@ const Inventory = ({ navigation }: any) => {
       });
   };
 
+  const fetchReportList = async () => {
+    const response = await authAxios.get("/reports");
+    console.log("report: ", response.data.data);
+
+    setReportList(response.data.data);
+  };
+
+  const checkIsReported = (item: any) => {
+    const check = reportList.find(
+      (report) =>
+        report.user._id === authState.user._id && report.voucher === item
+    );
+
+    console.log(check);
+
+    if (check) return true;
+
+    return false;
+  };
+
   //filter
   const initFilter: string[] = [
     "All",
@@ -114,6 +143,7 @@ const Inventory = ({ navigation }: any) => {
 
   useEffect(() => {
     fetchVouchers();
+    fetchReportList();
   }, [isFocused, category, status]);
 
   useEffect(() => {
@@ -371,12 +401,20 @@ const Inventory = ({ navigation }: any) => {
                       alignItems: "center",
                       justifyContent: "center",
                     }}
-                    onPress={() =>
-                      navigation.navigate("UserReport", {
-                        voucherId: item.voucherId,
-                        voucherSellId: item.transactions[0]._id,
-                      })
-                    }
+                    onPress={() => {
+                      const isCheck = checkIsReported(
+                        item?.transactions[0]?.voucherId._id
+                      );
+
+                      if (isCheck) {
+                        setIsOpenDialog(true);
+                      } else {
+                        navigation.navigate("UserReport", {
+                          voucherId: item.voucherId,
+                          voucherSellId: item.transactions[0]._id,
+                        });
+                      }
+                    }}
                   >
                     <Text style={{ color: "white", fontWeight: "bold" }}>
                       Report
@@ -395,6 +433,16 @@ const Inventory = ({ navigation }: any) => {
           )
         }
       ></FlatList>
+
+      {isOpenDialog && (
+        <NotiDialog
+          navigation={navigation}
+          isOpenDialog={isOpenDialog}
+          setIsOpenDialog={setIsOpenDialog}
+          title={"Alert"}
+          message={"You already reported this voucher"}
+        />
+      )}
     </View>
   );
 };

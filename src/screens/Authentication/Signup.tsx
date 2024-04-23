@@ -38,6 +38,7 @@ const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
 
@@ -83,6 +84,12 @@ const Signup = () => {
       setLoading(false);
       return;
     }
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await publicAxios.post("/auth/signup", {
         email,
@@ -282,6 +289,8 @@ const Signup = () => {
           />
           <TextInput
             style={styles.input}
+            value={confirmPassword}
+            onChangeText={(text) => setConfirmPassword(text)}
             placeholder="Confirm Password"
             placeholderTextColor="black"
             secureTextEntry
@@ -291,8 +300,12 @@ const Signup = () => {
             placeholder="Phone Number"
             placeholderTextColor="black"
             value={phone}
-            onChangeText={(text) => setPhone(text)}
-            keyboardType="phone-pad"
+            onChangeText={(text) => {
+              // Remove any non-numeric characters
+              const numericText = text.replace(/[^0-9]/g, "");
+              setPhone(numericText);
+            }}
+            keyboardType="numeric"
           />
         </View>
         <TouchableOpacity

@@ -16,6 +16,7 @@ import { AxiosContext } from "../../context/AxiosContext";
 import { useNavigation } from "@react-navigation/native";
 import Spinner from "../../components/Spinner";
 import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 import WaveBackground from "./../../components/WaveBackGround";
 import * as SecureStore from "expo-secure-store";
 
@@ -51,8 +52,7 @@ const Login = () => {
         authenticated: true,
         user,
       });
-    
-      
+
       console.log(authContext.authState);
     } catch (error) {
       console.log(error);
@@ -65,6 +65,16 @@ const Login = () => {
   return (
     <SafeAreaView style={styles.container}>
       <WaveBackground customStyles={styles.svgCurve}></WaveBackground>
+      <TouchableOpacity
+        style={{ position: "absolute", left: 20, top: 20 }} // Add this style
+      >
+        <Feather
+          name="arrow-left-circle"
+          size={40}
+          color="white"
+          onPress={() => navigator.goBack()}
+        />
+      </TouchableOpacity>
       <Text style={styles.logo}>E-Voucher</Text>
       <View style={styles.form}>
         <TextInput

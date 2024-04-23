@@ -134,20 +134,20 @@ const ReportList = ({ navigation }: any) => {
   const toast = useToast();
   const { authAxios } = useContext(AxiosContext);
   const scrollOffsetY = useRef(new Animated.Value(0)).current;
-  const [reportTypes, setReportTypes] = useState<string[]>([]);
-  const [filterReport, setFilterReport] = useState<string>("");
+  // const [reportTypes, setReportTypes] = useState<string[]>([]);
+  const [filterReport, setFilterReport] = useState<string>("All");
   const [reportList, setReportList] = useState<Report[]>([]);
 
   useEffect(() => {
     if (focus) {
-      fetchReportType();
+      // fetchReportType();
       fetchReport();
     }
   }, [focus]);
 
   const fetchReport = async () => {
     try {
-      const response = await authAxios.get("/reports/staff");
+      const response = await authAxios.get("/reports");
       if (response.data.message === "Success") {
         setReportList(response.data.data);
       } else {
@@ -165,34 +165,34 @@ const ReportList = ({ navigation }: any) => {
     }
   };
 
-  const fetchReportType = async () => {
-    try {
-      const response = await authAxios.get("/reportTypes");
-      if (response.data.message === "Success") {
-        const reportType = response.data.data.map((reportType: any) => {
-          return reportType.name;
-        });
-        setReportTypes(reportType);
-      } else {
-        toast.show({
-          title: "Error",
-          description: "Failed to fetch report type",
-        });
-      }
-    } catch (error: any) {
-      toast.show({
-        title: "Error",
-        description: "Something went wrong",
-      });
-      console.log("error", error.message);
-    }
-  };
+  // const fetchReportType = async () => {
+  //   try {
+  //     const response = await authAxios.get("/reportTypes");
+  //     if (response.data.message === "Success") {
+  //       const reportType = response.data.data.map((reportType: any) => {
+  //         return reportType.name;
+  //       });
+  //       setReportTypes(reportType);
+  //     } else {
+  //       toast.show({
+  //         title: "Error",
+  //         description: "Failed to fetch report type",
+  //       });
+  //     }
+  //   } catch (error: any) {
+  //     toast.show({
+  //       title: "Error",
+  //       description: "Something went wrong",
+  //     });
+  //     console.log("error", error.message);
+  //   }
+  // };
   return (
     <View flex={1} bg={"#004165"}>
       <StickyHeader
         header="Voucher report list"
         // searchBar={false}
-        filterList={reportTypes}
+        filterList={["All", "Pending", "Answered"]}
         setFilterItem={setFilterReport}
         scrollOffsetY={scrollOffsetY}
       />
@@ -201,9 +201,11 @@ const ReportList = ({ navigation }: any) => {
           {reportList
             .filter((report) => {
               return (
-                filterReport.toLowerCase() === "" ||
-                report.reportType.name.toLocaleLowerCase() ===
-                  filterReport.toLocaleLowerCase()
+                filterReport.toLowerCase() === "all" ||
+                (filterReport.toLowerCase() === "pending" &&
+                  !report.staffMessage) ||
+                (filterReport.toLowerCase() === "answered" &&
+                  report.staffMessage)
               );
             })
             .map((report) => (
@@ -232,13 +234,18 @@ const ReportList = ({ navigation }: any) => {
                           {report.voucherSell.voucherId.name}
                         </Text>
                       </View>
-                      <View className="flex-column justify-center">
-                        <Text className="text-md">
-                          Username: {report.user.username}
-                        </Text>
-                        <Text className="text-md capitalize">
+                      <View className="w-32 flex-column justify-center">
+                        {/* <Text className="text-md">{report.user.username}</Text> */}
+                        <Text className="text-md capitalize font-medium">
                           {report.reportType.name}
                         </Text>
+                        {report.staffMessage || report.staff ? (
+                          <Text className="text-md text-green-500">
+                            Answered
+                          </Text>
+                        ) : (
+                          <Text className="text-md text-gray-500">Pending</Text>
+                        )}
                       </View>
                     </View>
                   );

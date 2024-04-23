@@ -45,7 +45,7 @@ export const VoucherCreation = () => {
     discountType: "percentage",
     category: "",
     host: authContext.authState.user._id,
-    condition: [''],
+    condition: [""],
   });
   const url = `${getBaseURL()}/vouchers`;
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -84,9 +84,9 @@ export const VoucherCreation = () => {
   };
   const handleAddCondition = () => {
     if (voucher.condition.length < 3) {
-      setVoucher(prevState => ({
+      setVoucher((prevState) => ({
         ...prevState,
-        condition: [...prevState.condition, '']
+        condition: [...prevState.condition, ""],
       }));
     } else {
       Toast.show({
@@ -97,16 +97,18 @@ export const VoucherCreation = () => {
     }
   };
   const handleRemoveCondition = (indexToRemove: number) => {
-    const newConditions = voucher.condition.filter((_, index) => index !== indexToRemove);
+    const newConditions = voucher.condition.filter(
+      (_, index) => index !== indexToRemove
+    );
     setVoucher({ ...voucher, condition: newConditions });
   };
   const handleConditionInputChange = (value, index) => {
     // Update the condition array based on the input value and index
     const updatedConditions = [...voucher.condition];
     updatedConditions[index] = value;
-    setVoucher(prevState => ({
+    setVoucher((prevState) => ({
       ...prevState,
-      condition: updatedConditions
+      condition: updatedConditions,
     }));
   };
 
@@ -139,7 +141,7 @@ export const VoucherCreation = () => {
   };
 
   const handleInputChange = (field: string, value: any, index?: number) => {
-  if (field === "imageURL") {
+    if (field === "imageURL") {
       const imageUri = value.assets[0]?.uri || null;
       setVoucher({ ...voucher, [field]: imageUri });
     } else if (field === "discount" && voucher.discountType === "percentage") {
@@ -167,22 +169,18 @@ export const VoucherCreation = () => {
       setVoucher({ ...voucher, [field]: value });
     }
   };
-  
+
   interface ro {
     message: string;
     statusCode: number;
     dataString: string;
   }
   const uploadImage = async (uri: string) => {
-    const result = await FileSystem.uploadAsync(
-      "http://10.0.2.2:8000/vouchers/image",
-      uri,
-      {
-        httpMethod: "POST",
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        fieldName: "image",
-      }
-    );
+    const result = await FileSystem.uploadAsync(`${url}/image`, uri, {
+      httpMethod: "POST",
+      uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+      fieldName: "image",
+    });
     const image = JSON.parse(result.body);
     return image;
   };
@@ -215,13 +213,12 @@ export const VoucherCreation = () => {
           ...voucher,
           imageUrl: uploadedImageUrl.data,
         });
-       console.log(response);
-       
+        console.log(response);
+
         Toast.show({
           description: "Successfully added",
         });
       }
-      
     } catch (error) {
       console.error("Error creating voucher:", error);
     }
@@ -492,9 +489,8 @@ export const VoucherCreation = () => {
       </View>
 
       <View flexDirection={"row"} alignItems={"center"}>
-      
         <TextInput
-          style={[styles.conditionInput, { flex: 1 , marginBottom:10}]}
+          style={[styles.conditionInput, { flex: 1, marginBottom: 10 }]}
           multiline={true}
           placeholder="Description"
           value={voucher.description}
@@ -505,33 +501,32 @@ export const VoucherCreation = () => {
         {/* <Text color={'amber.500'}>Sell time must higher than {timeLimits} days</Text> */}
       </View>
       {voucher.condition.map((condition, index) => (
-  <View key={index} style={styles.conditionInputContainer}>
-    <TouchableOpacity
-      onPress={() => handleAddCondition(index)}
-      style={styles.addButton}
-    >
-      <Text style={styles.addButtonText}>+</Text>
-    </TouchableOpacity>
-    <TextInput
-      style={styles.conditionInput}
-      placeholder={`Condition ${index + 1}`}
-      value={condition}
-      onChangeText={(text) => handleConditionInputChange(text, index)}
-    />
-    {index > 0 && (
-      <TouchableOpacity
-        onPress={() => handleRemoveCondition(index)}
-        style={styles.addButton}
-      >
-        <Text style={styles.addButtonText}>-</Text>
-      </TouchableOpacity>
-    )}
-  </View>
-))}
+        <View key={index} style={styles.conditionInputContainer}>
+          <TouchableOpacity
+            onPress={() => handleAddCondition(index)}
+            style={styles.addButton}
+          >
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+          <TextInput
+            style={styles.conditionInput}
+            placeholder={`Condition ${index + 1}`}
+            value={condition}
+            onChangeText={(text) => handleConditionInputChange(text, index)}
+          />
+          {index > 0 && (
+            <TouchableOpacity
+              onPress={() => handleRemoveCondition(index)}
+              style={styles.addButton}
+            >
+              <Text style={styles.addButtonText}>-</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ))}
 
-    
       {/* "+" button to add more conditions */}
- 
+
       <View alignItems={"center"}>
         <Button
           style={{ marginTop: 20, borderRadius: 20, width: 200 }}

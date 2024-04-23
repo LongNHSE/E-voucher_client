@@ -336,7 +336,7 @@ const Voucher = ({ navigation }: any) => {
                       {`${new Date(
                         item.startUseTime
                       ).toLocaleDateString()} - ${new Date(
-                        item.endSellTime
+                        item.endUseTime
                       ).toLocaleDateString()}`}
                     </Text>
                   </View>

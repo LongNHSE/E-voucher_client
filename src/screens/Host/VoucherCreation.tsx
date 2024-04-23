@@ -6,18 +6,22 @@ import {
   Image,
   Text,
   Select,
-  Input,
   Toast,
+  Box,
 } from "native-base";
 
-import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import DateTimePicker, { Event } from "@react-native-community/datetimepicker";
 import { AntDesign } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
 import { AxiosContext } from "../../context/AxiosContext";
-import { baseUrl, getBaseURL } from "../../utils/appConstant";
-import axios from "axios"; // Import axios library
+import { getBaseURL } from "../../utils/appConstant";
 import * as FileSystem from "expo-file-system";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -41,6 +45,7 @@ export const VoucherCreation = () => {
     discountType: "percentage",
     category: "",
     host: authContext.authState.user._id,
+    condition: [''],
   });
   const url = `${getBaseURL()}/vouchers`;
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -77,6 +82,33 @@ export const VoucherCreation = () => {
       }
     }
   };
+  const handleAddCondition = () => {
+    if (voucher.condition.length < 3) {
+      setVoucher(prevState => ({
+        ...prevState,
+        condition: [...prevState.condition, '']
+      }));
+    } else {
+      Toast.show({
+        title: "Maximum Limit Reached",
+        status: "error",
+        description: "You can add up to three conditions.",
+      });
+    }
+  };
+  const handleRemoveCondition = (indexToRemove: number) => {
+    const newConditions = voucher.condition.filter((_, index) => index !== indexToRemove);
+    setVoucher({ ...voucher, condition: newConditions });
+  };
+  const handleConditionInputChange = (value, index) => {
+    // Update the condition array based on the input value and index
+    const updatedConditions = [...voucher.condition];
+    updatedConditions[index] = value;
+    setVoucher(prevState => ({
+      ...prevState,
+      condition: updatedConditions
+    }));
+  };
 
   const onChangeStartSellTime = (event: Event, selectedDate: Date) => {
     setShowStartSellDatePicker(false);
@@ -105,33 +137,37 @@ export const VoucherCreation = () => {
       }
     }
   };
-const handleInputChange = (field: any, value: any) => {
+
+  const handleInputChange = (field: string, value: any, index?: number) => {
   if (field === "imageURL") {
-    const imageUri = value.assets[0]?.uri || null;
-    setVoucher({ ...voucher, [field]: imageUri });
-  } else if (field === "discount" && voucher.discountType === "percentage") {
-    const discountValue = parseFloat(value);
-    if (!isNaN(discountValue) && discountValue >= 0 && discountValue <= 100) {
-      setVoucher({ ...voucher, [field]: value });
-    }
-  } else if (field === "discount" && voucher.discountType === "VND") {
-    const discountValue = parseInt(value);
-    if (!isNaN(discountValue) && discountValue >= 0 && discountValue <= 1000000000) {
-      setVoucher({ ...voucher, [field]: value });
-    }
-  } else if (field === "quantity" || field === "price") {
-    const numericValue = parseInt(value);
-    if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 1000000) {
-      setVoucher({ ...voucher, [field]: value });
+      const imageUri = value.assets[0]?.uri || null;
+      setVoucher({ ...voucher, [field]: imageUri });
+    } else if (field === "discount" && voucher.discountType === "percentage") {
+      const discountValue = parseFloat(value);
+      if (!isNaN(discountValue) && discountValue >= 0 && discountValue <= 100) {
+        setVoucher({ ...voucher, [field]: value });
+      }
+    } else if (field === "discount" && voucher.discountType === "VND") {
+      const discountValue = parseInt(value);
+      if (
+        !isNaN(discountValue) &&
+        discountValue >= 0 &&
+        discountValue <= 1000000000
+      ) {
+        setVoucher({ ...voucher, [field]: value });
+      }
+    } else if (field === "quantity" || field === "price") {
+      const numericValue = parseInt(value);
+      if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 1000000) {
+        setVoucher({ ...voucher, [field]: value });
+      } else {
+        setVoucher({ ...voucher, [field]: "" });
+      }
     } else {
-      setVoucher({ ...voucher, [field]: "" }); // Set to empty string if not a valid number or out of range
+      setVoucher({ ...voucher, [field]: value });
     }
-  } else {
-    setVoucher({ ...voucher, [field]: value });
-  }
-};
-
-
+  };
+  
   interface ro {
     message: string;
     statusCode: number;
@@ -148,7 +184,6 @@ const handleInputChange = (field: any, value: any) => {
       }
     );
     const image = JSON.parse(result.body);
-
     return image;
   };
 
@@ -162,6 +197,7 @@ const handleInputChange = (field: any, value: any) => {
         });
         return;
       }
+
       const sellTimeDifference =
         Math.abs(endSellTime.getTime() - startSellTime.getTime()) /
         (1000 * 60 * 60 * 24);
@@ -179,10 +215,13 @@ const handleInputChange = (field: any, value: any) => {
           ...voucher,
           imageUrl: uploadedImageUrl.data,
         });
+       console.log(response);
+       
         Toast.show({
           description: "Successfully added",
         });
       }
+      
     } catch (error) {
       console.error("Error creating voucher:", error);
     }
@@ -206,7 +245,7 @@ const handleInputChange = (field: any, value: any) => {
   };
 
   return (
-    <View padding={3}>
+    <ScrollView padding={3}>
       <Pressable key={voucher.id}>
         {({ isPressed }) => (
           <View
@@ -311,16 +350,6 @@ const handleInputChange = (field: any, value: any) => {
             }
           />
         </View>
-      </View>
-      <View flexDirection={"row"} alignItems={"center"}>
-        <Text>Description:</Text>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          multiline={true}
-          placeholder="Description"
-          value={voucher.description}
-          onChangeText={(text) => handleInputChange("description", text)}
-        />
       </View>
       <View
         style={{
@@ -461,9 +490,48 @@ const handleInputChange = (field: any, value: any) => {
           />
         )}
       </View>
+
+      <View flexDirection={"row"} alignItems={"center"}>
+      
+        <TextInput
+          style={[styles.conditionInput, { flex: 1 , marginBottom:10}]}
+          multiline={true}
+          placeholder="Description"
+          value={voucher.description}
+          onChangeText={(text) => handleInputChange("description", text)}
+        />
+      </View>
       <View justifyContent={"center"} alignItems={"center"}>
         {/* <Text color={'amber.500'}>Sell time must higher than {timeLimits} days</Text> */}
       </View>
+      {voucher.condition.map((condition, index) => (
+  <View key={index} style={styles.conditionInputContainer}>
+    <TouchableOpacity
+      onPress={() => handleAddCondition(index)}
+      style={styles.addButton}
+    >
+      <Text style={styles.addButtonText}>+</Text>
+    </TouchableOpacity>
+    <TextInput
+      style={styles.conditionInput}
+      placeholder={`Condition ${index + 1}`}
+      value={condition}
+      onChangeText={(text) => handleConditionInputChange(text, index)}
+    />
+    {index > 0 && (
+      <TouchableOpacity
+        onPress={() => handleRemoveCondition(index)}
+        style={styles.addButton}
+      >
+        <Text style={styles.addButtonText}>-</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+))}
+
+    
+      {/* "+" button to add more conditions */}
+ 
       <View alignItems={"center"}>
         <Button
           style={{ marginTop: 20, borderRadius: 20, width: 200 }}
@@ -472,7 +540,7 @@ const handleInputChange = (field: any, value: any) => {
           Create Voucher
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -484,5 +552,27 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginBottom: 15,
     fontSize: 14,
+  },
+  conditionInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  conditionInput: {
+    flex: 1,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: "#adadad",
+    borderRadius: 20,
+    padding: 8,
+  },
+  addButton: {
+    backgroundColor: "green",
+    padding: 10,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: "white",
+    fontSize: 18,
   },
 });

@@ -25,7 +25,8 @@ import { AxiosContext } from "../../context/AxiosContext";
 import { getBaseURL } from "../../utils/appConstant";
 import * as FileSystem from "expo-file-system";
 import { AuthContext } from "../../context/AuthContext";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
+import { ActivityIndicator } from "react-native";
 
 export const VoucherCreation = () => {
   const { authAxios } = useContext(AxiosContext);
@@ -47,7 +48,7 @@ export const VoucherCreation = () => {
     discountType: "percentage",
     category: "",
     host: authContext.authState.user._id,
-    condition: [''],
+    condition: [""],
   });
   const url = `${getBaseURL()}/vouchers`;
   const navigation = useNavigation();
@@ -59,6 +60,7 @@ export const VoucherCreation = () => {
   const [endUseTime, setEndUseTime] = useState<Date>(null);
   const [startSellTime, setStartSellTime] = useState<Date>(null);
   const [endSellTime, setEndSellTime] = useState<Date>(null);
+  const [loading, setLoading] = useState(false);
   const onChange = (event: Event, selectedDate: Date) => {
     setShowDatePicker(false);
     if (event.type === "set" || event.type === "dismissed") {
@@ -161,7 +163,7 @@ export const VoucherCreation = () => {
       ) {
         setVoucher({ ...voucher, [field]: value });
       }
-    } else if (field === "quantity" ) {
+    } else if (field === "quantity") {
       const numericValue = parseInt(value);
       if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 100000) {
         setVoucher({ ...voucher, [field]: value });
@@ -170,17 +172,21 @@ export const VoucherCreation = () => {
           description: "Quantity must below 100.000 vouchers.",
         });
         setVoucher({ ...voucher, [field]: "" });
-      }}
-      else if(field === "price"){
-        const numericValue = parseInt(value)
-        if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 100000000) {
-          setVoucher({ ...voucher, [field]: value });
-        } else {
-          Toast.show({
-            description: "Price must below 100.000.000 VND.",
-          });
-          setVoucher({ ...voucher, [field]: "" });
-        }
+      }
+    } else if (field === "price") {
+      const numericValue = parseInt(value);
+      if (
+        !isNaN(numericValue) &&
+        numericValue > 0 &&
+        numericValue <= 100000000
+      ) {
+        setVoucher({ ...voucher, [field]: value });
+      } else {
+        Toast.show({
+          description: "Price must below 100.000.000 VND.",
+        });
+        setVoucher({ ...voucher, [field]: "" });
+      }
     } else {
       setVoucher({ ...voucher, [field]: value });
     }
@@ -202,6 +208,7 @@ export const VoucherCreation = () => {
   };
 
   const handleCreateVoucher = async () => {
+    setLoading(true);
     try {
       if (startSellTime >= startUseTime || endSellTime >= endUseTime) {
         Toast.show({
@@ -231,23 +238,20 @@ export const VoucherCreation = () => {
         });
         console.log(response);
 
-        Alert.alert(
-          "Voucher Created",
-          "Successfully added",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                // Navigate back after user clicks OK
-                navigation.goBack();
-              },
+        Alert.alert("Voucher Created", "Successfully added", [
+          {
+            text: "OK",
+            onPress: () => {
+              // Navigate back after user clicks OK
+              navigation.goBack();
             },
-          ],
-
-        );
+          },
+        ]);
       }
     } catch (error) {
       console.error("Error creating voucher:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -299,7 +303,7 @@ export const VoucherCreation = () => {
             <View className="m-2 flex-column justify-center">
               <Text className="text-xl font-bold">{voucher.name}</Text>
               <Text className="text-md font-semibold">
-                Discount: {(voucher.discount)}
+                Discount: {voucher.discount}
                 {voucher.discountType === "percentage" ? "%" : "VND"}
               </Text>
               <Text className="text-md font-semibold">
@@ -345,17 +349,17 @@ export const VoucherCreation = () => {
         </View>
       </View>
       <View flexDirection={"row"} justifyContent={"space-between"}>
-      <View flexDirection={"row"} alignItems={"center"}>
-  <Text>Price:</Text>
-  <TextInput
-    style={[styles.input, { width: 100 }]}
-    placeholder="Price"
-    keyboardType="numeric"
-    value={(voucher.price)}
-    onChangeText={(text) => handleInputChange("price", text)}
-  />
-  <Text>VND</Text>
-</View>
+        <View flexDirection={"row"} alignItems={"center"}>
+          <Text>Price:</Text>
+          <TextInput
+            style={[styles.input, { width: 100 }]}
+            placeholder="Price"
+            keyboardType="numeric"
+            value={voucher.price}
+            onChangeText={(text) => handleInputChange("price", text)}
+          />
+          <Text>VND</Text>
+        </View>
         <View flexDirection={"row"} alignItems={"center"}>
           <Text>Quantity:</Text>
           <TextInput
@@ -553,6 +557,23 @@ export const VoucherCreation = () => {
           Create Voucher
         </Button>
       </View>
+      {loading && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: "100%",
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size={"large"} color={"black"} />
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -591,16 +612,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
-  removeButton:{
-  width:30,
+  removeButton: {
+    width: 30,
     backgroundColor: "green",
     padding: 8,
     borderRadius: 5,
     marginBottom: 10,
   },
-  removeButtonText:{
+  removeButtonText: {
     color: "white",
     fontSize: 16,
     textAlign: "center",
-  }
+  },
 });

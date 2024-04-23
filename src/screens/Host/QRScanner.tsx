@@ -23,6 +23,7 @@ export default function QRScanner() {
   const [facing, setFacing] = useState("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [hasPermission, setHasPermission] = useState(null);
+  const [voucherData, setVoucherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [scanned, setScanned] = useState(false);
 
@@ -43,6 +44,7 @@ export default function QRScanner() {
       ]);
       return;
     }
+
     setLoading(true);
     try {
       const response = await publicAxios.post("/voucherSell/QRCode", {

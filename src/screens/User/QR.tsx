@@ -6,7 +6,7 @@ import {
   useDisclose,
   Actionsheet,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import {
   Dimensions,
@@ -24,6 +24,10 @@ import VoucherBottomSheet from "../../components/VoucherBottomSheet";
 import moment from "moment";
 import NotiDialog from "../../components/NotiDialog";
 import QRCode from "react-native-qrcode-svg";
+import socket from "../../utils/socket";
+import { getBaseURL } from "../../utils/appConstant";
+import { useFocusEffect } from "@react-navigation/native";
+import { AsyncStorage } from "react-native";
 interface Voucher {
   _id: string;
   name: string;
@@ -65,9 +69,39 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
   const voucherSell: VoucherSell = route.params.voucherSell;
   const voucher: Voucher = voucherSell.voucherId;
   const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
+  const [socketId, setSocketId] = useState<string>("");
   const [isOpenNotiDialog, setIsOpenNotiDialog] = useState<boolean>(false);
   const [isGift, setIsGift] = useState<boolean>(false);
   const [amountVoucher, setAmountVoucher] = useState(1);
+  const url = getBaseURL();
+  const getSocketId = async () => {
+    const socketId = await AsyncStorage.getItem("socketId");
+    console.log("socketId", socketId);
+    setSocketId(socketId);
+  };
+
+  useFocusEffect(() => {
+    // Connect to the socket server
+    // Set up event listeners
+    socket.on("onMessage", (message: string) => {
+      console.log("new message", message);
+    });
+
+    socket.on("QRScanned", (data: any) => {
+      console.log("QRScanned", data);
+      // setIsOpenNotiDialog(true);
+    });
+
+    socket.on("socketId", (data) => {
+      console.log("socketId", data);
+      setSocketId(socket.id);
+    });
+
+    // Clean up the effect
+    return () => {
+      socket.disconnect();
+    };
+  }); // Empty dependency array means this effect runs once on mount
 
   return (
     <>
@@ -94,13 +128,16 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
             <View alignItems={"center"}>
               <View style={styles.voucherQR}>
                 <View style={{ marginTop: 7, marginLeft: 7 }}>
-                  <QRCode
-                    value={JSON.stringify({
-                      voucher_id: voucherSell._id,
-                      hash: voucherSell.hash,
-                    })}
-                    size={235}
-                  ></QRCode>
+                  {socketId && (
+                    <QRCode
+                      value={JSON.stringify({
+                        voucher_id: voucherSell._id,
+                        hash: voucherSell.hash,
+                        socketId: socketId,
+                      })}
+                      size={235}
+                    />
+                  )}
                 </View>
               </View>
             </View>

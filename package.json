@@ -49,7 +49,8 @@
     "react-native-svg": "^15.1.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-vector-icons": "^10.0.3",
-    "react-native-webview": "13.6.4"
+    "react-native-webview": "13.6.4",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -22,6 +22,7 @@ import QR from "../screens/User/QR";
 import * as Linking from "expo-linking";
 import Payment from "../screens/User/Payment";
 import Report from "../screens/User/Report";
+import { Button } from "react-native";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -58,9 +59,6 @@ const Navigation = () => {
         authenticated: jwt.accessToken !== null,
         user: user ? JSON.parse(user) : null,
       });
-      // console.log("loading jwt");
-      // console.log(authContext.authState.authenticated);
-      console.log(authContext.authState);
       setStatus("success");
     } catch (error: Error | any) {
       setStatus("error");
@@ -96,8 +94,6 @@ const Navigation = () => {
   useEffect(() => {
     loadJWT();
   }, [loadJWT]);
-
-  if (status === "loading") return <></>;
 
   return (
     <NavigationContainer linking={linking}>
@@ -155,15 +151,6 @@ const Navigation = () => {
           ) : null}
 
           <Stack.Screen
-            name="VoucherDetail"
-            component={VoucherDetail}
-            options={{
-              headerShown: false,
-              title: "Voucher Detail",
-              animation: "slide_from_right",
-            }}
-          />
-          <Stack.Screen
             name="Payment"
             component={Payment}
             options={{
@@ -172,6 +159,17 @@ const Navigation = () => {
               animation: "slide_from_right",
             }}
           />
+
+          <Stack.Screen
+            name="VoucherDetail"
+            component={VoucherDetail}
+            options={{
+              headerShown: false,
+              title: "Voucher Detail",
+              animation: "slide_from_right",
+            }}
+          />
+
           <Stack.Screen
             name="InventoryVoucherDetail"
             component={InventoryVoucherDetail}
@@ -181,6 +179,7 @@ const Navigation = () => {
               animation: "slide_from_right",
             }}
           />
+
           <Stack.Screen
             name="QR"
             component={QR}

@@ -241,7 +241,7 @@ const Payment = ({ route, navigation }: any) => {
           You will be redirect to VNPAY gateway to pay your order
         </Text>
         <Button
-          title="Pay Now"
+          title="Continue to pay"
           onPress={() => WebBrowser.openBrowserAsync(link)}
         />
       </View>

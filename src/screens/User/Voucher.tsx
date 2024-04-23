@@ -258,10 +258,10 @@ const Voucher = ({ navigation }: any) => {
         </View>
       ) : vouchers && vouchers.length !== 0 ? (
         <FlatList
+          flex={1}
           refreshControl={
             <RefreshControl refreshing={loading} onRefresh={fetchVouchers} />
           }
-          marginBottom={32}
           data={vouchers}
           keyExtractor={(item: Voucher) => "_" + item._id.toString()}
           // onScroll={() => setIsShowHeader(false)}
@@ -274,6 +274,10 @@ const Voucher = ({ navigation }: any) => {
                 navigation.navigate("VoucherDetail", { item });
               }}
             >
+              {item.createdAt &&
+                new Date() - new Date(item.createdAt) < 24 * 60 * 60 * 1000 && (
+                  <Ribbon text="New" color={"red"} />
+                )}
               <View style={styles.item}>
                 <View style={styles.voucherHeader}>
                   <Image
@@ -395,6 +399,7 @@ export default Voucher;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#004165",
   },
   item: {
     backgroundColor: "white",

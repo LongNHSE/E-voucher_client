@@ -218,7 +218,13 @@ const VoucherBottomSheet = ({
                 <TextInput
                   keyboardType="numeric"
                   value={amount.toString()}
-                  onChangeText={(value) => setAmount(parseInt(value))}
+                  onChangeText={(value) => {
+                    isNaN(parseInt(value))
+                      ? setAmount(1)
+                      : parseInt(value) <= quantity
+                      ? setAmount(parseInt(value))
+                      : setAmount(quantity);
+                  }}
                   style={{
                     borderLeftWidth: 0.5,
                     borderRightWidth: 0.5,

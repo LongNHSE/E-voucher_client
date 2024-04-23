@@ -19,6 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import * as SecureStore from "expo-secure-store";
 import { AxiosContext } from "../../context/AxiosContext";
+import socket from "../../utils/socket";
 
 interface Voucher {
   _id: string;
@@ -163,6 +164,10 @@ const Inventory = ({ navigation }: any) => {
           voucherId: voucherSell.transactions[0]._id,
         }
       );
+      console.log("----handleUseQR", voucherSellResult.data.voucher.hash);
+      socket.emit("generateQRCode", {
+        hash: voucherSellResult.data.voucher.hash,
+      });
       navigation.navigate("QR", {
         voucherSell: voucherSellResult.data.voucher,
       });

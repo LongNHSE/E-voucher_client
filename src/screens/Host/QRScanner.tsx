@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { AxiosContext } from "../../context/AxiosContext";
 import Spinner from "../../components/Spinner";
+import socket from "../../utils/socket";
 import * as Device from "expo-device";
 interface VoucherScanned {
   voucher: {
@@ -23,13 +24,18 @@ export default function QRScanner() {
   const [facing, setFacing] = useState("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [hasPermission, setHasPermission] = useState(null);
+  const [voucherData, setVoucherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [scanned, setScanned] = useState(false);
-
+  console.log("permission---", permission);
+  console.log("asdasd");
   if (!permission) {
-    return <Text>Requesting for camera permission</Text>;
+    requestPermission();
   }
-
+  const handleRequestPermission = async () => {
+    const result = await requestPermission();
+    console.log(result);
+  };
   function toggleCameraFacing() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
@@ -43,21 +49,29 @@ export default function QRScanner() {
       ]);
       return;
     }
+
     setLoading(true);
     try {
       const response = await publicAxios.post("/voucherSell/QRCode", {
         voucherId: dataObject.voucher_id,
         hash: dataObject.hash,
       });
-      console.log(response.data);
       Alert.alert("Success", response.data.message, [
         { text: "OK", onPress: () => setScanned(false) },
       ]);
+      socket.emit("QRCode", {
+        hash: dataObject.hash,
+        success: true,
+      });
     } catch (error) {
       console.log(error);
       Alert.alert("Error", error.response.data.message, [
         { text: "OK", onPress: () => setScanned(false) },
       ]);
+      socket.emit("QRCode", {
+        hash: dataObject.hash,
+        success: false,
+      });
     } finally {
       setLoading(false);
     }

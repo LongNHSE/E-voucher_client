@@ -22,6 +22,7 @@ import QR from "../screens/User/QR";
 import * as Linking from "expo-linking";
 import Payment from "../screens/User/Payment";
 import Report from "../screens/User/Report";
+import { Button } from "react-native";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -41,6 +42,8 @@ const Navigation = () => {
 
   const [status, setStatus] = useState<string>("loading");
   const authContext = useContext(AuthContext);
+
+  const [tab, setTab] = useState<string>("UserTab");
   const loadJWT = useCallback(async () => {
     try {
       const accessToken = await SecureStore.getItemAsync("accessToken");
@@ -58,9 +61,6 @@ const Navigation = () => {
         authenticated: jwt.accessToken !== null,
         user: user ? JSON.parse(user) : null,
       });
-      // console.log("loading jwt");
-      // console.log(authContext.authState.authenticated);
-      console.log(authContext.authState);
       setStatus("success");
     } catch (error: Error | any) {
       setStatus("error");
@@ -84,6 +84,7 @@ const Navigation = () => {
       if (authContext?.authState?.user?.role === "staff") {
         return "StaffTab";
       } else if (authContext?.authState?.user?.role === "user") {
+        console.log("-----------------UserTab");
         return "UserTab";
       } else if (authContext?.authState?.user?.role === "admin") {
         return "AdminTab";
@@ -153,6 +154,20 @@ const Navigation = () => {
               options={{ headerShown: false }}
             />
           ) : null}
+          {/* <Stack.Screen
+            name="UserTab2"
+            component={UserTab}
+            options={{ headerShown: false }}
+          /> */}
+          <Stack.Screen
+            name="Payment"
+            component={Payment}
+            options={{
+              headerShown: false,
+              title: "Payment",
+              animation: "slide_from_right",
+            }}
+          />
 
           <Stack.Screen
             name="VoucherDetail"
@@ -163,15 +178,7 @@ const Navigation = () => {
               animation: "slide_from_right",
             }}
           />
-          <Stack.Screen
-            name="Payment"
-            component={Payment}
-            options={{
-              headerShown: false,
-              title: "Payment",
-              animation: "slide_from_right",
-            }}
-          />
+
           <Stack.Screen
             name="InventoryVoucherDetail"
             component={InventoryVoucherDetail}
@@ -181,6 +188,7 @@ const Navigation = () => {
               animation: "slide_from_right",
             }}
           />
+
           <Stack.Screen
             name="QR"
             component={QR}

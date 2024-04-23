@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
 import * as Device from "expo-device";
 
-export const baseUrl: String = "http://10.0.2.2:8000";
+// export const baseUrl: String = "http://10.0.2.2:8000";
 // export const baseUrl: String = "http://localhost:8000";
 export function getBaseURL() {
   if (Platform.OS === "android") {

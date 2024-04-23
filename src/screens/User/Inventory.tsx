@@ -19,6 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import * as SecureStore from "expo-secure-store";
 import { AxiosContext } from "../../context/AxiosContext";
+import { Feather } from "@expo/vector-icons";
 
 interface Voucher {
   _id: string;
@@ -206,7 +207,6 @@ const Inventory = ({ navigation }: any) => {
         </Center>
       ) : null}
       <FlatList
-        backgroundColor={"#004165"}
         data={voucherSellGroup}
         keyExtractor={(item: any) => "_" + item.voucherId.toString()}
         // onScroll={() => setIsShowHeader(false)}
@@ -294,36 +294,67 @@ const Inventory = ({ navigation }: any) => {
                 justifyContent={"space-between"}
                 mt={3}
               >
-                <View flexDirection={"row"}>
-                  <Ionicons name="calendar-outline" size={20} color="green" />
-                  <Text color={"gray.500"} paddingLeft={2}>
-                    {`${new Date(
-                      item.transactions[0].voucherId.startUseTime
-                    ).toLocaleDateString()} - ${new Date(
-                      item.transactions[0].voucherId.endSellTime
-                    ).toLocaleDateString()}`}
+                <View style={{ gap: 10 }}>
+                  <View flexDirection={"row"}>
+                    <Ionicons name="calendar-outline" size={20} color="green" />
+                    <Text color={"gray.500"} paddingLeft={2}>
+                      {`${new Date(
+                        item.transactions[0].voucherId.startUseTime
+                      ).toLocaleDateString()} - ${new Date(
+                        item.transactions[0].voucherId.endSellTime
+                      ).toLocaleDateString()}`}
+                    </Text>
+                  </View>
+
+                  <Text style={{ fontSize: 19, fontWeight: "500" }}>
+                    Quantity: {item.quantity}
                   </Text>
                 </View>
-                {status === "pending" ? (
+
+                <View style={{ gap: 10 }}>
+                  {status === "pending" ? (
+                    <TouchableOpacity
+                      style={{
+                        paddingVertical: 8,
+                        width: 80,
+                        backgroundColor: "tomato",
+                        borderRadius: 5,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onPress={() => {
+                        handleUseQR(item);
+                        // navigation.navigate("QR", { voucherSell: item });
+                      }}
+                    >
+                      <Text style={{ color: "white", fontWeight: "bold" }}>
+                        Use now
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
+
                   <TouchableOpacity
                     style={{
-                      padding: 5,
-                      backgroundColor: "tomato",
+                      paddingVertical: 8,
+                      width: 80,
+                      backgroundColor: "red",
                       borderRadius: 5,
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                    onPress={() => {
-                      handleUseQR(item);
-                      // navigation.navigate("QR", { voucherSell: item });
-                    }}
+                    onPress={() =>
+                      navigation.navigate("UserReport", {
+                        voucherId: item.voucherId,
+                        voucherSellId: item.transactions[0]._id,
+                      })
+                    }
                   >
-                    <Text color={"white"}>Use now</Text>
+                    <Text style={{ color: "white", fontWeight: "bold" }}>
+                      Report
+                    </Text>
                   </TouchableOpacity>
-                ) : null}
+                </View>
               </View>
-
-              <Text style={{ fontSize: 16, fontWeight: "500" }}>
-                Quantity: {item.quantity}
-              </Text>
             </View>
           </TouchableOpacity>
         )}
@@ -337,12 +368,15 @@ export default Inventory;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#004165",
+    paddingBottom: 10,
   },
   item: {
     backgroundColor: "white",
     padding: 10,
     margin: 10,
     borderRadius: 10,
+    marginBottom: 0,
   },
   voucherHeader: {
     flexDirection: "row",

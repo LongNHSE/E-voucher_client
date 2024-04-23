@@ -11,6 +11,7 @@ import {
 } from "native-base";
 
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -24,6 +25,7 @@ import { AxiosContext } from "../../context/AxiosContext";
 import { getBaseURL } from "../../utils/appConstant";
 import * as FileSystem from "expo-file-system";
 import { AuthContext } from "../../context/AuthContext";
+import { useNavigation } from '@react-navigation/native';
 
 export const VoucherCreation = () => {
   const { authAxios } = useContext(AxiosContext);
@@ -45,9 +47,10 @@ export const VoucherCreation = () => {
     discountType: "percentage",
     category: "",
     host: authContext.authState.user._id,
-    condition: [""],
+    condition: [''],
   });
   const url = `${getBaseURL()}/vouchers`;
+  const navigation = useNavigation();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDateEndPicker, setShowDateEndPicker] = useState(false);
   const [showStartSellDatePicker, setShowStartSellDatePicker] = useState(false);
@@ -158,13 +161,26 @@ export const VoucherCreation = () => {
       ) {
         setVoucher({ ...voucher, [field]: value });
       }
-    } else if (field === "quantity" || field === "price") {
+    } else if (field === "quantity" ) {
       const numericValue = parseInt(value);
-      if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 1000000) {
+      if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 100000) {
         setVoucher({ ...voucher, [field]: value });
       } else {
+        Toast.show({
+          description: "Quantity must below 100.000 vouchers.",
+        });
         setVoucher({ ...voucher, [field]: "" });
-      }
+      }}
+      else if(field === "price"){
+        const numericValue = parseInt(value)
+        if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 100000000) {
+          setVoucher({ ...voucher, [field]: value });
+        } else {
+          Toast.show({
+            description: "Price must below 100.000.000 VND.",
+          });
+          setVoucher({ ...voucher, [field]: "" });
+        }
     } else {
       setVoucher({ ...voucher, [field]: value });
     }
@@ -215,9 +231,20 @@ export const VoucherCreation = () => {
         });
         console.log(response);
 
-        Toast.show({
-          description: "Successfully added",
-        });
+        Alert.alert(
+          "Voucher Created",
+          "Successfully added",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                // Navigate back after user clicks OK
+                navigation.goBack();
+              },
+            },
+          ],
+
+        );
       }
     } catch (error) {
       console.error("Error creating voucher:", error);
@@ -233,12 +260,6 @@ export const VoucherCreation = () => {
     if (!result.canceled) {
       handleInputChange("imageURL", result);
     }
-  };
-
-  const formatNumber = (number: any) => {
-    // Convert discount to a number before formatting
-    const discountNumber = parseFloat(number);
-    return discountNumber.toLocaleString("vi-VN"); // Format for Vietnamese locale
   };
 
   return (
@@ -278,7 +299,7 @@ export const VoucherCreation = () => {
             <View className="m-2 flex-column justify-center">
               <Text className="text-xl font-bold">{voucher.name}</Text>
               <Text className="text-md font-semibold">
-                Discount: {formatNumber(voucher.discount)}
+                Discount: {(voucher.discount)}
                 {voucher.discountType === "percentage" ? "%" : "VND"}
               </Text>
               <Text className="text-md font-semibold">
@@ -324,17 +345,17 @@ export const VoucherCreation = () => {
         </View>
       </View>
       <View flexDirection={"row"} justifyContent={"space-between"}>
-        <View flexDirection={"row"} alignItems={"center"}>
-          <Text>Price:</Text>
-          <TextInput
-            style={[styles.input, { width: 100 }]}
-            placeholder="Price"
-            keyboardType="numeric"
-            value={voucher.price.toString()}
-            onChangeText={(text) => handleInputChange("price", parseInt(text))}
-          />
-          <Text>VND</Text>
-        </View>
+      <View flexDirection={"row"} alignItems={"center"}>
+  <Text>Price:</Text>
+  <TextInput
+    style={[styles.input, { width: 100 }]}
+    placeholder="Price"
+    keyboardType="numeric"
+    value={(voucher.price)}
+    onChangeText={(text) => handleInputChange("price", text)}
+  />
+  <Text>VND</Text>
+</View>
         <View flexDirection={"row"} alignItems={"center"}>
           <Text>Quantity:</Text>
           <TextInput
@@ -500,32 +521,29 @@ export const VoucherCreation = () => {
       <View justifyContent={"center"} alignItems={"center"}>
         {/* <Text color={'amber.500'}>Sell time must higher than {timeLimits} days</Text> */}
       </View>
-      {voucher.condition.map((condition, index) => (
-        <View key={index} style={styles.conditionInputContainer}>
-          <TouchableOpacity
-            onPress={() => handleAddCondition(index)}
-            style={styles.addButton}
-          >
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
-          <TextInput
-            style={styles.conditionInput}
-            placeholder={`Condition ${index + 1}`}
-            value={condition}
-            onChangeText={(text) => handleConditionInputChange(text, index)}
-          />
-          {index > 0 && (
-            <TouchableOpacity
-              onPress={() => handleRemoveCondition(index)}
-              style={styles.addButton}
-            >
-              <Text style={styles.addButtonText}>-</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      ))}
-
-      {/* "+" button to add more conditions */}
+      <View justifyContent={"center"} alignItems={"center"}>
+        <TouchableOpacity onPress={handleAddCondition} style={styles.addButton}>
+          <Text style={styles.addButtonText}>Add Condition</Text>
+        </TouchableOpacity>
+        {voucher.condition.map((condition, index) => (
+          <View key={index} style={styles.conditionInputContainer}>
+            <TextInput
+              style={styles.conditionInput}
+              placeholder={`Condition ${index + 1}`}
+              value={condition}
+              onChangeText={(text) => handleConditionInputChange(text, index)}
+            />
+            {index >= 0 && (
+              <TouchableOpacity
+                onPress={() => handleRemoveCondition(index)}
+                style={styles.removeButton}
+              >
+                <Text style={styles.removeButtonText}>-</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ))}
+      </View>
 
       <View alignItems={"center"}>
         <Button
@@ -563,11 +581,26 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: "green",
-    padding: 10,
+    padding: 6,
     borderRadius: 5,
+    width: 140,
+    marginBottom: 10,
   },
   addButtonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
+    textAlign: "center",
   },
+  removeButton:{
+  width:30,
+    backgroundColor: "green",
+    padding: 8,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  removeButtonText:{
+    color: "white",
+    fontSize: 16,
+    textAlign: "center",
+  }
 });

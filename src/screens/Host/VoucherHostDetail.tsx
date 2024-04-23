@@ -262,11 +262,7 @@ const VoucherHostDetail = ({ route }: any) => {
             </View>
           )}
 
-          <View alignItems={"center"}>
-            <Button width={170} borderRadius={25} marginTop={10}>
-              Delete
-            </Button>
-          </View>
+        
         </View>
       </ImageBackground>
     </ScrollView>

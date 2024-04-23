@@ -201,8 +201,15 @@ const Inventory = ({ navigation }: any) => {
 
       {isEmpty ? (
         <Center height={"700"} backgroundColor={"#004165"}>
-          <Image size={"lg"} source={require("../../../assets/box.png")} />
-          <Text color={"white"}>- You haven't bought any voucher yet -</Text>
+          <Image
+            size={"lg"}
+            source={require("../../../assets/box.png")}
+            alt="placeholder"
+          />
+          <Text color={"white"} style={{ marginBottom: 20, marginTop: 10 }}>
+            {" "}
+            You haven't bought any voucher yet
+          </Text>
           <Button
             onPress={() => navigation.navigate("Voucher")}
             backgroundColor={"amber.500"}

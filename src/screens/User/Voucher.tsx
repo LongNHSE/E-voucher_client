@@ -3,27 +3,16 @@ import {
   View,
   Text,
   FlatList,
-  ScrollView,
   Image,
-  Icon,
-  SearchIcon,
-  Center,
   Input,
   Modal,
-  FormControl,
   Button,
   HStack,
   Select,
-  Divider,
   CheckIcon,
+  Center,
 } from "native-base";
-import {
-  Pressable,
-  StyleSheet,
-  Touchable,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Constants from "expo-constants";
@@ -35,6 +24,7 @@ import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/col
 import * as Linking from "expo-linking";
 import { formatNumber } from "../../utils/NumberFormatter";
 import { AxiosContext } from "../../context/AxiosContext";
+import { ActivityIndicator } from "react-native";
 import Ribbon from "../../components/Ribbon";
 
 interface Voucher {
@@ -67,7 +57,7 @@ interface RO {
 }
 
 const Voucher = ({ navigation }: any) => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
@@ -91,13 +81,12 @@ const Voucher = ({ navigation }: any) => {
     publicAxios
       .get(url)
       .then((res) => {
-        console.log(`------------${url}`);
+        // console.log(`------------${url}`);
         Array.isArray(res.data) &&
-          res.data.forEach((item: Voucher) => {
-            console.log(item.name);
-          });
-
-        setVouchers(res.data);
+          // res.data.forEach((item: Voucher) => {
+          //   console.log(item.name);
+          // });
+          setVouchers(res.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -249,8 +238,20 @@ const Voucher = ({ navigation }: any) => {
         </View>
         {/* end of modal */}
       </View>
-      <View backgroundColor={"#004165"}>
+      {loading && vouchers.length === 0 ? (
+        <View
+          style={{
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          backgroundColor={"#004165"}
+        >
+          <ActivityIndicator size={"large"} />
+        </View>
+      ) : vouchers && vouchers.length !== 0 ? (
         <FlatList
+          backgroundColor={"#004165"}
           data={vouchers}
           keyExtractor={(item: Voucher) => "_" + item._id.toString()}
           // onScroll={() => setIsShowHeader(false)}
@@ -263,11 +264,6 @@ const Voucher = ({ navigation }: any) => {
                 navigation.navigate("VoucherDetail", { item });
               }}
             >
-              {item.createdAt &&
-                new Date() - new Date(item.createdAt) < 24 * 60 * 60 * 1000 && (
-                  <Ribbon text="New" color={"red"} />
-                )}
-
               <View style={styles.item}>
                 <View style={styles.voucherHeader}>
                   <Image
@@ -301,7 +297,6 @@ const Voucher = ({ navigation }: any) => {
                     </Text>
                   </View>
                 </View>
-
                 <View flexDirection={"row"}>
                   <View
                     width={50}
@@ -333,14 +328,16 @@ const Voucher = ({ navigation }: any) => {
                 <View flexDirection={"row"} justifyContent={"space-between"}>
                   <View flexDirection={"row"}>
                     <Ionicons name="calendar-outline" size={20} color="green" />
-                    <Text color={"gray.500"} paddingLeft={2}>
-                      {`${new Date(item.startUseTime).toLocaleDateString(
-                        "vi-VN",
-                        { timeZone: "Asia/Ho_Chi_Minh" }
-                      )} - ${new Date(item.endUseTime).toLocaleDateString(
-                        "vi-VN",
-                        { timeZone: "Asia/Ho_Chi_Minh" }
-                      )}`}
+                    <Text
+                      color={"gray.500"}
+                      paddingLeft={2}
+                      style={{ fontSize: 18 }}
+                    >
+                      {`${new Date(
+                        item.startUseTime
+                      ).toLocaleDateString()} - ${new Date(
+                        item.endSellTime
+                      ).toLocaleDateString()}`}
                     </Text>
                   </View>
                   <View flexDirection={"row"}>
@@ -350,17 +347,26 @@ const Voucher = ({ navigation }: any) => {
                       size={20}
                       color="green"
                     />
-                    <Text>{formatNumber(item.price)} VND</Text>
+                    <Text style={{ fontSize: 18 }}>
+                      {formatNumber(item.price)} VND
+                    </Text>
                   </View>
                 </View>
               </View>
             </TouchableOpacity>
           )}
         ></FlatList>
-      </View>
-      {vouchers.length === 0 && (
-        <Center flex={1}>
-          <Text>No voucher found</Text>
+      ) : (
+        <Center height={"100%"} backgroundColor={"#004165"}>
+          <Image
+            size={"lg"}
+            source={require("../../../assets/box.png")}
+            alt="placeholder"
+          />
+          <Text color={"white"} style={{ marginBottom: 90, marginTop: 10 }}>
+            {" "}
+            There are no vouchers available
+          </Text>
         </Center>
       )}
     </View>

@@ -61,7 +61,7 @@ const Navigation = () => {
       authContext.setAuthState({
         accessToken: jwt.accessToken || null,
         refreshToken: jwt.refreshToken || null,
-        authenticated: jwt.accessToken !== null,
+        authenticated: jwt.accessToken ? true : false,
         user: user ? JSON.parse(user) : null,
       });
       console.log("JWT loaded-------------", authContext.authState);

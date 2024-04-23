@@ -40,7 +40,6 @@ const Login = () => {
         username,
         password,
       });
-      console.log(response.data);
       const { token, refreshToken, user } = response.data;
       await SecureStore.setItemAsync("accessToken", token);
       await SecureStore.setItemAsync("refreshToken", refreshToken);
@@ -52,8 +51,6 @@ const Login = () => {
         authenticated: true,
         user,
       });
-
-      console.log(authContext.authState);
     } catch (error) {
       console.log(error);
       Alert.alert("Login Failed", error.response.data.message);

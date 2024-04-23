@@ -39,7 +39,7 @@ const Setting = () => {
     }
   };
   return (
-    <View>
+    <View style={{ width: "100%", height: "100%" }}>
       <Image
         source={require("../../assets/background.png")}
         alt="logo"

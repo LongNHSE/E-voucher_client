@@ -339,24 +339,50 @@ const Inventory = ({ navigation }: any) => {
                     Quantity: {item.quantity}
                   </Text>
                 </View>
-                {status === "pending" &&
-                  new Date(item?.transactions[0]?.voucherId.endUseTime) >
-                    new Date() && (
+
+                <View style={{ gap: 10 }}>
+                  {status === "pending" ? (
                     <TouchableOpacity
                       style={{
-                        padding: 5,
+                        paddingVertical: 8,
+                        width: 80,
                         backgroundColor: "tomato",
                         borderRadius: 5,
-                        height: 35,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                       onPress={() => {
                         handleUseQR(item);
                         // navigation.navigate("QR", { voucherSell: item });
                       }}
                     >
-                      <Text color={"white"}>Use now</Text>
+                      <Text style={{ color: "white", fontWeight: "bold" }}>
+                        Use now
+                      </Text>
                     </TouchableOpacity>
-                  )}
+                  ) : null}
+
+                  <TouchableOpacity
+                    style={{
+                      paddingVertical: 8,
+                      width: 80,
+                      backgroundColor: "red",
+                      borderRadius: 5,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onPress={() =>
+                      navigation.navigate("UserReport", {
+                        voucherId: item.voucherId,
+                        voucherSellId: item.transactions[0]._id,
+                      })
+                    }
+                  >
+                    <Text style={{ color: "white", fontWeight: "bold" }}>
+                      Report
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </TouchableOpacity>

@@ -2,14 +2,16 @@ import { View, Text, Image, Button, ScrollView } from "native-base";
 import React, { useEffect, useState } from "react";
 import { Alert, ImageBackground } from "react-native";
 import { Chip } from "react-native-paper";
-
+import { useNavigation } from "@react-navigation/native";
 import axios from "axios"; // Import axios library
-import { baseUrl } from "../../utils/appConstant";
+import { getBaseURL } from "../../utils/appConstant";
 import { SimpleLineIcons } from "@expo/vector-icons";
-const url = `${baseUrl}/vouchers`;
+const url = `${getBaseURL()}/vouchers`;
 
 const VoucherHostDetail = ({ route }: any) => {
   const { voucher } = route.params;
+  console.log(":::::::::::::::::", voucher.condition);
+  const navigation = useNavigation();
   const [updatedVoucher, setUpdatedVoucher] = useState(voucher);
   const [showToast, setShowToast] = useState(false);
   const updateVoucherStatus = async () => {
@@ -18,21 +20,38 @@ const VoucherHostDetail = ({ route }: any) => {
         status: "unavailable",
       });
       setUpdatedVoucher(response.data.data);
-      console.log(':::::::::::::::::::::',response.data.data);
-      
+      console.log(":::::::::::::::::::::", response.data.data);
+
       setShowToast(true);
     } catch (error) {
       console.error("Error updating voucher status:", error);
     }
   };
+  const deleteVoucher = async () => {
+    try {
+      console.log(url);
+      console.log(voucher._id);
 
+      await axios.delete(`${url}/${voucher._id}`);
+      Alert.alert("Voucher Notification", "Successfully deleted", [
+        {
+          text: "OK",
+          onPress: () => {
+            navigation.goBack();
+          },
+        },
+      ]);
+    } catch (error) {
+      console.error("Error deleting voucher:", error);
+    }
+  };
   useEffect(() => {
     if (showToast) {
       Alert.alert("Update Successful", "Voucher status updated successfully");
       setShowToast(false);
     }
   }, [showToast]);
- 
+
   const formatNumber = (number) => {
     if (number !== undefined && number !== null) {
       const parts = number.toFixed(0).toString().split(".");
@@ -112,9 +131,26 @@ const VoucherHostDetail = ({ route }: any) => {
               {voucher.discountType === "percentage" ? "% OFF" : "VND"}
             </Text>
           </View>
-          <View width={"80%"} alignItems={"center"} marginBottom={30}>
-            <Text className="text-xl">{voucher.description}</Text>
+          <View width={"90%"} marginBottom={30} borderWidth={1} padding={4} borderRadius={15}>
+            <Text  fontSize={18} fontWeight={"bold"} textAlign={'center'}>Condition</Text>
+            {voucher.condition.map((condition, index) => (
+              <View
+                key={index}
+                flexDirection="row"
+                alignItems="center"
+                marginTop={2}
+              >
+                <Text
+                  
+                  textAlign={"left"}
+                 fontSize={17}
+                >
+                  {"\u2022"} {condition}
+                </Text>
+              </View>
+            ))}
           </View>
+        
           <View
             width={"80%"}
             display="flex"
@@ -192,77 +228,77 @@ const VoucherHostDetail = ({ route }: any) => {
 
           <View width={"100%"} flexDirection="row" justifyContent="center">
             <Text className="text-lg">
-              Sell: {formatDate(voucher.endSellTime)} -{" "}
+              Sell: {formatDate(voucher.startSellTime)} -{" "}
               {formatDate(voucher.endSellTime)}
             </Text>
           </View>
-
-          {/* {voucher.status === "pending" && (
-            <View
-              style={{
-                marginTop: 20,
-                width: "80%",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Button
-                variant={"solid"}
-                rounded="full"
-                bg={"green.500"}
-                _pressed={{
-                  bg: "green.700",
-                }}
-              >
-                Approve
-              </Button>
-              <Button
-                variant={"solid"}
-                rounded="full"
-                bg={"red.500"}
-                _pressed={{
-                  bg: "red.700",
-                }}
-              >
-                Reject
-              </Button>
-            </View>
-          )} */}
+          <View width={"90%"} alignItems={"center"} marginTop={4}>
+            <Text className="text-xl" fontWeight={'bold'}>{voucher.description}</Text>
+          </View>
+          
           {updatedVoucher.status === "available" && (
-            <Button
-              marginTop={20}
-              variant={"solid"}
-              rounded="full"
-              maxWidth={200}
-              width="100%"
-              bg={"red.500"}
-              _pressed={{
-                bg: "red.700",
-              }}
-              onPress={updateVoucherStatus}
-            >
-              Unavailable Voucher
-            </Button>
+            <View>
+            
+                <Button
+                  marginTop={2}
+                  variant={"solid"}
+                  rounded="full"
+                  maxWidth={200}
+                  width="50%"
+                  bg={"red.500"}
+                  _pressed={{
+                    bg: "red.700",
+                  }}
+                  onPress={updateVoucherStatus}
+                >
+                  Unavailable Voucher
+                </Button>
+             
+             
+            </View>
           )}
 
           {updatedVoucher.status === "rejected" && (
-            <View
-              borderWidth={2}
-              minWidth={200}
-              minHeight={10}
-              marginTop={5}
-              borderRadius={30}
-              borderColor={"#b3b3b3"}
-              justifyContent={"center"}
-              alignItems={"center"}
-              padding={3}
-            >
-              <Text fontSize={16}>{updatedVoucher.rejectReason}</Text>
+            <View>
+              <View
+                borderWidth={2}
+                minWidth={200}
+                minHeight={10}
+                marginTop={5}
+                borderRadius={30}
+                borderColor={"#dc143c"}
+                justifyContent={"center"}
+                alignItems={"center"}
+                padding={3}
+              >
+                <Text style={{color:'red'}} fontSize={16}>{updatedVoucher.rejectReason}</Text>
+              </View>
+              <View alignItems={"center"}>
+                <Button
+                  width={170}
+                  borderRadius={25}
+                  marginTop={10}
+                  onPress={deleteVoucher}
+                >
+                  Delete
+                </Button>
+              </View>
             </View>
           )}
 
-        
+          {updatedVoucher.status !== "available" &&
+            updatedVoucher.status !== "rejected" && (
+              <View alignItems={"center"}>
+                <Button
+                  width={170}
+                  borderRadius={25}
+                  marginTop={10}
+                  onPress={deleteVoucher}
+                >
+                  Delete
+                </Button>
+              </View>
+            )}
         </View>
       </ImageBackground>
     </ScrollView>

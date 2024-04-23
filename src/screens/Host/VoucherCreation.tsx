@@ -25,11 +25,26 @@ import { AxiosContext } from "../../context/AxiosContext";
 import { getBaseURL } from "../../utils/appConstant";
 import * as FileSystem from "expo-file-system";
 import { AuthContext } from "../../context/AuthContext";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 export const VoucherCreation = () => {
   const { authAxios } = useContext(AxiosContext);
   const authContext = useContext(AuthContext);
+  const formatNumber = (number) => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+  const formatDate = (dateTimeString) => {
+    const dateTime = new Date(dateTimeString);
+    const day = dateTime.getDate();
+    const month = dateTime.getMonth() + 1;
+    const year = dateTime.getFullYear();
+
+    const formattedDay = `${day < 10 ? "0" : ""}${day}`;
+    const formattedMonth = `${month < 10 ? "0" : ""}${month}`;
+
+    return `${formattedDay}/${formattedMonth}/${year}`;
+  };
+
   const [voucher, setVoucher] = useState({
     id: 0,
     code: "",
@@ -47,7 +62,7 @@ export const VoucherCreation = () => {
     discountType: "percentage",
     category: "",
     host: authContext.authState.user._id,
-    condition: [''],
+    condition: [""],
   });
   const url = `${getBaseURL()}/vouchers`;
   const navigation = useNavigation();
@@ -59,6 +74,31 @@ export const VoucherCreation = () => {
   const [endUseTime, setEndUseTime] = useState<Date>(null);
   const [startSellTime, setStartSellTime] = useState<Date>(null);
   const [endSellTime, setEndSellTime] = useState<Date>(null);
+  const [formValid, setFormValid] = useState(false); // State variable to track form validity
+  const [timeLimits, setTimeLimits] = useState(0); // State for time limits
+
+  useEffect(() => {
+    const fetchTimeLimits = async () => {
+      try {
+        const response = await authAxios.get(`${getBaseURL()}/timeLimits`);
+        setTimeLimits(response.data.data[0].duration);
+      } catch (error) {
+        console.error("Error fetching time limits:", error);
+      }
+    };
+
+    fetchTimeLimits(); // Call the function to fetch timeLimits when the component mounts
+  }, []);
+  useEffect(() => {
+    // Check form validity whenever voucher state changes
+    validateForm();
+  }, [voucher]);
+
+  const validateForm = () => {
+    // Check if all required fields are filled
+    const valid = Object.values(voucher).every((value) => value !== "");
+    setFormValid(valid);
+  };
   const onChange = (event: Event, selectedDate: Date) => {
     setShowDatePicker(false);
     if (event.type === "set" || event.type === "dismissed") {
@@ -144,7 +184,22 @@ export const VoucherCreation = () => {
   };
 
   const handleInputChange = (field: string, value: any, index?: number) => {
-    if (field === "imageURL") {
+    if (field === "name") {
+      // Check if the input name exceeds 15 words
+
+      if (value.length > 15) {
+        // Notify the user about the invalid name length
+        Toast.show({
+          title: "Invalid Name Length",
+          status: "error",
+          description: "Name must be 15 words or less.",
+        });
+        setVoucher({ ...voucher, [field]: "" });
+        return;
+      } else {
+        setVoucher({ ...voucher, [field]: value });
+      }
+    } else if (field === "imageURL") {
       const imageUri = value.assets[0]?.uri || null;
       setVoucher({ ...voucher, [field]: imageUri });
     } else if (field === "discount" && voucher.discountType === "percentage") {
@@ -161,7 +216,7 @@ export const VoucherCreation = () => {
       ) {
         setVoucher({ ...voucher, [field]: value });
       }
-    } else if (field === "quantity" ) {
+    } else if (field === "quantity") {
       const numericValue = parseInt(value);
       if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 100000) {
         setVoucher({ ...voucher, [field]: value });
@@ -170,17 +225,21 @@ export const VoucherCreation = () => {
           description: "Quantity must below 100.000 vouchers.",
         });
         setVoucher({ ...voucher, [field]: "" });
-      }}
-      else if(field === "price"){
-        const numericValue = parseInt(value)
-        if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 100000000) {
-          setVoucher({ ...voucher, [field]: value });
-        } else {
-          Toast.show({
-            description: "Price must below 100.000.000 VND.",
-          });
-          setVoucher({ ...voucher, [field]: "" });
-        }
+      }
+    } else if (field === "price") {
+      const numericValue = parseInt(value);
+      if (
+        !isNaN(numericValue) &&
+        numericValue > 0 &&
+        numericValue <= 100000000
+      ) {
+        setVoucher({ ...voucher, [field]: value });
+      } else {
+        Toast.show({
+          description: "Price must below 100.000.000 VND.",
+        });
+        setVoucher({ ...voucher, [field]: "" });
+      }
     } else {
       setVoucher({ ...voucher, [field]: value });
     }
@@ -203,38 +262,35 @@ export const VoucherCreation = () => {
 
   const handleCreateVoucher = async () => {
     try {
-      if (startSellTime >= startUseTime || endSellTime >= endUseTime) {
-        Toast.show({
-          title: "Invalid Date Selection",
-          status: "error",
-          description: "Sell time must be earlier than Use time.",
-        });
-        return;
-      }
+      if (formValid) {
+        if (startSellTime > startUseTime || endSellTime > endUseTime) {
+          Toast.show({
+            title: "Invalid Date Selection",
+            status: "error",
+            description: "Sell time must be earlier than Use time.",
+          });
+          return;
+        }
 
-      const sellTimeDifference =
-        Math.abs(endSellTime.getTime() - startSellTime.getTime()) /
-        (1000 * 60 * 60 * 24);
-      // if (sellTimeDifference < timeLimits) {
-      //   Toast.show({
-      //     title: "Invalid Sell Time",
-      //     status: "error",
-      //     description: `Sell time must be higher than ${timeLimits} days.`,
-      //   });
-      //   return;
-      // }
-      if (voucher.imageURL) {
-        const uploadedImageUrl = await uploadImage(voucher.imageURL);
-        const response = await authAxios.post(url, {
-          ...voucher,
-          imageUrl: uploadedImageUrl.data,
-        });
-        console.log(response);
+        const sellTimeDifference =
+          Math.abs(endSellTime.getTime() - startSellTime.getTime()) /
+          (1000 * 60 * 60 * 24);
+        if (sellTimeDifference < timeLimits) {
+          Toast.show({
+            title: "Invalid Sell Time",
+            status: "error",
+            description: `Sell time must be higher than ${timeLimits} days.`,
+          });
+          return;
+        }
+        if (voucher.imageURL) {
+          const uploadedImageUrl = await uploadImage(voucher.imageURL);
+          const response = await authAxios.post(url, {
+            ...voucher,
+            imageUrl: uploadedImageUrl.data,
+          });
 
-        Alert.alert(
-          "Voucher Created",
-          "Successfully added",
-          [
+          Alert.alert("Voucher Created", "Successfully added", [
             {
               text: "OK",
               onPress: () => {
@@ -242,9 +298,15 @@ export const VoucherCreation = () => {
                 navigation.goBack();
               },
             },
-          ],
-
-        );
+          ]);
+        }
+      } else {
+        // Notify the user about missing fields
+        Toast.show({
+          title: "Incomplete Form",
+          status: "error",
+          description: "Please fill out all fields.",
+        });
       }
     } catch (error) {
       console.error("Error creating voucher:", error);
@@ -279,9 +341,12 @@ export const VoucherCreation = () => {
               {voucher.imageURL ? (
                 <Pressable onPress={pickImage}>
                   <Image
+                    padding={2}
+                    rounded="full"
                     alt={voucher.name}
                     source={{ uri: voucher.imageURL }}
-                    style={{ width: 90, height: 90, objectFit: "cover" }}
+                    size={20}
+                    style={{ width: 85, height: 85, objectFit: "cover" }}
                   />
                 </Pressable>
               ) : (
@@ -299,14 +364,19 @@ export const VoucherCreation = () => {
             <View className="m-2 flex-column justify-center">
               <Text className="text-xl font-bold">{voucher.name}</Text>
               <Text className="text-md font-semibold">
-                Discount: {(voucher.discount)}
+                Discount: {formatNumber(voucher.discount)}{" "}
                 {voucher.discountType === "percentage" ? "%" : "VND"}
               </Text>
               <Text className="text-md font-semibold">
-                Quantity: {voucher.quantity}
+                Quantity: {formatNumber(voucher.quantity)}
               </Text>
             </View>
             <View className="w-10 h-10 bg-gray-100 rounded-full absolute -right-5" />
+            <View className="absolute right-10 top-18">
+              <Text fontWeight={"bold"} style={{ color: "#808080" }}>
+                {formatNumber(voucher.price.toString())} VND
+              </Text>
+            </View>
           </View>
         )}
       </Pressable>
@@ -326,7 +396,7 @@ export const VoucherCreation = () => {
             style={styles.input}
             placeholder="0"
             keyboardType="numeric"
-            value={voucher.discount.toString()}
+            value={formatNumber(voucher.discount.toString())}
             onChangeText={(text) =>
               handleInputChange("discount", parseInt(text))
             }
@@ -345,24 +415,24 @@ export const VoucherCreation = () => {
         </View>
       </View>
       <View flexDirection={"row"} justifyContent={"space-between"}>
-      <View flexDirection={"row"} alignItems={"center"}>
-  <Text>Price:</Text>
-  <TextInput
-    style={[styles.input, { width: 100 }]}
-    placeholder="Price"
-    keyboardType="numeric"
-    value={(voucher.price)}
-    onChangeText={(text) => handleInputChange("price", text)}
-  />
-  <Text>VND</Text>
-</View>
+        <View flexDirection={"row"} alignItems={"center"}>
+          <Text>Price:</Text>
+          <TextInput
+            style={[styles.input, { width: 100 }]}
+            placeholder="Price"
+            keyboardType="numeric"
+            value={formatNumber(voucher.price.toString())}
+            onChangeText={(text) => handleInputChange("price", parseInt(text))}
+          />
+          <Text>VND</Text>
+        </View>
         <View flexDirection={"row"} alignItems={"center"}>
           <Text>Quantity:</Text>
           <TextInput
             style={[styles.input, { width: 70, marginRight: 40 }]}
             placeholder="Quantity"
             keyboardType="numeric"
-            value={voucher.quantity.toString()}
+            value={formatNumber(voucher.quantity.toString())}
             onChangeText={(text) =>
               handleInputChange("quantity", parseInt(text))
             }
@@ -378,11 +448,11 @@ export const VoucherCreation = () => {
       >
         <Text>Start Use Time:</Text>
         <Text style={styles.input}>
-          {startUseTime ? startUseTime.toLocaleDateString() : "Select Time"}
+          {startUseTime ? formatDate(startUseTime) : "Select Time"}
         </Text>
         <TouchableOpacity
           onPress={() => setShowDatePicker(true)}
-          style={{ position: "absolute", left: 200, top: 13 }}
+          style={{ position: "absolute", left: 190, top: 13 }}
         >
           <AntDesign name="downcircleo" size={20} color="black" />
         </TouchableOpacity>
@@ -392,6 +462,7 @@ export const VoucherCreation = () => {
             mode="date"
             display="default"
             onChange={onChange}
+            minimumDate={new Date()}
           />
         )}
       </View>
@@ -404,11 +475,11 @@ export const VoucherCreation = () => {
       >
         <Text marginRight={2}>End Use Time:</Text>
         <Text style={styles.input}>
-          {endUseTime ? endUseTime.toLocaleDateString() : "Select Time"}
+          {endUseTime ? formatDate(endUseTime) : "Select Time"}
         </Text>
         <TouchableOpacity
           onPress={() => setShowDateEndPicker(true)}
-          style={{ position: "absolute", left: 200, top: 12 }}
+          style={{ position: "absolute", left: 190, top: 12 }}
         >
           <AntDesign name="downcircleo" size={20} color="black" />
         </TouchableOpacity>
@@ -418,6 +489,7 @@ export const VoucherCreation = () => {
             mode="date"
             display="default"
             onChange={onChangeEnd}
+            minimumDate={new Date()}
           />
         )}
       </View>
@@ -455,7 +527,11 @@ export const VoucherCreation = () => {
           <Select.Item label="Travel" value="Travel" />
         </Select>
       </View>
-
+      <View justifyContent={"center"} alignItems={"center"}>
+        <Text color={"amber.500"}>
+          Sell time must higher than {timeLimits} days
+        </Text>
+      </View>
       <View
         style={{
           flexDirection: "row",
@@ -465,11 +541,11 @@ export const VoucherCreation = () => {
       >
         <Text>Start Sell Time:</Text>
         <Text style={styles.input}>
-          {startSellTime ? startSellTime.toLocaleDateString() : "Select Time"}
+          {startSellTime ? formatDate(startSellTime) : "Select Time"}
         </Text>
         <TouchableOpacity
           onPress={() => setShowStartSellDatePicker(true)}
-          style={{ position: "absolute", left: 200, top: 13 }}
+          style={{ position: "absolute", left: 190, top: 13 }}
         >
           <AntDesign name="downcircleo" size={20} color="black" />
         </TouchableOpacity>
@@ -479,6 +555,7 @@ export const VoucherCreation = () => {
             mode="date"
             display="default"
             onChange={onChangeStartSellTime}
+            minimumDate={new Date()}
           />
         )}
       </View>
@@ -489,13 +566,13 @@ export const VoucherCreation = () => {
           alignItems: "center",
         }}
       >
-        <Text>End Sell Time:</Text>
+        <Text marginRight={2}>End Sell Time:</Text>
         <Text style={styles.input}>
-          {endSellTime ? endSellTime.toLocaleDateString() : "Select Time"}
+          {endSellTime ? formatDate(endSellTime) : "Select Time"}
         </Text>
         <TouchableOpacity
           onPress={() => setShowEndSellDatePicker(true)}
-          style={{ position: "absolute", left: 200, top: 12 }}
+          style={{ position: "absolute", left: 190, top: 12 }}
         >
           <AntDesign name="downcircleo" size={20} color="black" />
         </TouchableOpacity>
@@ -505,6 +582,7 @@ export const VoucherCreation = () => {
             mode="date"
             display="default"
             onChange={onChangeEndSellTime}
+            minimumDate={new Date()}
           />
         )}
       </View>
@@ -518,13 +596,8 @@ export const VoucherCreation = () => {
           onChangeText={(text) => handleInputChange("description", text)}
         />
       </View>
+
       <View justifyContent={"center"} alignItems={"center"}>
-        {/* <Text color={'amber.500'}>Sell time must higher than {timeLimits} days</Text> */}
-      </View>
-      <View justifyContent={"center"} alignItems={"center"}>
-        <TouchableOpacity onPress={handleAddCondition} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add Condition</Text>
-        </TouchableOpacity>
         {voucher.condition.map((condition, index) => (
           <View key={index} style={styles.conditionInputContainer}>
             <TextInput
@@ -543,11 +616,19 @@ export const VoucherCreation = () => {
             )}
           </View>
         ))}
+        <TouchableOpacity onPress={handleAddCondition} style={styles.addButton}>
+          <Text style={styles.addButtonText}>Add Condition</Text>
+        </TouchableOpacity>
       </View>
 
       <View alignItems={"center"}>
         <Button
-          style={{ marginTop: 20, borderRadius: 20, width: 200 }}
+          style={{
+            marginTop: 20,
+            borderRadius: 20,
+            width: 200,
+            marginBottom: 40,
+          }}
           onPress={handleCreateVoucher}
         >
           Create Voucher
@@ -591,16 +672,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
-  removeButton:{
-  width:30,
+  removeButton: {
+    width: 30,
     backgroundColor: "green",
     padding: 8,
     borderRadius: 5,
     marginBottom: 10,
   },
-  removeButtonText:{
+  removeButtonText: {
     color: "white",
     fontSize: 16,
     textAlign: "center",
-  }
+  },
 });

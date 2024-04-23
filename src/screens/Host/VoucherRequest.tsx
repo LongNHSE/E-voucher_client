@@ -19,6 +19,7 @@ import { baseUrl } from "../../utils/appConstant";
 import axios from "axios"; // Import axios library
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { AxiosContext } from "../../context/AxiosContext";
+import { formatNumber } from "../../utils/NumberFormatter";
 const url = `/vouchers`;
 
 const getColorForStatus = (status: any) => {
@@ -69,7 +70,7 @@ const Voucher = () => {
       </Heading>
       <View
         style={{
-          flexDirection:"row",
+          flexDirection: "row",
           justifyContent: "center",
           alignItems: "flex-start",
           marginTop: 10,
@@ -167,6 +168,12 @@ const Voucher = () => {
                     </Chip>
                   </View>
                   <View className="w-10 h-10 bg-gray-100 rounded-full absolute -right-5" />
+                  <View className="absolute right-10 top-18">
+                 
+                    <Text fontWeight={'bold'} style={{ color: "#808080" }}>
+                      {formatNumber(voucher.price)} VND 
+                    </Text>
+                  </View>
                 </View>
               )}
             </Pressable>

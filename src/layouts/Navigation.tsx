@@ -160,11 +160,13 @@ const Navigation = () => {
               options={{ headerShown: false }}
             />
           ) : null}
-          {/* <Stack.Screen
-            name="UserTab2"
-            component={UserTab}
+
+          <Stack.Screen
+            name="Welcome2"
+            component={Welcome}
             options={{ headerShown: false }}
-          /> */}
+          />
+
           <Stack.Screen
             name="Payment"
             component={Payment}
@@ -174,7 +176,6 @@ const Navigation = () => {
               animation: "slide_from_right",
             }}
           />
-
           <Stack.Screen
             name="VoucherDetail"
             component={VoucherDetail}

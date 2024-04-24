@@ -74,7 +74,7 @@ const InventoryVoucherDetail = ({ navigation, route }: any) => {
       setCount(1);
       console.log("----------response", typeof data.success);
       if (data.success === true) {
-        Alert.alert("Success", "QR used successfully", [
+        Alert.alert("Success", "Voucher used successfully", [
           { text: "OK", onPress: () => navigation.navigate("Inventory") },
         ]);
       } else {

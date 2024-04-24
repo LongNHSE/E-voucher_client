@@ -97,6 +97,7 @@ const VoucherDetail = ({ navigation, route }: any) => {
 
             <View style={styles.buttonSection}>
               {item.quantity > 0 &&
+                new Date(item.startSellTime) < new Date() &&
                 new Date(item.endSellTime) > new Date() &&
                 item.status === "available" && (
                   <TouchableOpacity onPress={() => setIsOpenDialog(true)}>

@@ -342,13 +342,13 @@ const Voucher = ({ navigation }: any) => {
                     <Text
                       color={"gray.500"}
                       paddingLeft={2}
-                      style={{ fontSize: 18 }}
+                      style={{ fontSize: 16 }}
                     >
-                      {`${new Date(
-                        item.startUseTime
-                      ).toLocaleDateString()} - ${new Date(
-                        item.endUseTime
-                      ).toLocaleDateString()}`}
+                      {`${
+                        new Date(item.startUseTime).toISOString().split("T")[0]
+                      } - ${
+                        new Date(item.endUseTime).toISOString().split("T")[0]
+                      }`}
                     </Text>
                   </View>
                   <View flexDirection={"row"}>

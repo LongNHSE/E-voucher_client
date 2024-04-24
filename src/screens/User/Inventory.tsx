@@ -357,11 +357,15 @@ const Inventory = ({ navigation }: any) => {
                   <View flexDirection={"row"}>
                     <Ionicons name="calendar-outline" size={20} color="green" />
                     <Text color={"gray.500"} paddingLeft={2}>
-                      {`${new Date(
-                        item.transactions[0].voucherId.startUseTime
-                      ).toLocaleDateString()} - ${new Date(
-                        item.transactions[0].voucherId.endUseTime
-                      ).toLocaleDateString()}`}
+                      {`${
+                        new Date(item.transactions[0].voucherId.startUseTime)
+                          .toISOString()
+                          .split("T")[0]
+                      } - ${
+                        new Date(item.transactions[0].voucherId.endUseTime)
+                          .toISOString()
+                          .split("T")[0]
+                      }`}
                     </Text>
                   </View>
 

@@ -119,7 +119,10 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
           paddingBottom={10}
         >
           <Text className="text-3xl font-bold">{voucher.name}</Text>
-          <Text className="text-xl font-semibold">{voucher.discount}% OFF</Text>
+          <Text className="text-xl font-semibold">
+            {voucher.discount}{" "}
+            {voucher.discountType === "percentage" ? "%" : "K"} OFF
+          </Text>
           <View
             width={"80%"}
             display="flex"
@@ -158,6 +161,35 @@ const RequestVoucherDetail = ({ navigation, route }: any) => {
           >
             <Text className="text-lg">End use time: </Text>
             <Text className="text-lg">{FormatDate(voucher.endUseTime)}</Text>
+          </View>
+          {/* <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">Description: </Text>
+            <Text className="text-lg">
+              {voucher.description.slice(0, 20) + "..."}
+            </Text>
+          </View> */}
+          <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">Start sell time: </Text>
+            <Text className="text-lg">{FormatDate(voucher.startSellTime)}</Text>
+          </View>
+          <View
+            width={"80%"}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
+            <Text className="text-lg">End sell time: </Text>
+            <Text className="text-lg">{FormatDate(voucher.endSellTime)}</Text>
           </View>
           <View
             width={"80%"}

@@ -97,11 +97,15 @@ interface RequestVoucher {
   id: number;
   name: string;
   discount: number;
+  discountType: string;
   userName: string;
   price: number;
   imageUrl: any;
   startUseTime: string;
   endUseTime: string;
+  description: string;
+  startSellTime: string;
+  endSellTime: string;
   status: string;
 }
 
@@ -150,7 +154,7 @@ const StaffDashboard = ({ navigation }: any) => {
     <View flex={1} bg={"#004165"}>
       <StickyHeader
         header="Voucher request list"
-        filterList={["Pending", "Reject", "Available", "All"]}
+        filterList={["Pending", "Rejected", "Available", "All"]}
         scrollOffsetY={scrollOffsetY}
         setFilterItem={setFilterVoucher}
       />
@@ -204,12 +208,14 @@ const StaffDashboard = ({ navigation }: any) => {
                           {voucher.name}
                         </Text>
                         <Text className="text-md font-semibold">
-                          {voucher.discount} % off
+                          {voucher.discount}{" "}
+                          {voucher.discountType === "percentage" ? "%" : "K"}{" "}
+                          off
                         </Text>
                         <Text
                           className="text-lg capitalize"
                           color={
-                            voucher.status === "reject"
+                            voucher.status === "rejected"
                               ? "red.500"
                               : voucher.status === "available"
                               ? "green.500"

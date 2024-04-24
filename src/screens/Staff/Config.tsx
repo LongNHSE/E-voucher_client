@@ -53,6 +53,7 @@ const Config = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
   const [reportType, setReportType] = useState<ReportType[]>([]);
+  const [selecteReportType, setSelectedReportType] = useState<string>("");
   const [newReportType, setNewReportType] = useState<string>("");
 
   const fetchTimeLimit = async () => {
@@ -138,12 +139,13 @@ const Config = () => {
     try {
       const response = await authAxios.delete(`/reportTypes/${id}`);
       if (response.data.message === "Success") {
-        fetchReportType();
         setShowDeleteModal(false);
+        setSelectedReportType("");
         toast.show({
           title: "Success",
           description: "Report type deleted",
         });
+        fetchReportType();
       } else {
         toast.show({
           title: "Error",
@@ -283,7 +285,7 @@ const Config = () => {
         Set up report type
       </Heading>
       {reportType.map((report) => (
-        <View
+        <ScrollView
           key={report._id}
           marginY={3}
           marginX={2}
@@ -293,57 +295,25 @@ const Config = () => {
           borderColor={"gray.200"}
           borderWidth={1}
           borderRadius="3xl"
-          display="flex"
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
         >
-          <Text fontSize="lg">{report.name}</Text>
-          <Icon
-            as={AntDesign}
-            name="close"
-            size={7}
-            onPress={() => setShowDeleteModal(true)}
-          />
-          <Modal
-            isOpen={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
+          <View
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="space-between"
           >
-            <Modal.Content maxWidth="400px">
-              <Modal.Header>Delete report type</Modal.Header>
-              <Modal.Body>
-                <Text>Are you sure you want to delete this report type?</Text>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button.Group space={2}>
-                  <Button
-                    rounded="full"
-                    variant="outline"
-                    _text={{ color: "black" }}
-                    _pressed={{
-                      bg: "gray.300",
-                    }}
-                    onPress={() => {
-                      setShowDeleteModal(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    rounded="full"
-                    bg={"black"}
-                    onPress={() => handleDeleteReportType(report._id)}
-                    _pressed={{
-                      bg: "gray.500",
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </Button.Group>
-              </Modal.Footer>
-            </Modal.Content>
-          </Modal>
-        </View>
+            <Text fontSize="lg">{report.name}</Text>
+            <Icon
+              as={AntDesign}
+              name="close"
+              size={7}
+              onPress={() => {
+                setSelectedReportType(report._id);
+                setShowDeleteModal(true);
+              }}
+            />
+          </View>
+        </ScrollView>
       ))}
       <Button
         marginTop={10}
@@ -357,6 +327,41 @@ const Config = () => {
       >
         Add new report type
       </Button>
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+        <Modal.Content maxWidth="400px">
+          <Modal.Header>Delete report type</Modal.Header>
+          <Modal.Body>
+            <Text>Are you sure you want to delete this report type?</Text>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button.Group space={2}>
+              <Button
+                rounded="full"
+                variant="outline"
+                _text={{ color: "black" }}
+                _pressed={{
+                  bg: "gray.300",
+                }}
+                onPress={() => {
+                  setShowDeleteModal(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                rounded="full"
+                bg={"black"}
+                onPress={() => handleDeleteReportType(selecteReportType)}
+                _pressed={{
+                  bg: "gray.500",
+                }}
+              >
+                Delete
+              </Button>
+            </Button.Group>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal>
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
         <Modal.Content maxWidth="400px">
           <Modal.Header>Add new report type</Modal.Header>

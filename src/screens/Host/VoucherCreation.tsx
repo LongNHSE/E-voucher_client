@@ -428,7 +428,7 @@ export const VoucherCreation = () => {
             style={[styles.input, { width: 100 }]}
             placeholder="Price"
             keyboardType="numeric"
-            value={voucher.price.toString()}
+            value={(voucher.price.toString())}
             onChangeText={(text) => handleInputChange("price", parseInt(text))}
           />
           <Text>VND</Text>
@@ -439,7 +439,7 @@ export const VoucherCreation = () => {
             style={[styles.input, { width: 70, marginRight: 40 }]}
             placeholder="Quantity"
             keyboardType="numeric"
-            value={formatNumber(voucher.quantity.toString())}
+            value={(voucher.quantity.toString())}
             onChangeText={(text) =>
               handleInputChange("quantity", parseInt(text))
             }

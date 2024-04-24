@@ -67,36 +67,59 @@ const { width, height }: { width: any; height: any } = Dimensions.get("window");
 
 interface Report {
   _id: string;
-  voucherSell: {
+  // voucherSell: {
+  //   _id: string;
+  //   status: string;
+  //   userId: string;
+  //   voucherId: {
+  //     _id: string;
+  //     name: string;
+  //     code: string;
+  //     quantity: number;
+  //     startUseTime: string;
+  //     endUseTime: string;
+  //     discount: number;
+  //     discountType: string;
+  //     price: number;
+  //     status: string;
+  //     startSellTime: string;
+  //     endSellTime: string;
+  //     description: string;
+  //     imageUrl: string;
+  //     condition: string[];
+  //     host: string;
+  //     staff: null | string;
+  //     rejectReason: null | string;
+  //     category: string;
+  //     updatedAt: string;
+  //     id: string;
+  //   };
+  //   createdAt: string;
+  //   updatedAt: string;
+  //   __v: number;
+  //   id: string;
+  // };
+  voucher: {
     _id: string;
+    name: string;
+    code: string;
+    quantity: number;
+    startUseTime: string;
+    endUseTime: string;
+    discount: number;
+    discountType: string;
+    price: number;
     status: string;
-    userId: string;
-    voucherId: {
-      _id: string;
-      name: string;
-      code: string;
-      quantity: number;
-      startUseTime: string;
-      endUseTime: string;
-      discount: number;
-      discountType: string;
-      price: number;
-      status: string;
-      startSellTime: string;
-      endSellTime: string;
-      description: string;
-      imageUrl: string;
-      condition: string[];
-      host: string;
-      staff: null | string;
-      rejectReason: null | string;
-      category: string;
-      updatedAt: string;
-      id: string;
-    };
-    createdAt: string;
+    startSellTime: string;
+    endSellTime: string;
+    description: string;
+    imageUrl: string;
+    condition: string[];
+    host: string;
+    staff: null | string;
+    rejectReason: null | string;
+    category: string;
     updatedAt: string;
-    __v: number;
     id: string;
   };
   reportType: {
@@ -231,7 +254,7 @@ const ReportList = ({ navigation }: any) => {
                           marginRight={2}
                         />
                         <Text className="text-lg font-semibold w-32">
-                          {report.voucherSell.voucherId.name}
+                          {report.voucher.name}
                         </Text>
                       </View>
                       <View className="w-32 flex-column justify-center">

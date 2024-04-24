@@ -31,9 +31,13 @@ const Payment = ({ route, navigation }: any) => {
   const [isOpenSuccessDialog, setIsOpenSuccessDialog] =
     useState<boolean>(false);
   const voucherId = route?.params?.voucherId;
+  const goBackClearEventListener = useCallback(() => {
+    Linking.removeAllListeners("url");
+    navigation.goBack();
+  }, [""]);
   if (!voucherId) {
     // Alert.alert("Error", "Please select a voucher to buy");
-    navigation.goBack();
+    goBackClearEventListener();
   }
   // const transactionId = route.params.transactionId?.replace(/-/g, "");
   const quantity = route?.params?.amount;
@@ -265,17 +269,24 @@ const Payment = ({ route, navigation }: any) => {
               <Text style={styles.paymentMethodText}>
                 You will be redirect to VNPAY gateway to pay your order
               </Text>
-              <Button
-                title="Continue to pay"
-                onPress={() => WebBrowser.openBrowserAsync(link)}
-              />
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <Button
+                  title="Cancel payment"
+                  color={"grey"}
+                  onPress={() => goBackClearEventListener()}
+                />
+                <Button
+                  title="Continue to pay"
+                  onPress={() => WebBrowser.openBrowserAsync(link)}
+                />
+              </View>
             </View>
           </View>
         </View>
 
         {isOpenDialog && (
           <NotiDialog
-            navigateFunc={() => navigation.goBack()}
+            navigateFunc={() => goBackClearEventListener()}
             navigation={navigation}
             isOpenDialog={isOpenDialog}
             setIsOpenDialog={setIsOpenDialog}

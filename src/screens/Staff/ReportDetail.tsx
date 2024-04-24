@@ -56,12 +56,12 @@ const ReportDetail = ({ route, navigation }: any) => {
       <View className="m-4">
         <View className="mb-2">
           <Heading className="text-center text-2xl font-extrabold">
-            {report.voucherSell.voucherId.name}
+            {report.voucher.name}
           </Heading>
         </View>
         <Image
           source={{
-            uri: report?.voucherSell?.voucherId?.imageUrl,
+            uri: report.voucher?.imageUrl,
           }}
           alt="voucher"
           size={40}
@@ -87,16 +87,15 @@ const ReportDetail = ({ route, navigation }: any) => {
             <Text fontSize="xl" className="font-semibold">
               Voucher Code:
             </Text>
-            <Text fontSize="lg">{report.voucherSell.voucherId.code}</Text>
+            <Text fontSize="lg">{report.voucher.code}</Text>
           </View>
           <View className="mb-2 flex-row justify-between">
             <Text fontSize="xl" className="font-semibold">
-              Percentage Discount:
+              Discount:
             </Text>
             <Text fontSize="lg">
-              {report.voucherSell.voucherId.discount}{" "}
-              {report.voucherSell.voucherId.discountType === "percentage" &&
-                "%"}
+              {report.voucher.discount}{" "}
+              {report.voucher.discountType === "percentage" ? "%" : "K"}
             </Text>
           </View>
           <View className="mb-2 flex-row justify-between">
@@ -104,9 +103,9 @@ const ReportDetail = ({ route, navigation }: any) => {
               Price:
             </Text>
             <Text fontSize="lg">
-              {report.voucherSell.voucherId.price
-                .toString()
-                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}{" "}
+              {report.voucher.price
+                ?.toFixed(2)
+                .replace(/\d(?=(\d{3})+\.)/g, "$&,")}{" "}
               VND
             </Text>
           </View>
@@ -114,7 +113,7 @@ const ReportDetail = ({ route, navigation }: any) => {
             <Text fontSize="xl" className="font-semibold">
               Category:
             </Text>
-            <Text fontSize="lg">{report.voucherSell.voucherId.category}</Text>
+            <Text fontSize="lg">{report.voucher.category}</Text>
           </View>
           <View className="mb-2 flex-row justify-between">
             <Text fontSize="xl" className="font-semibold">

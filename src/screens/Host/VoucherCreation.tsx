@@ -229,11 +229,13 @@ export const VoucherCreation = () => {
         setVoucher({ ...voucher, [field]: "" });
       }
     } else if (field === "price") {
-      const numericValue = parseInt(value);
+      const numericValue = value;
+      console.log("numericValue", typeof numericValue);
+
       if (
         !isNaN(numericValue) &&
         numericValue > 0 &&
-        numericValue <= 100000000
+        numericValue <= 1000000000
       ) {
         setVoucher({ ...voucher, [field]: value });
       } else {
@@ -403,7 +405,7 @@ export const VoucherCreation = () => {
             keyboardType="numeric"
             value={formatNumber(voucher.discount.toString())}
             onChangeText={(text) =>
-              handleInputChange("discount", parseInt(text))
+              handleInputChange("discount", parseFloat(text))
             }
           />
           <Select
